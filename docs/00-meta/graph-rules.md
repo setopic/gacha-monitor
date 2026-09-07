@@ -7,6 +7,7 @@ tags: [meta, rules]
 related:
   - META-02
   - META-03
+  - META-04
 ---
 
 # グラフの規約
@@ -572,11 +573,13 @@ UC-01 は挙がるが、**UC-01 にしか依存していないノードは挙が
 
 - [META-02 ノード種別と層](./node-types.md)
 - [META-03 本文のレビュー（AI）](./ai-review.md)
+- [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 
 **このノードを参照しているノード**
 
 - (decides) [ADR-0001 設計文書をグラフとして管理する](../50-adr/adr-0001-graph-driven-docs.md)
 - (related) [META-02 ノード種別と層](./node-types.md)
 - (related) [META-03 本文のレビュー（AI）](./ai-review.md)
+- (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 
 <!-- graph:auto:end -->

@@ -16,6 +16,7 @@ tags: [index]
 - [META-01 グラフの規約](./00-meta/graph-rules.md) — ルール ID と違反時の直し方
 - [META-02 ノード種別と層](./00-meta/node-types.md) — どの文書をどこに置くか
 - [META-03 本文のレビュー（AI）](./00-meta/ai-review.md) — check とは別物の助言
+- [META-04 文書と実装を同じリポジトリに置く](./00-meta/implementation-layout.md) — 統合型の置き方と要件の流れ
 
 ## 層
 

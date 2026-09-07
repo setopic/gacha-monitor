@@ -1,4 +1,20 @@
-# graph-doc-template
+# graph-project-template
+
+**設計文書と実装を同じリポジトリで扱う**プロジェクトテンプレート。
+
+[graph-doc-template](https://github.com/setopic/graph-doc-template) の上流に接続しており、
+検証ツールはそちらから流れてくる。**こちらが足しているのは 4 つだけ。**
+
+| 足しているもの | 何のため |
+| --- | --- |
+| `implemented_by` の使い方（[META-04](docs/00-meta/implementation-layout.md)） | 文書が規定している実装を指す |
+| `.github/workflows/app-check.yml` | 実装の検査と、PR が実在するノードを指すかの確認 |
+| `.github/ISSUE_TEMPLATE/` と PR テンプレート | 要件を issue から始め、決まったら文書へ移す |
+| `.gitignore` の実装向けの行 | **秘密（`.env`）を版管理に入れない** |
+
+**文書だけのプロジェクトには `graph-doc-template` を使う。**
+
+---
 
 **設計文書をグラフとして管理し、その整合性を CI で検証する**プロジェクトテンプレート。
 
@@ -101,6 +117,7 @@ graph LR
     META-01["META-01<br/>グラフの規約"]
     META-02["META-02<br/>ノード種別と層"]
     META-03["META-03<br/>本文のレビュー（AI）"]
+    META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
   end
   subgraph architecture["アーキテクチャ"]
     ARCH-01["ARCH-01<br/>システム全体構成"]
@@ -126,8 +143,10 @@ graph LR
   DOM-01 -->|depends_on| ARCH-01
   META-01 -.->|related| META-02
   META-01 -.->|related| META-03
+  META-01 -.->|related| META-04
   META-02 -.->|related| META-01
   META-03 -.->|related| META-01
+  META-04 -.->|related| META-01
   UC-01 -->|depends_on| DOM-01
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;

@@ -16,3 +16,10 @@
 README.md merge=ours
 index.md  merge=ours
 docs/50-adr/adr-0001-graph-driven-docs.md merge=ours
+
+# 実装側の検査はプロジェクトごとに違う（言語も走らせ方も）。
+# graph-check.yml と分けてあり、こちらは常にプロジェクト側を残す。
+.github/workflows/app-check.yml merge=ours
+
+# .gitignore は merge=ours にしない。**秘密の除外を後から強くしたとき、
+# 派生プロジェクトに届かなくなる。** 追記どうしは行が離れるので競合しにくい。
