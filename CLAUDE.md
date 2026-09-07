@@ -180,9 +180,12 @@ python -m tools.graph render --format mermaid --focus DOM-01 --depth 1
 
 ```yaml
 implemented_by:
-  - tournament/teams.py
+  - app/tournament/teams.py
 ```
 
+- **リポジトリの根からのパスで書く。** 先頭は実装を置いたディレクトリの名前である。
+  **`app/` でも `src/` でもよい**（[META-04](docs/00-meta/implementation-layout.md)）。
+  **テンプレートは名前を決めていない。**上の `app/` は例にすぎない
 - **指し先が消えたら `G016` がエラーになる。** ファイル名を変えたら一緒に直す
 - **片方だけ変えると `G017` が出る。** どちらが遅れているかは機械には分からない
 - **全ノードに書かない。** ドメインと契約には対応がある。

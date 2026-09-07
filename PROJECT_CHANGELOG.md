@@ -4,7 +4,28 @@
 [TEMPLATE_CHANGELOG.md](TEMPLATE_CHANGELOG.md) にある。上流の
 `graph-doc-template` から `git merge template/main` で流れてくる。
 
-現在の版: **0.1.0**
+現在の版: **0.1.1**
+
+---
+
+## 0.1.1 — 2026-09-07
+
+### 直したもの
+
+- **`CLAUDE.md` の `implemented_by` の例が根からのパスだと読めなかった。**
+  `- tournament/teams.py` とだけ書いてあり、**どこからのパスかを言っていなかった。**
+  実装を `app/` の下に置いた派生（tournament / medieval-idle のどちらもそうしている）で
+  そのまま真似すると、指し先が無いので **`G016` がエラーになる。**
+  例を `app/tournament/teams.py` に変え、**根からのパスであること**と、
+  **先頭のディレクトリ名はテンプレートが決めていないこと**（[META-04](docs/00-meta/implementation-layout.md)）を書き足した。
+  **`app/` を規約にしたわけではない。**0.1.0 の「足さなかったもの」のとおり、
+  実装のディレクトリ名は自由なままである
+
+### 変えていないもの
+
+- **`docs/00-meta/graph-rules.md` の同じ例。**あちらは上流（`graph-doc-template`）と
+  共通のファイルで、**文書だけの型には `app/` が無い。**
+  こちらで直すと次の `git merge template/main` で競合する
 
 ---
 
