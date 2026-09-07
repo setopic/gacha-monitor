@@ -86,11 +86,17 @@ frontier が空になるまで。**空とは「決定木のすべての枝を通
 **却下した案を必ず書く。** ADR の価値の半分はそこにある。
 「なぜそうしなかったか」が残っていないと、同じ議論を繰り返す。
 
-最後に検証する。
+最後に検証する。**`check` だけでは足りない。**
+ノードを増やすと目次と README の図が古くなり、**CI はそこも見ている。**
 
 ```bash
+python -m tools.graph sync
+python -m tools.graph render --format mermaid --into README.md
 python -m tools.graph check
 ```
+
+**実際に 1 度落とした。** ADR を 1 件足して `check` だけ回し、
+図を作り直さずに push して graph-check が失敗した。
 
 ## CONTEXT.md を作らない
 
@@ -121,4 +127,8 @@ python -m tools.graph check
 - [ ] 黙って仮定したものが 1 つも無い
 - [ ] 利用者が「これで合っている」と言った
 - [ ] 決まったことが ADR・ユースケース・ドメインノードに移っている
+- [ ] `sync` と `render --into README.md` を回した（ノードを増やしたなら必須）
 - [ ] `check` が通る
+
+**他人の作業中の変更を巻き込んでいないこと。** 同じリポジトリを別のセッションが
+触っていることがある。`git add -A` ではなく**自分が作ったファイルを名指しで**足す。
