@@ -168,3 +168,17 @@ python -m tools.graph render --format mermaid --focus DOM-01 --depth 1
   あれは CI から呼ばず、終了コードも常に 0（`docs/00-meta/ai-review.md`）
 - **ルールを足したらテストも足す。** `tests/` に `unittest` で置く。
   `python -m unittest discover -s tests -t .` が CI の 1 本目
+
+## 要件が曖昧なとき
+
+**書き始める前に詰める。** `.claude/skills/grill/` にスキルがある。
+
+```
+/grill
+```
+
+決定木を作り、**前提が片付いた問いだけ**を推奨案つきでまとめて聞き、
+決まったことを ADR・ユースケースの受け入れ条件・ドメインノードの用語表へ移す。
+
+**用語集（`CONTEXT.md`）は作らない。** 用語はドメインノードの「用語」表にあり、
+`G013` が機械で照合している。別に集めると検査の効かない写しが増える。
