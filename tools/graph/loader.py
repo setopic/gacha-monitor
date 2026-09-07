@@ -48,7 +48,7 @@ def strip_auto_block(text: str) -> str:
 def load(root: Path) -> Graph:
     """リポジトリルートを受け取り、グラフを返す。"""
     docs_root = root / schema.DOCS_DIR
-    graph = Graph()
+    graph = Graph(root=root)
 
     if not docs_root.is_dir():
         graph.load_issues.append(

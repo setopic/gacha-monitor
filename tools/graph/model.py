@@ -69,6 +69,9 @@ class Issue:
 class Graph:
     nodes: dict[str, Node] = field(default_factory=dict)
     load_issues: list[Issue] = field(default_factory=list)
+    # リポジトリルート。implemented_by の指し先を確かめるのに要る（G016）。
+    # 部分グラフでも引き継ぐ。読めなかった場合は None。
+    root: Path | None = None
 
     def add(self, node: Node) -> None:
         self.nodes[node.id] = node
@@ -123,7 +126,7 @@ class Graph:
             selected |= nxt
             frontier = nxt
 
-        sub = Graph()
+        sub = Graph(root=self.root)
         for node_id in selected:
             node = self.nodes[node_id]
             kept = [

@@ -11,4 +11,4 @@
 
 from __future__ import annotations
 
-TEMPLATE_VERSION = "1.6.0"
+TEMPLATE_VERSION = "1.7.0"

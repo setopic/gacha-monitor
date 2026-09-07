@@ -10,6 +10,7 @@ import re
 from datetime import date
 
 from . import schema
+from .frontmatter import as_list
 from .loader import strip_non_prose
 from .model import ERROR, WARN, Graph, Issue, Node
 
@@ -31,6 +32,8 @@ RULE_INDEX: dict[str, str] = {
     "G013": "依存先が禁じた言い換えを使っている",
     "G014": "テンプレートの必須の節が無い",
     "G015": "依存先が変わったのに追従していない",
+    "G016": "implemented_by の指し先が存在しない",
+    "G017": "文書と実装のどちらか片方だけが変わった",
 }
 
 
@@ -40,10 +43,12 @@ def check_all(
     history: dict[str, date] | None = None,
     today: date | None = None,
     changed: set[str] | None = None,
+    changed_files: set[str] | None = None,
 ) -> list[Issue]:
     """`history` は `{相対パス: 最終コミット日}`。無ければ G011 を飛ばす。
 
     `changed` は「この変更で動いたノードの id」。無ければ G015 を飛ばす。
+    `changed_files` は同じ窓で動いたファイルすべて。無ければ G017 を飛ばす。
     """
     issues: list[Issue] = list(graph.load_issues)
     for rule in (
@@ -58,6 +63,7 @@ def check_all(
         rule_g012_hub_nodes,
         rule_g013_term_consistency,
         rule_g014_required_sections,
+        rule_g016_implementation_exists,
     ):
         issues.extend(rule(graph))
 
@@ -66,6 +72,11 @@ def check_all(
 
     if changed:
         issues.extend(rule_g015_unfollowed_changes(graph, changed))
+
+    if changed_files:
+        issues.extend(
+            rule_g017_implementation_drift(graph, changed or set(), changed_files)
+        )
 
     return sorted(issues, key=lambda i: (i.severity != ERROR, i.code, i.location))
 
@@ -647,4 +658,94 @@ def rule_g015_unfollowed_changes(graph: Graph, changed: set[str]) -> list[Issue]
                 node.rel,
             )
         )
+    return issues
+
+
+# --------------------------------------------------------------------------
+# G016 / G017: 実装との対応（implemented_by）
+# --------------------------------------------------------------------------
+def implemented_by(node: Node) -> list[str]:
+    """そのノードが規定している実装のパス。宣言していなければ空。"""
+    return as_list(node.meta.get(schema.IMPLEMENTED_BY_KEY))
+
+
+def rule_g016_implementation_exists(graph: Graph) -> list[Issue]:
+    """`implemented_by` の指し先がリポジトリに存在するかを見る。
+
+    **本文の `[[ID]]` に対する G004 と同じ役割。** 指し先が消えても文書は
+    そのまま読めてしまうので、機械が確かめないと静かに腐る。
+
+    リポジトリルートが分からない場合（部分グラフを手で組んだときなど）は
+    **何も言わない。** 確かめられないものを落とさない。
+    """
+    if graph.root is None:
+        return []
+
+    issues: list[Issue] = []
+    for node in graph.sorted_nodes():
+        for target in implemented_by(node):
+            if (graph.root / target).exists():
+                continue
+            issues.append(
+                Issue(
+                    "G016",
+                    ERROR,
+                    f"implemented_by の指し先がありません: {target!r}。"
+                    "同じリポジトリの中のパスだけを指せます",
+                    node.rel,
+                )
+            )
+    return issues
+
+
+def rule_g017_implementation_drift(
+    graph: Graph, changed: set[str], changed_files: set[str]
+) -> list[Issue]:
+    """文書と実装のどちらか片方だけが変わったことを知らせる。
+
+    **G015 を文書と実装の境界にまたがらせたもの。** 見ているのは同じく
+    変更の窓の中だけで、両方が同じ窓に入っていれば何も言わない。
+
+    **どちらの向きも出す。** 実装だけ動いたなら文書が遅れており、
+    文書だけ動いたなら実装が遅れている。どちらが正しいかは機械には分からない。
+
+    **追従が要るとは限らない。** 実装の内部を整理しただけなら文書は動かない。
+    「見たか」を確かめるところまでが仕事である。
+    """
+    issues: list[Issue] = []
+    for node in graph.sorted_nodes():
+        targets = implemented_by(node)
+        if not targets:
+            continue
+
+        moved = sorted(
+            target
+            for target in targets
+            if any(f == target or f.startswith(target.rstrip("/") + "/")
+                   for f in changed_files)
+        )
+        node_moved = node.id in changed
+
+        if moved and not node_moved:
+            issues.append(
+                Issue(
+                    "G017",
+                    WARN,
+                    "実装が変わりました: "
+                    + " / ".join(moved)
+                    + "。文書の追従が要るか確かめてください",
+                    node.rel,
+                )
+            )
+        elif node_moved and not moved:
+            issues.append(
+                Issue(
+                    "G017",
+                    WARN,
+                    "この文書が変わりましたが、実装は動いていません: "
+                    + " / ".join(targets)
+                    + "。実装の追従が要るか確かめてください",
+                    node.rel,
+                )
+            )
     return issues
