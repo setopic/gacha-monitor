@@ -227,6 +227,9 @@ def convert(source: Path, root: Path, out_root: Path, index: dict[str, str]) -> 
             max_edges=MAX_EDGES,
         ),
         encoding="utf-8",
+        # CI は Linux なので既定でも LF になるが、手元で試したときに
+        # CRLF の HTML が出ると差分で気付けない。tools/graph の書き出しと揃える。
+        newline="\n",
     )
 
 
