@@ -20,13 +20,13 @@ related: []
 POST /bookings/{bookingId}/confirm
 ```
 
-対応するユースケース: [UC-01](../30-usecases/uc-01-confirm-booking.md)
+対応するユースケース: [UC-01](../30-usecases/uc-01-sample-confirm-booking.md)
 
 ## リクエスト
 
 | フィールド | 型 | 必須 | 説明 | 由来（ドメイン） |
 | --- | --- | --- | --- | --- |
-| bookingId | string (path) | ○ | 対象の予約 | [DOM-01](../20-domain/dom-01-booking.md) id |
+| bookingId | string (path) | ○ | 対象の予約 | [DOM-01](../20-domain/dom-01-sample-booking.md) id |
 
 body なし。
 
@@ -74,7 +74,7 @@ body なし。
 
 **depends_on** — この文書が成立するために前提となるノード
 
-- [DOM-01 予約](../20-domain/dom-01-booking.md)
-- [UC-01 予約を確定する](../30-usecases/uc-01-confirm-booking.md)
+- [DOM-01 予約](../20-domain/dom-01-sample-booking.md)
+- [UC-01 予約を確定する](../30-usecases/uc-01-sample-confirm-booking.md)
 
 <!-- graph:auto:end -->

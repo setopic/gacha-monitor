@@ -61,7 +61,7 @@ python -m tools.graph render --format mermaid --out docs/graph.mmd
 docs/
   index.md              グラフのルート。全ノードはここから辿れること
   00-meta/              規約とテンプレート（グラフの語彙そのもの）
-    graph-rules.md      ルール ID G001〜G013 と直し方
+    graph-rules.md      ルール ID G001〜G018 と直し方
     node-types.md       ノード種別・接頭辞・置き場所・層
     templates/          new コマンドが使う雛形（グラフには含めない）
   10-architecture/      層 10: 構成要素と責務、境界
@@ -165,12 +165,13 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | `python -m tools.graph check --format json` | CI やエディタ連携向け |
 | `python -m tools.graph check --since origin/main` | `G015`（追従漏れ）で見る変更の窓を広げる |
 | `python -m tools.graph check --no-history` | git を見ない（`G011` / `G015` / `G017` を飛ばす） |
-
-エージェント向けのスキルが `.claude/skills/` にある（`/grill` — 要件を書き始める前に詰める）。
 | `python -m tools.graph sync` | 各文書末尾の「関連ドキュメント」を再生成 |
 | `python -m tools.graph sync --check` | 再生成が必要なら終了コード 1（CI 用） |
+| `python -m tools.graph linkify` | 本文の `[[ID]]` を相対リンクに直す |
+| `python -m tools.graph linkify --check` | 直す必要があれば終了コード 1（CI 用） |
 | `python -m tools.graph render --format mermaid\|json\|dot` | 図・データの書き出し |
 | `python -m tools.graph render --focus <ID>` | そのノードの近傍だけを描く（`--depth N`） |
+| `python -m tools.graph render --aggregate` | 型ごとに 1 つの箱へまとめる（`G018` の回避） |
 | `python -m tools.graph render --into README.md` | README の図を再生成 |
 | `python -m tools.graph render --into README.md --check` | 図が古ければ終了コード 1（CI 用） |
 | `python -m tools.graph new --type usecase --id UC-02 --title "..."` | 雛形からノードを起こす |
@@ -182,7 +183,10 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | `python -m tools.graph review` | **本文の質を AI に見てもらう（任意・通信あり）** |
 | `python -m unittest discover -s tests -t .` | ツール自体のテスト |
 
-`make check` `make sync` `make graph` も同じことをする（Makefile 参照）。
+`make check` `make sync` `make linkify` `make readme` も同じことをする（Makefile 参照）。
+**まとめて回すなら `make all`**（`check` + `sync` + `linkify` + `readme`）。
+
+エージェント向けのスキルが `.claude/skills/` にある（`/grill` — 要件を書き始める前に詰める）。
 
 ## 新しいノードを作る
 
@@ -238,10 +242,20 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
 | `G012` | `depends_on` で参照されすぎ（警告。分割の合図） |
 | `G013` | 依存先が「使ってはいけない言い換え」に挙げた語の使用（警告） |
 | `G014` | 種別ごとに決めた必須の節が無い（警告） |
+| `G015` | 依存先を変えたのに、依存元を見ていない（警告。git の変更の窓を見る） |
+| `G016` | `implemented_by` の指し先が存在しない |
+| `G017` | 文書と実装のどちらか片方だけが変わった（警告。同じく変更の窓） |
+| `G018` | README の図が GitHub の描画上限（エッジ 500 本）に達した／近づいた |
 
-`G001`〜`G008` は構造の誤りで、直さなければ壊れている。`G009`〜`G014` は
-**健全性の警告**で、承知のうえで放置してもよい（`--strict` で失敗扱いにできる）。
+`G001`〜`G008` と `G016` は構造の誤りで、直さなければ壊れている。
+`G009`〜`G015` と `G017` は**健全性の警告**で、承知のうえで放置してもよい
+（`--strict` で失敗扱いにできる）。
+`G018` は**近づいていれば警告、達していればエラー**（その時点で図は描画されていない）。
 しきい値と必須の節は `tools/graph/schema.py` にある。
+
+**`G015` と `G016` / `G017` は使う場面が違う。** `G015` は文書どうしの追従漏れ、
+`G016` / `G017` は文書と実装の対応（`implemented_by` を書いたときだけ効く）。
+**どちらも「見たか」を確かめるもので、「直せ」ではない。**
 
 **CI では main への push だけ `--strict` を使う。** 開発中のブランチと PR では
 警告を出すだけにして、書いている途中で止めない。
@@ -253,9 +267,17 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
 コードブロック・コードスパン・HTML コメントの中は検査しない。規約文書や雛形に
 記法の例を書いても落ちない。逆に、コメントアウトした参照はグラフに現れない。
 
-**本文の `[[ID]]` はリンク切れしか見ない。** 層（`G007`）と循環（`G006`）の検査を受けるのは
+**本文のリンクはリンク切れしか見ない。** 層（`G007`）と循環（`G006`）の検査を受けるのは
 フロントマターの型つきエッジだけ。前提は本文ではなく `depends_on` に書く
 （詳細は [graph-rules.md](docs/00-meta/graph-rules.md) の「本文リンクは層と循環の検査を受けない」）。
+
+**本文に残す形は相対リンク。** `[[ID]]` は書くときの略記で、そのままだと
+**GitHub 上ではただの文字として出る**（読み手はクリックできない）。
+両方とも同じ参照として扱われるので、`linkify` が相対リンクに整形する。
+
+```bash
+python -m tools.graph linkify
+```
 
 ## 自分のプロジェクトに合わせる
 

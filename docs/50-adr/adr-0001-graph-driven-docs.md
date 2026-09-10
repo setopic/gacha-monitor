@@ -51,7 +51,7 @@ related: []
 ## 影響
 
 - [META-01](../00-meta/graph-rules.md): 規約とルール ID を定義し、CI の検証内容と一対一で対応させる
-- [ARCH-01](../10-architecture/arch-01-system-overview.md): アーキテクチャ変更はこの ADR の仕組みに乗せて記録する
+- [ARCH-01](../10-architecture/arch-01-sample-system-overview.md): アーキテクチャ変更はこの ADR の仕組みに乗せて記録する
 - 新しい文書は `python -m tools.graph new` で起こす。手で作ると採番と配置を間違える
 
 ## 見直しの条件
@@ -67,7 +67,7 @@ related: []
 
 **decides** — この決定が影響を与えるノード（ADR 用）
 
-- [ARCH-01 システム全体構成](../10-architecture/arch-01-system-overview.md)
+- [ARCH-01 システム全体構成](../10-architecture/arch-01-sample-system-overview.md)
 - [META-01 グラフの規約](../00-meta/graph-rules.md)
 
 <!-- graph:auto:end -->

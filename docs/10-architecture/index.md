@@ -16,8 +16,8 @@ tags: [index]
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [ARCH-01 システム全体構成](./arch-01-system-overview.md)
-- [ARCH-02 ワーカーの実行モデル](./arch-02-worker-execution-model.md)
+- [ARCH-01 システム全体構成](./arch-01-sample-system-overview.md)
+- [ARCH-02 ワーカーの実行モデル](./arch-02-sample-worker-execution-model.md)
 <!-- graph:children:end -->
 
 ## 追加するとき
