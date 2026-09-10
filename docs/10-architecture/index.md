@@ -16,7 +16,7 @@ tags: [index]
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [ARCH-01 システム全体](./arch-01-system-overview.md)
+- [ARCH-01 システム全体](./arch-01-monitor-overview.md)
 - [ARCH-02 日次バッチの実行モデル](./arch-02-daily-batch.md)
 <!-- graph:children:end -->
 

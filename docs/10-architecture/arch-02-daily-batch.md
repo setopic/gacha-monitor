@@ -58,7 +58,7 @@ X API の課金には**同じ資源を 24 時間 UTC 以内に何度読んでも
 
 **depends_on** — この文書が成立するために前提となるノード
 
-- [ARCH-01 システム全体](./arch-01-system-overview.md)
+- [ARCH-01 システム全体](./arch-01-monitor-overview.md)
 
 **このノードを参照しているノード**
 

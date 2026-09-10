@@ -118,7 +118,7 @@ graph LR
 
 | 層 | 入口 |
 | --- | --- |
-| アーキテクチャ | [ARCH-01 システム全体](docs/10-architecture/arch-01-system-overview.md) |
+| アーキテクチャ | [ARCH-01 システム全体](./docs/10-architecture/arch-01-monitor-overview.md) |
 | ドメイン | [DOM-01 監視対象と投稿](docs/20-domain/dom-01-post.md) |
 | ユースケース | [UC-01 注目商品を検知して通知する](docs/30-usecases/uc-01-detect-and-notify.md) |
 | 契約 | [CON-01 X API からの投稿取得](docs/40-contracts/con-01-x-api-fetch.md) |
