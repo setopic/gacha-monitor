@@ -3,14 +3,19 @@
 **設計文書と実装を同じリポジトリで扱う**プロジェクトテンプレート。
 
 [graph-doc-template](https://github.com/setopic/graph-doc-template) の上流に接続しており、
-検証ツールはそちらから流れてくる。**こちらが足しているのは 4 つだけ。**
+検証ツールはそちらから流れてくる。**こちらが足しているのは 5 つだけ。**
 
 | 足しているもの | 何のため |
 | --- | --- |
 | `implemented_by` の使い方（[META-04](docs/00-meta/implementation-layout.md)） | 文書が規定している実装を指す |
+| **開発の流れ（[META-05](docs/00-meta/dev-flow.md)）** | **順番・関門・`/grill` を回す 4 つの場面。`merge=ours` なのでプロジェクトごとに書き換えてよい** |
 | `.github/workflows/app-check.yml` | 実装の検査と、PR が実在するノードを指すかの確認 |
 | `.github/ISSUE_TEMPLATE/` と PR テンプレート | 要件を issue から始め、決まったら文書へ移す |
 | `.gitignore` の実装向けの行 | **秘密（`.env`）を版管理に入れない** |
+
+[CONTRIBUTING.md](CONTRIBUTING.md) は **META-05 を指すだけの入口**で、中身は持たない。
+GitHub が issue / PR の作成画面に自動でリンクするために置いてある。
+**2 か所に同じことを書くと、どちらかが必ず古くなる。**
 
 **文書だけのプロジェクトには `graph-doc-template` を使う。**
 
@@ -118,6 +123,7 @@ graph LR
     META-02["META-02<br/>ノード種別と層"]
     META-03["META-03<br/>本文のレビュー（AI）"]
     META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
+    META-05["META-05<br/>開発の流れ"]
   end
   subgraph architecture["アーキテクチャ"]
     ARCH-01["ARCH-01<br/>システム全体構成"]
@@ -144,9 +150,13 @@ graph LR
   META-01 -.->|related| META-02
   META-01 -.->|related| META-03
   META-01 -.->|related| META-04
+  META-01 -.->|related| META-05
   META-02 -.->|related| META-01
   META-03 -.->|related| META-01
   META-04 -.->|related| META-01
+  META-04 -.->|related| META-05
+  META-05 -.->|related| META-01
+  META-05 -.->|related| META-04
   UC-01 -->|depends_on| DOM-01
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;

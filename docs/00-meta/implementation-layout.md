@@ -6,6 +6,7 @@ status: stable
 tags: [meta, layout]
 related:
   - META-01
+  - META-05
 ---
 
 # 文書と実装を同じリポジトリに置く
@@ -78,6 +79,9 @@ tools/graph/     検証ツール                テンプレートが配る
 
 issue が持つのは**まだ答えが無い問い**だけである。答えが出たら文書へ移す。
 
+**ここが決めているのは「どこに書くか」だけである。**
+いつ何をするか（順番・関門・`grill` を回す場面）は [META-05](./dev-flow.md) にある。
+
 ## 既にある実装を合流させる
 
 **文書リポジトリが実装を取り込む向きにする。**
@@ -104,9 +108,11 @@ git merge impl/main --allow-unrelated-histories
 **related** — 依存はしないが併読すべきノード
 
 - [META-01 グラフの規約](./graph-rules.md)
+- [META-05 開発の流れ](./dev-flow.md)
 
 **このノードを参照しているノード**
 
 - (related) [META-01 グラフの規約](./graph-rules.md)
+- (related) [META-05 開発の流れ](./dev-flow.md)
 
 <!-- graph:auto:end -->
