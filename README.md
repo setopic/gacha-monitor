@@ -194,12 +194,13 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | `python -m tools.graph check --format json` | CI やエディタ連携向け |
 | `python -m tools.graph check --since origin/main` | `G015`（追従漏れ）で見る変更の窓を広げる |
 | `python -m tools.graph check --no-history` | git を見ない（`G011` / `G015` / `G017` を飛ばす） |
-
-エージェント向けのスキルが `.claude/skills/` にある（`/grill` — 要件を書き始める前に詰める）。
 | `python -m tools.graph sync` | 各文書末尾の「関連ドキュメント」を再生成 |
 | `python -m tools.graph sync --check` | 再生成が必要なら終了コード 1（CI 用） |
+| `python -m tools.graph linkify` | 本文の `[[ID]]` を相対リンクに直す |
+| `python -m tools.graph linkify --check` | 直す必要があれば終了コード 1（CI 用） |
 | `python -m tools.graph render --format mermaid\|json\|dot` | 図・データの書き出し |
 | `python -m tools.graph render --focus <ID>` | そのノードの近傍だけを描く（`--depth N`） |
+| `python -m tools.graph render --aggregate` | 型ごとに 1 つの箱へまとめる（`G018` の回避） |
 | `python -m tools.graph render --into README.md` | README の図を再生成 |
 | `python -m tools.graph render --into README.md --check` | 図が古ければ終了コード 1（CI 用） |
 | `python -m tools.graph new --type usecase --id UC-02 --title "..."` | 雛形からノードを起こす |
@@ -211,7 +212,11 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | `python -m tools.graph review` | **本文の質を AI に見てもらう（任意・通信あり）** |
 | `python -m unittest discover -s tests -t .` | ツール自体のテスト |
 
-`make check` `make sync` `make graph` も同じことをする（Makefile 参照）。
+`make check` `make sync` `make linkify` `make readme` も同じことをする（Makefile 参照）。
+**まとめて回すなら `make all`**（`check` + `sync` + `linkify` + `readme`）。
+
+エージェント向けのスキルが `.claude/skills/` にある（`/grill` — 要件を書き始める前に詰める）。
+**いつ回すかは [META-05](docs/00-meta/dev-flow.md) が 4 つの場面に決めている。**
 
 ## 新しいノードを作る
 
