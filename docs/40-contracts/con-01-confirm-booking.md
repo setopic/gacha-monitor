@@ -20,13 +20,13 @@ related: []
 POST /bookings/{bookingId}/confirm
 ```
 
-対応するユースケース: [[UC-01]]
+対応するユースケース: [UC-01](../30-usecases/uc-01-confirm-booking.md)
 
 ## リクエスト
 
 | フィールド | 型 | 必須 | 説明 | 由来（ドメイン） |
 | --- | --- | --- | --- | --- |
-| bookingId | string (path) | ○ | 対象の予約 | [[DOM-01]] id |
+| bookingId | string (path) | ○ | 対象の予約 | [DOM-01](../20-domain/dom-01-booking.md) id |
 
 body なし。
 

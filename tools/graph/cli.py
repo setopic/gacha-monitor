@@ -18,6 +18,7 @@ from pathlib import Path
 
 from . import changes, cleanup, history, review
 from . import render as render_mod
+from .linkify import linkify as linkify_docs
 from . import rules, schema
 from . import upgrade as upgrade_mod
 from .loader import load
@@ -193,6 +194,30 @@ def cmd_sync(args: argparse.Namespace) -> int:
     for rel in changed:
         print(f"{verb}: {rel}")
     print(f"\n{len(changed)} 件")
+    return 1 if args.check else 0
+
+
+def cmd_linkify(args: argparse.Namespace) -> int:
+    root = _repo_root(args.root)
+    graph = load(root)
+
+    blocking = [i for i in graph.load_issues if i.severity == ERROR]
+    if blocking:
+        for issue in blocking:
+            print(issue.format())
+        print("読み込みエラーがあるため linkify を中止しました")
+        return 1
+
+    dry_run = args.dry_run or args.check
+    changed = linkify_docs(graph, root, root / schema.DOCS_DIR, dry_run=dry_run)
+    if not changed:
+        print("更新なし（すべて最新）")
+        return 0
+
+    verb = "更新予定" if dry_run else "更新"
+    for rel in changed:
+        print(f"{verb}: {rel}")
+    print(f"{len(changed)} 件")
     return 1 if args.check else 0
 
 
@@ -520,6 +545,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="書き込まず、更新が必要なら終了コード 1（CI 用）",
     )
     p_sync.set_defaults(func=cmd_sync)
+
+    p_linkify = sub.add_parser(
+        "linkify",
+        help="本文の [[ID]] を相対リンクに直す（GitHub 上でも辿れるようにする）",
+    )
+    p_linkify.add_argument("--dry-run", action="store_true", help="書き込まずに差分だけ表示")
+    p_linkify.add_argument(
+        "--check",
+        action="store_true",
+        help="書き換えが必要なら終了コード 1（CI 用）",
+    )
+    p_linkify.set_defaults(func=cmd_linkify)
 
     p_new = sub.add_parser("new", help="新しいノードを作る")
     p_new.add_argument("--type", choices=tuple(schema.NODE_TYPES))
