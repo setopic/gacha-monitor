@@ -18,9 +18,17 @@ import argparse
 import html
 import re
 import shutil
+import sys
 from pathlib import Path
 
 import markdown
+
+# tools/graph を読むためにリポジトリの根を通す。
+# このスクリプトは .github/scripts/ にあるので、既定では根が sys.path に入らない。
+ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT_DIR))
+
+from tools.graph.loader import load as load_graph  # noqa: E402
 
 MERMAID_VERSION = "11.4.1"
 MAX_EDGES = 2000
@@ -147,12 +155,48 @@ def restore_mermaid(html_text: str, blocks: list[str]) -> str:
     return html_text
 
 
+# 本文中の [[ID]]。グラフは mentions エッジとして解釈し、リンク切れも検査するが、
+# **Markdown の標準記法ではないので、そのままでは文字として出る**（GitHub でも同じ）。
+# 自前で HTML を作っているここでは、id からリンク先を引いて <a> にする。
+WIKILINK_RE = re.compile(r"\[\[([A-Z]+-[0-9]+)\]\]")
+
+# 置換してはいけない範囲。**コードの中の [[ID]] は例示であって参照ではない。**
+# 規約文書には「こう書くと検証を素通りする」という例が実際に入っている。
+CODE_SPAN_RE = re.compile(r"<pre\b.*?</pre>|<code\b.*?</code>", re.S)
+
+
+def linkify_ids(html_text: str, index: dict[str, str], depth: int) -> str:
+    """[[ID]] を、その id の頁へのリンクに置き換える。
+
+    `index` は {id: リポジトリ根からの相対パス}。`depth` は変換中の文書が
+    `docs/` から何階層下にあるか。存在しない id はそのまま残す
+    （リンク切れは `G004` が言うので、ここでは黙って通す）。
+    """
+
+    def replace(match: re.Match) -> str:
+        node_id = match.group(1)
+        rel = index.get(node_id)
+        if rel is None:
+            return match.group(0)
+        href = ("../" * depth) + rel[: -len(".md")] + ".html"
+        return f'<a href="{html.escape(href, quote=True)}">{node_id}</a>'
+
+    out: list[str] = []
+    cursor = 0
+    for code in CODE_SPAN_RE.finditer(html_text):
+        out.append(WIKILINK_RE.sub(replace, html_text[cursor : code.start()]))
+        out.append(code.group(0))  # コードの中は触らない
+        cursor = code.end()
+    out.append(WIKILINK_RE.sub(replace, html_text[cursor:]))
+    return "".join(out)
+
+
 def title_of(text: str, fallback: str) -> str:
     match = re.search(r"^#\s+(.+)$", text, re.M)
     return match.group(1).strip() if match else fallback
 
 
-def convert(source: Path, root: Path, out_root: Path) -> None:
+def convert(source: Path, root: Path, out_root: Path, index: dict[str, str]) -> None:
     text = source.read_text(encoding="utf-8")
     stripped, blocks = extract_mermaid(text)
 
@@ -168,6 +212,7 @@ def convert(source: Path, root: Path, out_root: Path) -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
 
     depth = len(rel.parts) - 1
+    body = linkify_ids(body, index, depth)
     crumb = "" if depth == 0 else f'<span>/</span>{"/".join(rel.parts[:-1])}'
 
     target.write_text(
@@ -197,20 +242,27 @@ def main() -> int:
         shutil.rmtree(out_root)
     out_root.mkdir(parents=True)
 
+    # [[ID]] をリンクにするために、id とファイルの対応をグラフから取る。
+    graph = load_graph(root)
+    index = {node.id: node.rel for node in graph.nodes.values()}
+
     sources = sorted(root.joinpath("docs").rglob("*.md"))
     readme = root / "README.md"
     if readme.is_file():
         sources.append(readme)
 
     for source in sources:
-        convert(source, root, out_root)
+        convert(source, root, out_root, index)
 
     # README を入口にする
     readme_html = out_root / "README.html"
     if readme_html.is_file():
         shutil.copyfile(readme_html, out_root / "index.html")
 
-    print(f"{len(sources)} ページを {out_root.relative_to(root).as_posix()} に書き出しました")
+    print(
+        f"{len(sources)} ページを {out_root.relative_to(root).as_posix()} に"
+        f"書き出しました（[[ID]] のリンク先 {len(index)} 件）"
+    )
     return 0
 
 
