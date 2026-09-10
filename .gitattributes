@@ -17,6 +17,17 @@ README.md merge=ours
 index.md  merge=ours
 docs/50-adr/adr-0001-graph-driven-docs.md merge=ours
 
+# PROJECT_CHANGELOG.md は**そのリポジトリ自身の履歴**であって、上流のものではない。
+# 上流が同じ名前で自分の履歴を持っていると、取り込みのたびに上書きするか
+# 全面的に競合する。**上流の履歴は別の名前で流す。**
+#
+#   TEMPLATE_CHANGELOG.md          graph-doc-template の履歴
+#   PROJECT_TEMPLATE_CHANGELOG.md  graph-project-template（この層）の履歴
+#   PROJECT_CHANGELOG.md           そのプロジェクト自身の履歴。上流は触らない
+PROJECT_CHANGELOG.md merge=ours
+
+# --- ここから下は graph-project-template（統合型）が足しているもの ---
+
 # 実装側の検査はプロジェクトごとに違う（言語も走らせ方も）。
 # graph-check.yml と分けてあり、こちらは常にプロジェクト側を残す。
 .github/workflows/app-check.yml merge=ours
