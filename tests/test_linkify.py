@@ -113,6 +113,18 @@ class LinkifyTest(unittest.TestCase):
             readme.read_text(encoding="utf-8"),
         )
 
+    def test_writes_lf_even_on_windows(self) -> None:
+        """書き戻しで CRLF に化けない。**バイトで見る。**
+
+        テキストとして読み直すと Python が改行を正規化してしまい、
+        CRLF になっていても気付けない。git も `text=auto eol=lf` で
+        コミット時に直すので `git status` にも出ない。
+        """
+        path = self.tmp / USECASE_PATH
+        path.write_bytes(b"# uc\n\n[[DOM-01]] \xe3\x82\x92\xe8\xa6\x8b\xe3\x82\x8b\xe3\x80\x82\n")
+        self._run()
+        self.assertNotIn(b"\r\n", path.read_bytes())
+
 
 if __name__ == "__main__":
     unittest.main()
