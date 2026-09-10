@@ -32,5 +32,14 @@ PROJECT_CHANGELOG.md merge=ours
 # graph-check.yml と分けてあり、こちらは常にプロジェクト側を残す。
 .github/workflows/app-check.yml merge=ours
 
+# 開発の流れ（META-05）は**既定値を配るだけ**で、規約ではない。
+# ブランチの切り方も、PR にする条件も、リリースの仕方もプロジェクトごとに違う。
+# 書き換えたものがテンプレートの更新で戻らないよう、プロジェクト側を残す。
+#
+# **CONTRIBUTING.md は merge=ours にしない。** あれは META-05 を指すだけの
+# 入口で、中身を持たない。指し先のパスは全プロジェクトで同じなので、
+# プロジェクト側が書き換える理由が無い。
+docs/00-meta/dev-flow.md merge=ours
+
 # .gitignore は merge=ours にしない。**秘密の除外を後から強くしたとき、
 # 派生プロジェクトに届かなくなる。** 追記どうしは行が離れるので競合しにくい。

@@ -8,6 +8,7 @@ related:
   - META-02
   - META-03
   - META-04
+  - META-05
 ---
 
 # グラフの規約
@@ -590,6 +591,7 @@ UC-01 は挙がるが、**UC-01 にしか依存していないノードは挙が
 - [META-02 ノード種別と層](./node-types.md)
 - [META-03 本文のレビュー（AI）](./ai-review.md)
 - [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
+- [META-05 開発の流れ](./dev-flow.md)
 
 **このノードを参照しているノード**
 
@@ -597,6 +599,7 @@ UC-01 は挙がるが、**UC-01 にしか依存していないノードは挙が
 - (related) [META-02 ノード種別と層](./node-types.md)
 - (related) [META-03 本文のレビュー（AI）](./ai-review.md)
 - (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
+- (related) [META-05 開発の流れ](./dev-flow.md)
 
 <!-- graph:auto:end -->
 
