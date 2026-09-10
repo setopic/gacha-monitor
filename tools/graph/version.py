@@ -11,15 +11,15 @@
 
 from __future__ import annotations
 
-TEMPLATE_VERSION = "1.12.1"
+TEMPLATE_VERSION = "1.12.2"
 
-# 動作を保証する Python の下限。**本番ホストの版が決めている。**
-# Ubuntu 22.04 に貼り付いた 3.10 で、OS ごと入れ替えない限り動かせない。
-# 開発機と CI 本体は 3.12 で回すが、ここより下でも壊れないことを
-# graph-check の floor ジョブが毎回確かめている。
+# 動作を保証する Python の下限。**動かしている場所すべてが 3.12 に揃っている。**
+# 開発機・CI・本番ホスト（deadsnakes の python3.12 で作った venv）のいずれもで、
+# 幅を持たせる理由が無くなったので、実際に回している版をそのまま下限にする。
 #
+# **これより古い版は誰も試していない。** 3.11 で動くかは分からない、が正しい。
 # 上げるときは 3 つを揃える。ずれたら test_python_floor が落ちる。
 #   1. この定数
-#   2. .github/workflows/graph-check.yml の floor ジョブ
+#   2. .github/workflows/graph-check.yml の python-version
 #   3. README の「必要なもの」
-MIN_PYTHON = "3.10"
+MIN_PYTHON = "3.12"
