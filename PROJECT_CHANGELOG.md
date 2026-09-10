@@ -4,9 +4,22 @@
 [TEMPLATE_CHANGELOG.md](TEMPLATE_CHANGELOG.md) にある。上流の
 `graph-doc-template` から `git merge template/main` で流れてくる。
 
-現在の版: **0.2.0**
+現在の版: **0.3.0**
 
 ---
+
+## 0.3.0 — 2026-09-10
+
+### 上流
+
+`graph-doc-template` 1.9.0 を取り込んだ（`G018` と `render --aggregate`）。
+
+**この層で足すものは無い。** 統合型に固有の事情は無く、文書だけの型と同じように効く。
+
+**派生プロジェクトに伝えること。** `G018` は新しいエラーなので、README の図が
+既に GitHub の描画上限（エッジ 500 本）に達しているリポジトリは、取り込んだ時点で
+main の CI が落ちる。落ちるのは正しく、その README の図は**取り込む前から
+GitHub 上で描画されていない**。直し方は `TEMPLATE_CHANGELOG.md` の 1.9.0 にある。
 
 ## 0.2.0 — 2026-09-08
 
