@@ -84,6 +84,72 @@ def to_mermaid(
     return "\n".join(lines) + "\n"
 
 
+def to_mermaid_aggregate(graph: Graph, include_mentions: bool = False) -> str:
+    """型ごとに 1 つの箱へまとめた図を書き出す。
+
+    ノードが何件あっても箱は型の数だけ、エッジは「型 × 種別 × 型」の組み合わせ
+    だけになる。**ノードが増えても図は大きくならない**ので、GitHub の描画上限
+    （エッジ 500 本 / G018）に当たらない。
+
+    引き換えに**個別のノードは見えなくなる。** 上限に近づいたリポジトリだけで
+    使うこと。小さいリポジトリで使うと、縮む余地が無いまま情報だけ失う。
+    """
+    lines = ["graph LR"]
+
+    present = [
+        (spec, graph.by_type(name)) for name, spec in schema.NODE_TYPES.items()
+    ]
+    present = [(spec, nodes) for spec, nodes in present if nodes]
+
+    for spec, nodes in present:
+        label = _escape(spec["label"])
+        lines.append(f'  {spec["prefix"]}["{label}<br/>{len(nodes)} 件"]')
+
+    # (始点の型, 種別, 終点の型) ごとに本数を数える
+    totals: dict[tuple[str, str, str], int] = {}
+    for edge in _edges(graph, include_mentions):
+        src = graph.nodes.get(edge.src)
+        dst = graph.nodes.get(edge.dst)
+        if src is None or dst is None:
+            continue
+        if src.type not in schema.NODE_TYPES or dst.type not in schema.NODE_TYPES:
+            continue  # 型の誤りは G003 が言う。ここでは黙って飛ばす
+        key = (src.type, edge.kind, dst.type)
+        totals[key] = totals.get(key, 0) + 1
+
+    # 本数の多い順。同数なら組み合わせ名の順にして、出力を安定させる
+    for (src_type, kind, dst_type), count in sorted(
+        totals.items(), key=lambda item: (-item[1], item[0])
+    ):
+        arrow = _ARROW.get(kind, "-->")
+        src_prefix = schema.NODE_TYPES[src_type]["prefix"]
+        dst_prefix = schema.NODE_TYPES[dst_type]["prefix"]
+        lines.append(f"  {src_prefix} {arrow}|{kind} {count}| {dst_prefix}")
+
+    return "\n".join(lines) + "\n"
+
+
+# 図の中でエッジを表している行。`A --> B` / `A -.-> B` / `A ==> B` に当たる。
+EDGE_LINE_RE = re.compile(r"^\s*[A-Za-z][\w-]*\s+(?:-->|-\.->|==>)")
+
+
+def count_edges_in_markdown(path: Path) -> int | None:
+    """Markdown のマーカー内にある図の、エッジの本数を数える。
+
+    **グラフからではなく、書き込まれた図そのものを数える。** そうしないと
+    `--aggregate` や `--focus` で間引いている場合に実態とずれる。GitHub が
+    描こうとするのは、あくまで README に入っている図だから。
+
+    マーカーが無い、またはファイルが無ければ None を返す（数えようがない）。
+    """
+    if not path.is_file():
+        return None
+    match = DIAGRAM_BLOCK_RE.search(path.read_text(encoding="utf-8"))
+    if not match:
+        return None
+    return sum(1 for line in match.group(0).splitlines() if EDGE_LINE_RE.match(line))
+
+
 def to_json(graph: Graph, include_mentions: bool = True) -> str:
     payload = {
         "nodes": [
