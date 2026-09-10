@@ -29,7 +29,7 @@ HTTP の API に限らない。判定の基準は「片方だけが古いまま�
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [CON-01 予約確定エンドポイント](./con-01-confirm-booking.md)
+- [CON-01 予約確定エンドポイント](./con-01-sample-confirm-booking.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

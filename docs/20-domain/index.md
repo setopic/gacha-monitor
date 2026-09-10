@@ -16,7 +16,7 @@ tags: [index]
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [DOM-01 予約](./dom-01-booking.md)
+- [DOM-01 予約](./dom-01-sample-booking.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

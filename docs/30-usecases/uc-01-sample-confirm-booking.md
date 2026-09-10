@@ -23,7 +23,7 @@ related: []
 
 ## 事前条件
 
-- [ ] 対象の[DOM-01](../20-domain/dom-01-booking.md)が「仮予約」状態で存在する
+- [ ] 対象の[DOM-01](../20-domain/dom-01-sample-booking.md)が「仮予約」状態で存在する
 - [ ] 仮予約の保持期限を過ぎていない
 
 ## 基本フロー
@@ -66,10 +66,10 @@ related: []
 
 **depends_on** — この文書が成立するために前提となるノード
 
-- [DOM-01 予約](../20-domain/dom-01-booking.md)
+- [DOM-01 予約](../20-domain/dom-01-sample-booking.md)
 
 **このノードを参照しているノード**
 
-- (depends_on) [CON-01 予約確定エンドポイント](../40-contracts/con-01-confirm-booking.md)
+- (depends_on) [CON-01 予約確定エンドポイント](../40-contracts/con-01-sample-confirm-booking.md)
 
 <!-- graph:auto:end -->

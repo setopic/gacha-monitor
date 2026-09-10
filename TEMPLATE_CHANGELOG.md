@@ -26,6 +26,66 @@ python -m tools.graph --version
 
 ---
 
+## 1.12.0 — 2026-09-10
+
+**サンプルのファイル名を、サンプルと分かる名前にした。** あわせて README の
+記載を実装に合わせた。
+
+### 何が起きていたか
+
+サンプルの ARCH-01 は `arch-01-system-overview.md` という名前だった。
+**これは「システム全体」を書くときに誰もが選ぶ名前である。**
+
+派生プロジェクトが同じ名前を使うと、`reset-samples` が消す前に
+**中身がマージされて混ざる。** 実際、ある派生プロジェクトの ARCH-01 に、
+そのプロジェクトに存在しない要素（サンプルの「ワーカー」）の記述が入り込んだ。
+`reset-samples` はタグで探すので、この衝突を防げない。
+
+派生 3 件で同じ衝突が起きていた。
+
+### 決めたこと
+
+サンプル 5 件のスラッグに `sample-` を付けた。
+
+| 旧 | 新 |
+| --- | --- |
+| `arch-01-system-overview.md` | `arch-01-sample-system-overview.md` |
+| `arch-02-worker-execution-model.md` | `arch-02-sample-worker-execution-model.md` |
+| `dom-01-booking.md` | `dom-01-sample-booking.md` |
+| `uc-01-confirm-booking.md` | `uc-01-sample-confirm-booking.md` |
+| `con-01-confirm-booking.md` | `con-01-sample-confirm-booking.md` |
+
+**プロジェクトが `sample-` で始まる名前を選ぶことはない。**
+これで衝突が構造的に起きなくなる。
+
+### README の直し
+
+実装に追いついていなかった箇所を直した。
+
+- **ルール一覧が `G014` で止まっていた。** `G015`〜`G018` を追記した
+- **コマンド表の途中に段落が挟まって、表が分断されていた。**
+  GitHub 上では以降の行が表として描画されていなかった
+- `linkify` と `render --aggregate` がコマンド表に無かった
+- 構成の説明が「ルール ID G001〜G013」のままだった
+
+### 取り込む側の作業
+
+**通常のマージで済む。** サンプルは既に消しているはずなので、
+新しい名前で入ってきたものを `reset-samples --yes` が消すだけ。
+
+```bash
+git fetch template && git merge template/main
+python -m tools.graph reset-samples --yes
+python -m tools.graph sync
+```
+
+**ただし、サンプルと同じファイル名を自分のノードに使っている場合は、
+先に改名しておくこと。** そのままだと修正/削除の競合になる。
+
+```bash
+python -m tools.graph rename --from ARCH-01 --slug <このプロジェクトらしい名前>
+```
+
 ## 1.11.0 — 2026-09-10
 
 **本文の参照を、GitHub 上でもクリックできる形にした。**

@@ -110,7 +110,7 @@ UC-03 匿名でメッセージを投稿する        ← 親。アクター・�
 `{id を小文字にしたもの}-{英数字スラッグ}.md`
 
 ```
-docs/30-usecases/uc-01-confirm-booking.md
+docs/30-usecases/uc-01-sample-confirm-booking.md
 docs/50-adr/adr-0001-graph-driven-docs.md
 ```
 
