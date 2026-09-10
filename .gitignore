@@ -1,0 +1,40 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# マシンごとのローカル設定（共有しない）
+.claude/settings.local.json
+
+# render の出力（必要になったら生成する）
+docs/graph.mmd
+docs/graph.json
+docs/graph.dot
+
+.DS_Store
+.idea/
+.vscode/
+
+# --------------------------------------------------------------------------
+# 実装（統合型リポジトリ）
+# --------------------------------------------------------------------------
+# **秘密は絶対に版管理に入れない。** 例だけを .env.example として置く。
+.env
+.env.*
+!.env.example
+*/.env
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Python
+.pytest_cache/
+*.egg-info/
+
+# 実行時にできるもの（運用データはリポジトリに置かない）
+logs/
+*.db
+*.sqlite3

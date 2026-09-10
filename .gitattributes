@@ -1,0 +1,25 @@
+# tools/graph は常に LF で書き出す（sync が改行を書き換える）。
+# 作業コピーも LF に固定しないと、sync のたびに全行差分になる。
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
+
+# テンプレートから更新を取り込む（git merge template/main）とき、
+# ここに挙げたものは常にプロジェクト側を残す。中身がプロジェクト固有だから。
+# 取り込む側で一度だけ設定が要る:
+#   git config merge.ours.driver true
+#
+# index.md はスラッシュを含まないので、どの階層の index.md にも当たる。
+# 目次の一覧はプロジェクトのノードで埋まっているため、常に自分側が正しい。
+README.md merge=ours
+index.md  merge=ours
+docs/50-adr/adr-0001-graph-driven-docs.md merge=ours
+
+# 実装側の検査はプロジェクトごとに違う（言語も走らせ方も）。
+# graph-check.yml と分けてあり、こちらは常にプロジェクト側を残す。
+.github/workflows/app-check.yml merge=ours
+
+# .gitignore は merge=ours にしない。**秘密の除外を後から強くしたとき、
+# 派生プロジェクトに届かなくなる。** 追記どうしは行が離れるので競合しにくい。

@@ -1,0 +1,52 @@
+# 実装側の検査。**graph-check.yml とは別のファイルにしてある。**
+# あちらはテンプレートが配るファイルで、ここに実装のテストを書き足すと
+# テンプレートを取り込むたびに競合する。
+#
+# このファイルは .gitattributes の merge=ours で守られており、
+# **プロジェクト側が書き換えてよい。** テンプレートの更新で上書きされない。
+name: app-check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  refs:
+    # PR が実在する文書ノードを指しているかだけを見る。言語に依存しない。
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: PR が指すノードが実在するか
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python .github/scripts/check_refs.py
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # ここから下はプロジェクトごとに書き換える。
+      # 実装が無いうちは何もしない。
+
+      # --- Python の例 ---
+      # - uses: actions/setup-python@v7
+      #   with:
+      #     python-version: "3.12"
+      # - run: pip install -r requirements.txt
+      # - run: python -m pytest
+
+      # --- TypeScript / Node の例 ---
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: "22"
+      # - run: npm ci
+      # - run: npm test
+
+      - name: 実装の検査は未設定
+        run: echo "app-check.yml にプロジェクトの検査を書いてください"
