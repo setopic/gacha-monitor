@@ -52,6 +52,7 @@ graph LR
     META-02["META-02<br/>ノード種別と層"]
     META-03["META-03<br/>本文のレビュー（AI）"]
     META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
+    META-05["META-05<br/>開発の流れ"]
   end
   subgraph architecture["アーキテクチャ"]
     ARCH-01["ARCH-01<br/>システム全体"]
@@ -101,9 +102,13 @@ graph LR
   META-01 -.->|related| META-02
   META-01 -.->|related| META-03
   META-01 -.->|related| META-04
+  META-01 -.->|related| META-05
   META-02 -.->|related| META-01
   META-03 -.->|related| META-01
   META-04 -.->|related| META-01
+  META-04 -.->|related| META-05
+  META-05 -.->|related| META-01
+  META-05 -.->|related| META-04
   UC-01 -->|depends_on| ARCH-02
   UC-01 -->|depends_on| DOM-01
   UC-01 -->|depends_on| DOM-02
