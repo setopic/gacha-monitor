@@ -181,9 +181,9 @@ python -m tools.graph render --format mermaid --focus DOM-01 --depth 1
 - **テキストを書き出すときは必ず `encoding="utf-8"` と `newline="\n"` を渡す。**
   既定に任せると Windows だけ CRLF・cp932 になり、**git が正規化するので
   `git status` にも出ない。** `test_newline_discipline` が構文木で見ている
-- **動く版の下限は `version.py` の `MIN_PYTHON`。** 本番ホスト（Ubuntu 22.04）が
-  決めている値で、勝手に上げない。上げるなら CI の floor ジョブと README も同時に
-  直す（`test_python_floor` がずれを落とす）
+- **動く版の下限は `version.py` の `MIN_PYTHON`。** 開発機・CI・本番で実際に
+  回している版であって、願望ではない。動かすなら CI の `python-version` と
+  README も同時に直す（`test_python_floor` がずれを落とす）
 
 ## 要件が曖昧なとき
 

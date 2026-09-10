@@ -63,28 +63,3 @@ jobs:
 
       # AI lint（graph review）はここで回さない。
       # 指摘が再現せず、API キーと費用と通信が要るため。人が手で回す。
-
-  # 本番ホスト（Ubuntu 22.04）の Python は 3.10 で、OS ごと入れ替えない限り
-  # 動かせない。**下限を宣言したまま検査しないと、宣言はいずれ腐る。**
-  # 開発機と CI 本体は 3.12 のまま、下限で動くことだけをここで見る。
-  #
-  # 図の再生成や sync の鮮度は見ない。版に依らないので本体ジョブで足りる。
-  # ここが落ちたら「3.11 以降の書き方が混ざった」という意味で、
-  # 直すか、下限を上げるかを決める（version.py の MIN_PYTHON と対で動かす）。
-  floor:
-    name: 下限の版で動くか (Python 3.10)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.10"
-
-      - name: テストを走らせる
-        run: python -m unittest discover -s tests -t .
-
-      - name: 検証できることを確かめる
-        run: python -m tools.graph check
