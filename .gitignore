@@ -38,3 +38,11 @@ build/
 logs/
 *.db
 *.sqlite3
+
+# HTML の生成物（CI が作る）
+/_site/
+
+# clasp の配置先指定。CI はリポジトリ変数 SCRIPT_ID から作る。
+# 手元で clasp を使うときだけ作る。**認証情報は ~/.clasprc.json にあり、
+# リポジトリには絶対に置かない。**
+/.clasp.json

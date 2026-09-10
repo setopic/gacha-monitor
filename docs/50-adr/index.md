@@ -19,6 +19,11 @@ tags: [index]
 
 <!-- graph:children:start -->
 - [ADR-0001 設計文書をグラフとして管理する](./adr-0001-graph-driven-docs.md)
+- [ADR-0002 主指標に保存数を採用する](./adr-0002-save-count-as-metric.md)
+- [ADR-0003 追跡期間を 4 日にする](./adr-0003-tracking-window.md)
+- [ADR-0004 閾値を 3 段階にする](./adr-0004-three-thresholds.md)
+- [ADR-0005 転載と返信をコード側で除外する](./adr-0005-filter-in-code.md)
+- [ADR-0006 実行基盤に Apps Script を選ぶ](./adr-0006-apps-script-runtime.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

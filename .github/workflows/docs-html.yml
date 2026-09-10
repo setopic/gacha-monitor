@@ -1,0 +1,62 @@
+# 設計文書を HTML にして GitHub Pages で公開する。
+#
+# 「ソースは Markdown、表示は HTML」の二段構え。**変換は静的に行い、
+# AI には生成させない。** 入力が同じなら出力も同じであることを守らないと、
+# 差分レビューが効かなくなる。
+#
+# **ここは自前でホストするので Mermaid の maxEdges を自分で決められる。**
+# GitHub 上の README はエッジ 500 本で描画が打ち切られる（G018）が、
+# こちらは間引かない全体図をそのまま描ける。
+name: docs-html
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "README.md"
+      - ".github/scripts/build_docs.py"
+      - ".github/workflows/docs-html.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開が重ならないようにする。新しいものを優先する。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # graph-check は外部依存ゼロを守っている。**こちらは別のワークフローなので
+      # 依存を足してよい。** 変換に使うのは Python-Markdown ひとつだけ。
+      - name: 変換に使うものを入れる
+        run: pip install --quiet "markdown==3.7"
+
+      - name: HTML を作る
+        run: python .github/scripts/build_docs.py --out _site
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

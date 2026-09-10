@@ -16,7 +16,8 @@ tags: [index]
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [DOM-01 予約](./dom-01-booking.md)
+- [DOM-01 監視対象と投稿](./dom-01-post.md)
+- [DOM-02 エンゲージメント指標と注目度](./dom-02-metrics.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

@@ -16,7 +16,9 @@ tags: [index]
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [UC-01 予約を確定する](./uc-01-confirm-booking.md)
+- [UC-01 注目商品を検知して通知する](./uc-01-detect-and-notify.md)
+- [UC-02 週次サマリーを送る](./uc-02-weekly-summary.md)
+- [UC-03 異常と予算超過を知らせる](./uc-03-alert-anomaly.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

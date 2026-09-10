@@ -67,7 +67,7 @@ related: []
 
 **decides** — この決定が影響を与えるノード（ADR 用）
 
-- [ARCH-01 システム全体構成](../10-architecture/arch-01-system-overview.md)
+- [ARCH-01 システム全体](../10-architecture/arch-01-system-overview.md)
 - [META-01 グラフの規約](../00-meta/graph-rules.md)
 
 <!-- graph:auto:end -->

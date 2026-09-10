@@ -1,0 +1,63 @@
+# Apps Script への配置。**リポジトリが正で、編集画面は上書きされる側。**
+#
+# clasp push は編集画面の中身を丸ごと置き換える。つまりこのワークフローを
+# 入れた時点から、**Apps Script の編集画面で直接コードを書き換えてはいけない。**
+# 書き換えても次の配置で消える（ADR-0006）。
+name: deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+# 配置が重ならないようにする。前の配置を打ち切らない（途中で止めると
+# 編集画面が中途半端な状態で残る）。
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # 版を固定する。認証情報の置き場所（~/.clasprc.json）が版によって変わるため。
+      - name: clasp を入れる
+        run: npm install -g @google/clasp@2.4.2
+
+      - name: 認証情報を置く
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          set -eu
+          test -n "${CLASPRC_JSON:-}" || {
+            echo "::error::シークレット CLASPRC_JSON が未設定です。手元で clasp login した後の ~/.clasprc.json をそのまま入れてください"
+            exit 1
+          }
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      # scriptId は秘密ではないが識別子ではあるので、リポジトリ変数から渡す。
+      # rootDir を app にすることで、配置されるのは app/ の中身だけになる。
+      - name: 配置先を指定する
+        env:
+          SCRIPT_ID: ${{ vars.SCRIPT_ID }}
+        run: |
+          set -eu
+          test -n "${SCRIPT_ID:-}" || {
+            echo "::error::リポジトリ変数 SCRIPT_ID が未設定です。Apps Script のプロジェクト設定にあるスクリプト ID を入れてください"
+            exit 1
+          }
+          printf '{"scriptId":"%s","rootDir":"app"}\n' "$SCRIPT_ID" > .clasp.json
+
+      - name: 配置する
+        run: clasp push --force
+
+      - name: 配置したものを確認する
+        run: clasp status

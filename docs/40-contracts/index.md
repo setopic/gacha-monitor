@@ -29,7 +29,9 @@ HTTP の API に限らない。判定の基準は「片方だけが古いまま�
 ## ノード一覧
 
 <!-- graph:children:start -->
-- [CON-01 予約確定エンドポイント](./con-01-confirm-booking.md)
+- [CON-01 X API からの投稿取得](./con-01-x-api-fetch.md)
+- [CON-02 LINE への通知送信](./con-02-line-notify.md)
+- [CON-03 スプレッドシートのシート構成](./con-03-sheet-schema.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

@@ -1,5 +1,5 @@
 # 実装側の検査。**graph-check.yml とは別のファイルにしてある。**
-# あちらはテンプレートが配るファイルで、ここに実装のテストを書き足すと
+# あちらはテンプレートが配るファイルで、ここに実装の検査を書き足すと
 # テンプレートを取り込むたびに競合する。
 #
 # このファイルは .gitattributes の merge=ours で守られており、
@@ -30,23 +30,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-      # ここから下はプロジェクトごとに書き換える。
-      # 実装が無いうちは何もしない。
+      # Apps Script にはローカルで走らせられるテストランナーが無い。
+      # 実行できるのは Google の環境の中だけなので、**ここで確かめられるのは
+      # 構文だけ**である。それでも価値はあった。開発中に、定義したまま
+      # 呼び出していない関数（週次サマリーが永久に動かない不具合）を
+      # この検査が拾っている。
+      - name: Apps Script の構文を検査する
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/gs"
+          for f in app/*.gs; do
+            cp "$f" "$RUNNER_TEMP/gs/$(basename "$f" .gs).js"
+          done
+          for f in "$RUNNER_TEMP"/gs/*.js; do
+            echo "checking $(basename "$f")"
+            node --check "$f"
+          done
 
-      # --- Python の例 ---
-      # - uses: actions/setup-python@v7
-      #   with:
-      #     python-version: "3.12"
-      # - run: pip install -r requirements.txt
-      # - run: python -m pytest
+      - name: マニフェストが JSON として読めるか
+        run: node -e "JSON.parse(require('fs').readFileSync('app/appsscript.json','utf8'))"
 
-      # --- TypeScript / Node の例 ---
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: "22"
-      # - run: npm ci
-      # - run: npm test
-
-      - name: 実装の検査は未設定
-        run: echo "app-check.yml にプロジェクトの検査を書いてください"
+      # 監視対象は設定シートにだけ置く（公開リポジトリなので残さない）。
+      # 取り違えて書き戻したときに気づけるようにしておく。
+      - name: 監視対象がコードに書かれていないか
+        run: |
+          set -eu
+          if grep -rn "監視アカウント', *'[^']" app/ ; then
+            echo "::error::設定シートの初期値に監視対象が書かれています。空にしてください"
+            exit 1
+          fi
+          echo "監視対象はコードに含まれていません"
