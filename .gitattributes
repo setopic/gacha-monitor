@@ -34,12 +34,3 @@ PROJECT_CHANGELOG.md merge=ours
 
 # .gitignore は merge=ours にしない。**秘密の除外を後から強くしたとき、
 # 派生プロジェクトに届かなくなる。** 追記どうしは行が離れるので競合しにくい。
-
-# PROJECT_CHANGELOG.md はこのプロジェクトの履歴なので、常に自分側を残す。
-# **テンプレートも同じ名前で自分の履歴を持っている。** 守らないと、次に
-# git merge template/main したときテンプレートの履歴で上書きされるか、
-# 全面的に競合する。
-#
-# テンプレート側の変更履歴は TEMPLATE_CHANGELOG.md にあり、そちらは
-# merge=ours にしない（上流の履歴が流れてくることに意味がある）。
-PROJECT_CHANGELOG.md merge=ours

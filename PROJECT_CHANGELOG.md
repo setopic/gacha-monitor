@@ -1,8 +1,13 @@
 # gacha-monitor の変更履歴
 
-**このプロジェクトの履歴。** 検証ツール（`tools/graph`）の変更は
-[TEMPLATE_CHANGELOG.md](TEMPLATE_CHANGELOG.md) にある。上流の
-`graph-project-template` から `git merge template/main` で流れてくる。
+**このプロジェクトの履歴。** 上流の履歴は別のファイルにあり、
+取り込み（`git merge template/main`）で流れてくる。
+
+| ファイル | 誰の履歴か |
+| --- | --- |
+| [TEMPLATE_CHANGELOG.md](TEMPLATE_CHANGELOG.md) | `graph-doc-template`（検証ツール） |
+| [PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md) | `graph-project-template`（統合型の層） |
+| **このファイル** | **このプロジェクト自身。** 上流は触らない |
 
 現在の版: **0.1.0**
 
