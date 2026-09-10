@@ -99,7 +99,17 @@ code {
 }
 pre { background: var(--sunk); border: 1px solid var(--rule); border-radius: 5px; padding: 1rem; overflow-x: auto; }
 pre code { background: none; border: 0; padding: 0; font-size: .8125rem; }
-pre.mermaid { background: none; border: 0; padding: 0; overflow-x: auto; text-align: center; }
+/* 図は本文の段幅に収まらない。**縮めて収めない。**
+   26 ノードの図でも幅 3000px を超え、段幅に押し込むと 5 分の 1 になって
+   文字が読めなくなる。段幅を破って画面幅まで広げ、それでも足りない分は
+   横スクロールにする。 */
+pre.mermaid {
+  background: none; border: 0; padding: 0;
+  overflow-x: auto; text-align: left;
+  width: min(94vw, 1500px);
+  margin-left: calc(50% - min(47vw, 750px));
+}
+pre.mermaid svg { width: auto !important; max-width: none !important; height: auto; }
 table { border-collapse: collapse; width: 100%; font-size: .875rem; margin: 0 0 1.2rem; display: block; overflow-x: auto; }
 th { text-align: left; color: var(--ink-mute); border-bottom: 1.5px solid var(--rule); padding: 0 .9rem .4rem 0; white-space: nowrap; }
 td { border-bottom: 1px solid var(--rule); padding: .55rem .9rem .55rem 0; vertical-align: top; }
