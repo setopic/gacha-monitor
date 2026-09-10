@@ -13,6 +13,7 @@ from . import render, schema
 from .frontmatter import as_list
 from .loader import strip_non_prose
 from .model import ERROR, WARN, Graph, Issue, Node
+from .rename import _scan_targets
 
 # ルールコードと概要（レポートと docs/00-meta/graph-rules.md の対応表に使う）
 RULE_INDEX: dict[str, str] = {
@@ -35,6 +36,7 @@ RULE_INDEX: dict[str, str] = {
     "G016": "implemented_by の指し先が存在しない",
     "G017": "文書と実装のどちらか片方だけが変わった",
     "G018": "README の図が GitHub の描画上限に近い / 超えている",
+    "G019": "Markdown の表が途中で切れている",
 }
 
 
@@ -66,6 +68,7 @@ def check_all(
         rule_g014_required_sections,
         rule_g016_implementation_exists,
         rule_g018_diagram_size,
+        rule_g019_broken_tables,
     ):
         issues.extend(rule(graph))
 
@@ -800,3 +803,93 @@ def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
             "README.md",
         )
     ]
+
+
+# --------------------------------------------------------------------------
+# G019: Markdown の表が途中で切れている
+# --------------------------------------------------------------------------
+FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+
+
+def _fenced_lines(lines: list[str]) -> list[bool]:
+    """各行がコードブロックの中かどうか。**囲みの行そのものも中とみなす。**
+
+    規約文書や雛形は「表の書き方」をコードブロックで例示する。
+    そこを数えると、正しい文書が落ちる。
+    """
+    inside = False
+    flags: list[bool] = []
+    for line in lines:
+        if FENCE_RE.match(line):
+            inside = not inside
+            flags.append(True)
+            continue
+        flags.append(inside)
+    return flags
+
+
+def find_broken_tables(text: str) -> list[tuple[int, str]]:
+    """表から切り離された行を `(行番号, 行の中身)` で返す。
+
+    Markdown の表は**ヘッダ行と区切り行（`| --- |`）で始まり、
+    空行か本文で終わる。** 途中に段落や空行が入ると、そこから先の行は
+    表ではなくただの文字列として描画される。
+
+    判定は 2 つだけ。`|` で始まる行のうち、
+
+    - 直前の行も `|` で始まる（＝表の続き）
+    - 次の行が区切り行（＝正しい表の先頭）
+
+    のどちらでもないものを切り離された行とみなす。
+    """
+    lines = text.split("\n")
+    fenced = _fenced_lines(lines)
+    broken: list[tuple[int, str]] = []
+
+    for i, line in enumerate(lines):
+        if fenced[i] or not line.lstrip().startswith("|"):
+            continue
+        if i > 0 and not fenced[i - 1] and lines[i - 1].lstrip().startswith("|"):
+            continue
+        if i + 1 < len(lines) and TABLE_SEP_RE.match(lines[i + 1]):
+            continue
+        broken.append((i + 1, line.strip()))
+
+    return broken
+
+
+def rule_g019_broken_tables(graph: Graph) -> list[Issue]:
+    """表の途中に段落や空行が入って、描画が壊れていないか。
+
+    **グラフの検査は通るのに、GitHub 上の表示だけが壊れる。**
+    用語表を段落で分断した実例があり、`G013` のパーサは行ベースなので
+    取り残された行も拾えていた。**機械は困らず、読む人だけが困る。**
+
+    `docs/` の下だけでなく README や CONTRIBUTING も見る。実際に壊れていたのは
+    README で、しかも `merge=ours` のせいで上流の修正が伝播していなかった。
+    """
+    if graph.root is None:
+        return []
+
+    issues: list[Issue] = []
+    for path in _scan_targets(graph.root, graph.root / schema.DOCS_DIR):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue  # 読めないものは他のルールが指す
+
+        rel = path.relative_to(graph.root).as_posix()
+        for lineno, line in find_broken_tables(text):
+            issues.append(
+                Issue(
+                    "G019",
+                    ERROR,
+                    f"{lineno} 行目の表の行が、表から切り離されています。"
+                    "直前に段落か空行が入っているため、GitHub 上では"
+                    f"ただの文字列として描画されます: {line[:60]}",
+                    rel,
+                )
+            )
+
+    return issues
