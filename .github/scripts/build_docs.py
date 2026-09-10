@@ -57,6 +57,10 @@ mermaid.initialize({{
   maxEdges: {max_edges},
   theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default",
   securityLevel: "strict",
+  // ラベルを foreignObject（HTML）ではなく SVG の text で描く。
+  // **既定の foreignObject は画像化・PDF 出力・一部のレンダラで消える。**
+  // 実際、この頁を画像として取り込むと図が丸ごと空白になっていた。
+  flowchart: {{ htmlLabels: false }},
 }});
 </script>
 </body>
