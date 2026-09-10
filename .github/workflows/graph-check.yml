@@ -45,8 +45,11 @@ jobs:
       - name: 関連ドキュメントが最新か確かめる
         run: python -m tools.graph sync --check
 
+      # make 経由で呼ぶ。graph.mk の README_GRAPH_ARGS（--aggregate など）を
+      # 効かせるため。直接 python を叩くと、間引いているリポジトリで
+      # 「図が古い」と誤判定して落ちる。
       - name: README の図が最新か確かめる
-        run: python -m tools.graph render --format mermaid --into README.md --check
+        run: make readme-check
 
       - name: 集計を出す
         if: always()

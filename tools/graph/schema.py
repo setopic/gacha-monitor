@@ -216,6 +216,19 @@ AUTO_BLOCK_END = "<!-- graph:auto:end -->"
 DIAGRAM_BLOCK_START = "<!-- graph:diagram:start -->"
 DIAGRAM_BLOCK_END = "<!-- graph:diagram:end -->"
 
+# --------------------------------------------------------------------------
+# Mermaid の描画上限（G018）
+# --------------------------------------------------------------------------
+# GitHub は Mermaid をエッジ 500 本までしか描かない。**500 ちょうどで既に落ちる**
+# （実際の文言が「500 edges found, but the limit is 500」）。図は丸ごと消え、
+# 「Edge limit exceeded」という短い文言だけが残る。**壊れたことに気づけるのは
+# GitHub 上で見たときだけ**なので、手前で警告して気づけるようにする。
+#
+# 上限そのものは GitHub 側の設定（mermaid.initialize の maxEdges）で、
+# 図の中からは変えられない。自前でホストする HTML なら引き上げられる。
+MERMAID_MAX_EDGES = 500
+MERMAID_WARN_EDGES = 450
+
 # 目次の一覧ブロックの目印。sync が中身を作り直す
 CHILDREN_START = "<!-- graph:children:start -->"
 CHILDREN_END = "<!-- graph:children:end -->"

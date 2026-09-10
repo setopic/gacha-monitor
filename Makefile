@@ -1,5 +1,18 @@
 PYTHON ?= python
 
+# リポジトリ固有の設定があれば読む（無くてもよい）。
+# README の図が GitHub の描画上限（エッジ 500 本 / G018）に近づいたら、
+# **そのリポジトリの graph.mk にだけ**次の 1 行を置く。
+#
+#     README_GRAPH_ARGS = --aggregate
+#
+# テンプレートは graph.mk を配らない。だから取り込み（git merge template/main）
+# のたびに競合しないし、リポジトリごとに図の形を選べる。
+-include graph.mk
+
+# README の図に足す引数。既定は無し（全ノードをそのまま描く）。
+README_GRAPH_ARGS ?=
+
 .PHONY: help check strict sync sync-check graph json readme readme-check stats all
 
 help:
@@ -27,10 +40,10 @@ sync-check:
 	$(PYTHON) -m tools.graph sync --check
 
 readme:
-	$(PYTHON) -m tools.graph render --format mermaid --into README.md
+	$(PYTHON) -m tools.graph render --format mermaid --into README.md $(README_GRAPH_ARGS)
 
 readme-check:
-	$(PYTHON) -m tools.graph render --format mermaid --into README.md --check
+	$(PYTHON) -m tools.graph render --format mermaid --into README.md --check $(README_GRAPH_ARGS)
 
 graph:
 	$(PYTHON) -m tools.graph render --format mermaid --out docs/graph.mmd

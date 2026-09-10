@@ -94,6 +94,17 @@ def cmd_render(args: argparse.Namespace) -> int:
     graph = load(root)
     focus: set[str] | None = None
 
+    if args.aggregate and args.format != "mermaid":
+        print("エラー: --aggregate は --format mermaid のときだけ使えます", file=sys.stderr)
+        return 1
+    if args.aggregate and args.focus:
+        print(
+            "エラー: --aggregate と --focus は同時に使えません"
+            "（集約すると個別のノードが消えるため、絞る意味が無くなります）",
+            file=sys.stderr,
+        )
+        return 1
+
     if args.focus:
         focus = {i.strip() for i in args.focus.split(",") if i.strip()}
         unknown = sorted(i for i in focus if i not in graph.nodes)
@@ -111,7 +122,11 @@ def cmd_render(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
 
-    if args.format == "mermaid":
+    if args.format == "mermaid" and args.aggregate:
+        output = render_mod.to_mermaid_aggregate(
+            graph, include_mentions=args.include_mentions
+        )
+    elif args.format == "mermaid":
         output = render_mod.to_mermaid(
             graph, include_mentions=args.include_mentions, focus=focus
         )
@@ -489,6 +504,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--include-mentions",
         action="store_true",
         help="本文中の [[ID]] 由来のリンクも含める",
+    )
+    p_render.add_argument(
+        "--aggregate",
+        action="store_true",
+        help="型ごとに 1 つの箱へまとめる（ノードが増えても図が大きくならない。G018 の回避）",
     )
     p_render.set_defaults(func=cmd_render)
 

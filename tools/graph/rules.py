@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from datetime import date
 
-from . import schema
+from . import render, schema
 from .frontmatter import as_list
 from .loader import strip_non_prose
 from .model import ERROR, WARN, Graph, Issue, Node
@@ -34,6 +34,7 @@ RULE_INDEX: dict[str, str] = {
     "G015": "依存先が変わったのに追従していない",
     "G016": "implemented_by の指し先が存在しない",
     "G017": "文書と実装のどちらか片方だけが変わった",
+    "G018": "README の図が GitHub の描画上限に近い / 超えている",
 }
 
 
@@ -64,6 +65,7 @@ def check_all(
         rule_g013_term_consistency,
         rule_g014_required_sections,
         rule_g016_implementation_exists,
+        rule_g018_diagram_size,
     ):
         issues.extend(rule(graph))
 
@@ -749,3 +751,52 @@ def rule_g017_implementation_drift(
                 )
             )
     return issues
+
+
+# --------------------------------------------------------------------------
+# G018: README の図が GitHub の描画上限に近い
+# --------------------------------------------------------------------------
+def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
+    """README に書き込まれた図が、GitHub の描画上限に収まっているか。
+
+    **グラフからではなく、README に実際に入っている図を数える。**
+    `--aggregate` や `--focus` で間引いているリポジトリでも正しく測れるし、
+    GitHub が描こうとするのもその図そのものだから。
+
+    上限を超えている場合はエラーにする。図が丸ごと描画されず、README が
+    壊れた状態になっているため。近づいているだけなら警告に留める。
+    """
+    if graph.root is None:
+        return []
+
+    readme = graph.root / "README.md"
+    count = render.count_edges_in_markdown(readme)
+    if count is None or count < schema.MERMAID_WARN_EDGES:
+        return []
+
+    # ちょうど上限でも落ちる。GitHub の文言が
+    # 「500 edges found, but the limit is 500」で、その時点で描画されていない。
+    if count >= schema.MERMAID_MAX_EDGES:
+        return [
+            Issue(
+                "G018",
+                ERROR,
+                f"README の図のエッジが {count} 本で、GitHub の上限 "
+                f"{schema.MERMAID_MAX_EDGES} 本に達しています。"
+                "GitHub 上では図が描画されません。"
+                "Makefile の README_GRAPH_ARGS に --aggregate を足して"
+                "型ごとにまとめてください",
+                "README.md",
+            )
+        ]
+
+    return [
+        Issue(
+            "G018",
+            WARN,
+            f"README の図のエッジが {count} 本で、GitHub の上限 "
+            f"{schema.MERMAID_MAX_EDGES} 本に近づいています。"
+            "超えると図が丸ごと描画されなくなります",
+            "README.md",
+        )
+    ]
