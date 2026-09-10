@@ -50,8 +50,8 @@ related: []
 
 ## 影響
 
-- [[META-01]]: 規約とルール ID を定義し、CI の検証内容と一対一で対応させる
-- [[ARCH-01]]: アーキテクチャ変更はこの ADR の仕組みに乗せて記録する
+- [META-01](../00-meta/graph-rules.md): 規約とルール ID を定義し、CI の検証内容と一対一で対応させる
+- [ARCH-01](../10-architecture/arch-01-monitor-overview.md): アーキテクチャ変更はこの ADR の仕組みに乗せて記録する
 - 新しい文書は `python -m tools.graph new` で起こす。手で作ると採番と配置を間違える
 
 ## 見直しの条件
