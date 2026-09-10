@@ -45,6 +45,12 @@ jobs:
       - name: 関連ドキュメントが最新か確かめる
         run: python -m tools.graph sync --check
 
+      # [[ID]] のままだと GitHub 上でただの文字として出る（クリックできない）。
+      # 相対リンクに直っているかを見る。グラフは両方を同じ mentions として
+      # 扱うので、直しても検証結果は変わらない。
+      - name: 本文の参照がリンクになっているか確かめる
+        run: python -m tools.graph linkify --check
+
       # make 経由で呼ぶ。graph.mk の README_GRAPH_ARGS（--aggregate など）を
       # 効かせるため。直接 python を叩くと、間引いているリポジトリで
       # 「図が古い」と誤判定して落ちる。

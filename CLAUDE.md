@@ -36,7 +36,17 @@
    python -m tools.graph render --format mermaid --into README.md
    ```
 
-   どちらも CI で最新かを検証している。忘れると落ちる。
+   **本文に `[[ID]]` を書いたら `linkify` も回す。**
+
+   ```bash
+   python -m tools.graph linkify
+   ```
+
+   `[[ID]]` は書くときの略記で、そのままだと **GitHub 上ではただの文字として出る。**
+   `linkify` が相対リンクに整形する。参照としての扱いは両方同じなので、
+   グラフの検証結果は変わらない。
+
+   3 つとも CI で最新かを検証している。忘れると落ちる。まとめて回すなら `make all`。
    **目次の一覧ブロックも `sync` が作り直す。** 改題したら回すこと。
 
 4. **`<!-- graph:auto:start -->` 〜 `<!-- graph:auto:end -->` を手で編集しない。**

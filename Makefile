@@ -13,19 +13,21 @@ PYTHON ?= python
 # README の図に足す引数。既定は無し（全ノードをそのまま描く）。
 README_GRAPH_ARGS ?=
 
-.PHONY: help check strict sync sync-check graph json readme readme-check stats all
+.PHONY: help check strict sync sync-check linkify linkify-check graph json readme readme-check stats all
 
 help:
 	@echo "check         グラフを検証する（エラーがあれば失敗）"
 	@echo "strict        警告も失敗として扱う"
 	@echo "sync          各文書末尾の関連ドキュメントを再生成する"
 	@echo "sync-check    再生成が必要なら失敗する（CI 用）"
+	@echo "linkify       本文の [[ID]] を相対リンクに直す"
+	@echo "linkify-check 直す必要があれば失敗する（CI 用）"
 	@echo "graph         docs/graph.mmd を書き出す（Mermaid）"
 	@echo "json          docs/graph.json を書き出す"
 	@echo "readme        README の図を再生成する"
 	@echo "readme-check  README の図が古ければ失敗する（CI 用）"
 	@echo "stats         ノード数・エッジ数を表示する"
-	@echo "all           check + sync + readme"
+	@echo "all           check + sync + linkify + readme"
 
 check:
 	$(PYTHON) -m tools.graph check
@@ -38,6 +40,12 @@ sync:
 
 sync-check:
 	$(PYTHON) -m tools.graph sync --check
+
+linkify:
+	$(PYTHON) -m tools.graph linkify
+
+linkify-check:
+	$(PYTHON) -m tools.graph linkify --check
 
 readme:
 	$(PYTHON) -m tools.graph render --format mermaid --into README.md $(README_GRAPH_ARGS)
@@ -54,4 +62,4 @@ json:
 stats:
 	$(PYTHON) -m tools.graph stats
 
-all: check sync readme
+all: check sync linkify readme
