@@ -56,6 +56,6 @@ def linkify(graph: Graph, root: Path, docs: Path, *, dry_run: bool = False) -> l
             continue
         changed.append(path.relative_to(root).as_posix())
         if not dry_run:
-            path.write_text(updated, encoding="utf-8")
+            path.write_text(updated, encoding="utf-8", newline="\n")
 
     return changed
