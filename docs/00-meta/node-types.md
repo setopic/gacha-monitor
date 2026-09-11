@@ -31,7 +31,10 @@ related:
 
 ## 採番
 
-- `ARCH` `DOM` `UC` `CON` は 2 桁ゼロ埋め（`UC-01`）。50 を超えそうなら 3 桁に切り替える
+- `ARCH` `DOM` `UC` `CON` は 2 桁ゼロ埋め（`UC-01`）。50 を超えそうなら 3 桁に切り替える。
+  **切り替えるときは既存も `rename` で振り直す。** 並びは id の文字列順なので、桁が
+  混ざると `UC-100` が `UC-99` より前に来て、目次の一覧が崩れる。99 まで待たずに
+  50 で動かすのは、振り直す件数が少ないうちに済ませるため
 - `ADR` は 4 桁ゼロ埋め（`ADR-0001`）。**欠番を作らず、取り消しは `deprecated` + `supersedes`**
 - 一度振った id は再利用しない。削除したノードの id は永久欠番
 
@@ -127,13 +130,16 @@ python -m tools.graph new --type usecase --id UC-02 --title "予約をキャン�
 
 | type | 既定の雛形 | 別の雛形 |
 | --- | --- | --- |
-| `contract` | `contract.md`（伝送方式に依存しない） | `contract-http.md`（HTTP 用） |
+| `contract` | `contract.md`（伝送方式に依存しない） | `contract-http.md`（HTTP 用）／`contract-interaction.md`（チャットの操作） |
 | `usecase` | `usecase.md`（システムの振る舞い） | `usecase-runbook.md`（**人間が実行する手順**） |
 | その他 | `<type>.md` | — |
 
 ```bash
 python -m tools.graph new --type contract --template contract-http --id CON-02 --title "..."
 ```
+
+既定を汎用にしてあるのは、この層の抽象が「境界をまたぐ約束事」であって
+HTTP に限らないため。UI 操作・メッセージキュー・ファイル形式もこの層に置ける。
 
 ### `usecase-runbook` を使うとき
 
@@ -168,9 +174,6 @@ python -m tools.graph new --type contract --template contract-http --id CON-02 -
 「完了の確認」が別の手順書で定義されているなら、それは順序ではなく前提。
 
 判定は他の層と同じ。**その手順書が、参照先なしに完結するかどうか**を見る。
-
-既定を汎用にしてあるのは、この層の抽象が「境界をまたぐ約束事」であって
-HTTP に限らないため。UI 操作・メッセージキュー・ファイル形式もこの層に置ける。
 
 ## id を変えるとき
 
