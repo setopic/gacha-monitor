@@ -929,11 +929,31 @@ def _referenced_ids(text: str, node: Node, by_path: dict[Path, Node]) -> set[str
 
 
 def superseded_index(graph: Graph) -> dict[str, set[str]]:
-    """`取り下げられた id -> それを置き換えたノードの id` の索引。"""
-    index: dict[str, set[str]] = {}
+    """`取り下げられた id -> それを置き換えたノードの id` の索引。
+
+    **連鎖を辿る。** `A → B → C` と置き換わったとき、`A` の置き換え先は
+    `B` と `C` の両方とする。**現在の決定（連鎖の先端）を指すのは、直接の
+    置き換え先を指すより正しい。** 片方しか認めないと、正しく書いた文書が鳴る。
+
+    `supersedes` は `G006` が循環を見ているが、**ここでは自前で番をする。**
+    循環していても検査が止まらないほうがよい。
+    """
+    direct: dict[str, set[str]] = {}
     for node in graph.nodes.values():
         for target in as_list(node.meta.get("supersedes")):
-            index.setdefault(target, set()).add(node.id)
+            direct.setdefault(target, set()).add(node.id)
+
+    index: dict[str, set[str]] = {}
+    for start in direct:
+        seen: set[str] = set()
+        stack = list(direct[start])
+        while stack:
+            current = stack.pop()
+            if current in seen or current == start:
+                continue
+            seen.add(current)
+            stack.extend(direct.get(current, ()))
+        index[start] = seen
     return index
 
 

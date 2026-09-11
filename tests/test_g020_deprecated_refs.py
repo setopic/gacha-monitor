@@ -101,6 +101,38 @@ class Citations(unittest.TestCase):
             unacknowledged_citations(citing, graph, superseded_index(graph)), []
         )
 
+    def test_pointing_at_the_head_of_the_chain_is_silent(self) -> None:
+        """**連鎖の先端（現在の決定）を指すのも承知のうえである。**
+
+        `A → B → C` と置き換わったとき、**現在の決定 `C` を指すほうが、
+        直接の置き換え先 `B` を指すより正しい。** 片方しか認めないと、
+        正しく書いた文書が鳴る。実データの表（「ADR-0004 の時点」と
+        「現在（ADR-0007）」を並べたもの）がこれで落ちていた。
+        """
+        mid = node("ADR-0010", type_="adr", status="deprecated", supersedes=["ADR-0008"])
+        head = node("ADR-0012", type_="adr", supersedes=["ADR-0010"])
+        citing = node("ARCH-01", type_="architecture", body="[[ADR-0008]] の時点と、いまの [[ADR-0012]]。")
+        graph = make_graph([OLD, mid, head, citing])
+        self.assertEqual(
+            unacknowledged_citations(citing, graph, superseded_index(graph)), []
+        )
+
+    def test_chain_is_listed_in_the_message(self) -> None:
+        """指し直す先の候補は連鎖ぶん並べる。"""
+        mid = node("ADR-0010", type_="adr", status="deprecated", supersedes=["ADR-0008"])
+        head = node("ADR-0012", type_="adr", supersedes=["ADR-0010"])
+        citing = node("UC-01", body="[[ADR-0008]] による。")
+        issues = rule_g020_deprecated_references(make_graph([OLD, mid, head, citing]))
+        self.assertIn("ADR-0008（置き換え先: ADR-0010 / ADR-0012）", issues[0].message)
+
+    def test_superseding_cycle_does_not_hang(self) -> None:
+        """`supersedes` の循環は `G006` の仕事。**ここで止まらないことだけを見る。**"""
+        a = node("ADR-0030", type_="adr", status="deprecated", supersedes=["ADR-0031"])
+        b = node("ADR-0031", type_="adr", status="deprecated", supersedes=["ADR-0030"])
+        citing = node("UC-01", body="[[ADR-0030]] による。")
+        issues = rule_g020_deprecated_references(make_graph([a, b, citing]))
+        self.assertEqual(len(issues), 1)
+
     def test_table_row_counts_as_one_paragraph(self) -> None:
         """表は空行を挟まないので 1 段落。同じ表の中で断れば黙る。"""
         body = (
