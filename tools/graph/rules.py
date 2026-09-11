@@ -968,9 +968,12 @@ def unacknowledged_citations(
 
     文書のどこかで指していれば足りる、にはしない。長い文書では別の話題で
     置き換え先に触れているだけで黙ってしまい、実データで本物を取りこぼした。
+
+    **自分が連鎖上の置き換え先なら、何度でも引いてよい。** 置き換えた側が
+    「あちらはこう決めていた」と書くのは仕事のうちで、直接の置き換え先でも、
+    2 つ前の決定でも変わらない。
     """
     by_path = {n.path.resolve(): n for n in graph.nodes.values()}
-    own = set(as_list(node.meta.get("supersedes")))
     unacknowledged: set[str] = set()
 
     for block in paragraphs(node.body):
@@ -979,9 +982,10 @@ def unacknowledged_citations(
             target = graph.nodes.get(target_id)
             if target is None or target.status != "deprecated":
                 continue
-            if target_id in own:
+            successors = replaced_by.get(target_id, set())
+            if node.id in successors:
                 continue  # 置き換えた側。指さないほうがおかしい
-            if replaced_by.get(target_id, set()) & here:
+            if successors & here:
                 continue  # その場で置き換え先も指している
             unacknowledged.add(target_id)
 
