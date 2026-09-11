@@ -132,6 +132,20 @@ UNSTABLE_STATUSES = ("draft", "deprecated")
 STALE_AFTER_DAYS = 90
 STALE_STATUSES = ("draft", "review")
 
+# 確定したら書き換えない種別。**決定を変えるときは本文を直さず、新しいノードを起こす。**
+# 古いノードに要るのは後継へのリンクだけで、本文の維持は要らない。
+#
+# **確定していない間（STALE_STATUSES）は書き換えてよい。** まだ決めている途中だから。
+#
+# これを宣言した種別には、本文を直させる検査を当てない（G020）。
+# 直すこと自体がこの原則に反するので、**直しようのない指摘になる。**
+IMMUTABLE_RECORD_TYPES = ("adr",)
+
+
+def is_immutable_record(node_type: str, status: str) -> bool:
+    """確定した記録か。確定前（`draft` / `review`）は書き換えてよいので False。"""
+    return node_type in IMMUTABLE_RECORD_TYPES and status not in STALE_STATUSES
+
 # G012: depends_on でこれより多く参照されているノードは、概念が混ざっている疑い。
 #       変更時の影響範囲が広くなりすぎる前に分割を検討する。
 MAX_INCOMING_DEPENDENCIES = 8
