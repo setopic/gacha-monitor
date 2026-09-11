@@ -101,6 +101,25 @@ class Citations(unittest.TestCase):
             unacknowledged_citations(citing, graph, superseded_index(graph)), []
         )
 
+    def test_chain_successor_may_cite_two_decisions_back(self) -> None:
+        """**連鎖の先にいる側も、遡って引いてよい。**
+
+        `A → B → C` のとき、`C` が `A` を引くのは「あちらはこう決めていた」と
+        書いているだけで、直接の置き換え先 `B` を引くのと変わらない。
+        実データでは `ADR-0007` が 2 つ前の `ADR-0004` を 4 箇所で引いていた。
+        """
+        mid = node("ADR-0010", type_="adr", status="deprecated", supersedes=["ADR-0008"])
+        head = node(
+            "ADR-0012",
+            type_="adr",
+            body="[[ADR-0008]] と同じ結論だが、理由がまったく違う。",
+            supersedes=["ADR-0010"],
+        )
+        graph = make_graph([OLD, mid, head])
+        self.assertEqual(
+            unacknowledged_citations(head, graph, superseded_index(graph)), []
+        )
+
     def test_pointing_at_the_head_of_the_chain_is_silent(self) -> None:
         """**連鎖の先端（現在の決定）を指すのも承知のうえである。**
 
