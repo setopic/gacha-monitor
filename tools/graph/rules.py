@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import re
 from datetime import date
+from pathlib import Path
 
 from . import render, schema
 from .frontmatter import as_list
-from .loader import strip_non_prose
+from .loader import MDLINK_RE, WIKILINK_RE, strip_non_prose
 from .model import ERROR, WARN, Graph, Issue, Node
 from .rename import _scan_targets
 
@@ -37,6 +38,8 @@ RULE_INDEX: dict[str, str] = {
     "G017": "文書と実装のどちらか片方だけが変わった",
     "G018": "README の図が GitHub の描画上限に近い / 超えている",
     "G019": "Markdown の表が途中で切れている",
+    "G020": "取り下げた決定を現在の根拠として引いている",
+    "G021": "自動生成ブロックより後ろに本文がある",
 }
 
 
@@ -69,6 +72,8 @@ def check_all(
         rule_g016_implementation_exists,
         rule_g018_diagram_size,
         rule_g019_broken_tables,
+        rule_g020_deprecated_references,
+        rule_g021_content_after_auto_block,
     ):
         issues.extend(rule(graph))
 
@@ -891,5 +896,203 @@ def rule_g019_broken_tables(graph: Graph) -> list[Issue]:
                     rel,
                 )
             )
+
+    return issues
+
+
+# --------------------------------------------------------------------------
+# G020: 取り下げた決定を現在の根拠として引いている
+# --------------------------------------------------------------------------
+PARAGRAPH_RE = re.compile(r"\n\s*\n")
+
+
+def paragraphs(body: str) -> list[str]:
+    """空行で区切った段落。**表は 1 つの段落にまとまる。**
+
+    リンクとして数えない場所（コードブロック・コメント）は先に落とす。
+    雛形の記入案内は HTML コメントの中にあり、そこに書いた例を数えると
+    雛形そのものが落ちる。
+    """
+    return PARAGRAPH_RE.split(strip_non_prose(body))
+
+
+def _referenced_ids(text: str, node: Node, by_path: dict[Path, Node]) -> set[str]:
+    """その断片が指しているノードの id。解決できないリンクは無視する（G004 の仕事）。"""
+    found = {raw.strip() for raw in WIKILINK_RE.findall(text)}
+    for href in MDLINK_RE.findall(text):
+        if not href.endswith(".md") or "://" in href:
+            continue
+        linked = by_path.get((node.path.parent / href).resolve())
+        if linked is not None:
+            found.add(linked.id)
+    return found
+
+
+def superseded_index(graph: Graph) -> dict[str, set[str]]:
+    """`取り下げられた id -> それを置き換えたノードの id` の索引。"""
+    index: dict[str, set[str]] = {}
+    for node in graph.nodes.values():
+        for target in as_list(node.meta.get("supersedes")):
+            index.setdefault(target, set()).add(node.id)
+    return index
+
+
+def unacknowledged_citations(
+    node: Node, graph: Graph, replaced_by: dict[str, set[str]]
+) -> list[str]:
+    """そのノードが**断りなく**引いている deprecated なノードの id。
+
+    判定は段落ごとに行う。**同じ段落の中で置き換え先も指していれば、
+    承知のうえで引いていると見なして黙る。**「以前は X と決めていた
+    （[[ADR-0008]]。いまは [[ADR-0014]]）」は正しい書き方だからである。
+
+    文書のどこかで指していれば足りる、にはしない。長い文書では別の話題で
+    置き換え先に触れているだけで黙ってしまい、実データで本物を取りこぼした。
+    """
+    by_path = {n.path.resolve(): n for n in graph.nodes.values()}
+    own = set(as_list(node.meta.get("supersedes")))
+    unacknowledged: set[str] = set()
+
+    for block in paragraphs(node.body):
+        here = _referenced_ids(block, node, by_path)
+        for target_id in here:
+            target = graph.nodes.get(target_id)
+            if target is None or target.status != "deprecated":
+                continue
+            if target_id in own:
+                continue  # 置き換えた側。指さないほうがおかしい
+            if replaced_by.get(target_id, set()) & here:
+                continue  # その場で置き換え先も指している
+            unacknowledged.add(target_id)
+
+    return sorted(unacknowledged)
+
+
+def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
+    """本文が `deprecated` なノードを、現在の根拠として引いていないか。
+
+    **問題は「参照していること」ではなく「現在の根拠として引いていること」。**
+    実データでは、置き換え先の ADR がすでに決まっているのに古いほうを指した
+    まま、という形がユースケース層と契約層に集中して残っていた。
+
+    **歴史として引くのは正当なので、エラーにはできない。**
+    「以前は X と書いていた（[[ADR-0008]]）」は正しい使い方である。
+    `G009`〜`G015` と同じ警告にして、承知のうえで放置できる形にする。
+
+    黙るのは 3 つ。
+
+    - 自分の `supersedes` に挙げた指し先（**置き換えた側は指さないとおかしい**）
+    - `index` ノード（一覧は取り下げたものも並べる。それが仕事である）
+    - 自分も `deprecated`（歴史が歴史を引いている）
+
+    加えて、**同じ段落の中で置き換え先も指していれば黙る。**
+
+    `G009` と重ならない。あちらは `stable` なノードの `depends_on` だけを見る。
+    こちらは status を問わず**本文のリンク**を見るので、実データの残りは
+    ほとんどこちらでしか出ない。
+    """
+    replaced_by = superseded_index(graph)
+    issues: list[Issue] = []
+
+    for node in graph.sorted_nodes():
+        if node.type == "index" or node.status == "deprecated":
+            continue
+        stale = unacknowledged_citations(node, graph, replaced_by)
+        if not stale:
+            continue
+
+        named = []
+        for target_id in stale:
+            successors = sorted(replaced_by.get(target_id, set()))
+            if successors:
+                named.append(f"{target_id}（置き換え先: {' / '.join(successors)}）")
+            else:
+                named.append(f"{target_id}（置き換え先なし）")
+
+        issues.append(
+            Issue(
+                "G020",
+                WARN,
+                "取り下げた決定を、断りなく引いています: "
+                + " / ".join(named)
+                + "。置き換え先を指すか、引き継いだ範囲を書いてください"
+                "（歴史として引いているならそのままでよい）",
+                node.rel,
+            )
+        )
+
+    return issues
+
+
+# --------------------------------------------------------------------------
+# G021: 自動生成ブロックより後ろに本文がある
+# --------------------------------------------------------------------------
+def content_after_auto_block(text: str) -> tuple[int, str] | None:
+    """自動生成ブロックより後ろに残った本文を `(行番号, 最初の行)` で返す。
+
+    **ファイルの生テキストを渡す。** `node.body` は `strip_auto_block` を
+    通した後なので、ブロックの前後が繋がってしまい判定にならない。
+
+    目印は `graph:auto:end` **だけ**を見る。目次の `graph:children:end` は
+    文書の途中に置かれるのが正しい（一覧の後ろに使い方を書く）。
+
+    ブロックが 2 つある文書は既に壊れているが、**最後の 1 つ**を基準にする。
+    間に挟まった本文まで数えると、直す場所が分からない指摘になる。
+    """
+    index = text.rfind(schema.AUTO_BLOCK_END)
+    if index == -1:
+        return None
+
+    tail = text[index + len(schema.AUTO_BLOCK_END) :]
+    if not tail.strip():
+        return None
+
+    before = text[: index + len(schema.AUTO_BLOCK_END)].count("\n")
+    for offset, line in enumerate(tail.split("\n")):
+        if line.strip():
+            return before + offset + 1, line.strip()
+    return None
+
+
+def rule_g021_content_after_auto_block(graph: Graph) -> list[Issue]:
+    """`sync` が書くブロックより後ろに本文が残っていないか。
+
+    自動ブロックは「関連ドキュメント（自動生成 / 手で編集しない）」という
+    **文書の締め**である。**その下に本文が続くとは読む人は思わない。**
+
+    しかも CLAUDE.md が「この塊を手で編集するな」と書いているので、
+    **下の本文を直したい人は「触るな」と書かれた塊を越えて行くことになる。**
+
+    `sync` は自分では直せない。ブロックが既にあれば**その場で入れ替える**だけで、
+    後ろに回った本文は動かさない。だから一度こうなると、黙って残り続ける。
+
+    **実際に `META-01` で 85 行（文書の 12%）が落ちていた。**
+    共有ファイルなので 7 リポジトリすべてが同じ状態だった。1.14.2 で直した。
+
+    **警告ではなくエラーにした。** `G019` と同じで、承知のうえで放置してよい
+    場合が無い。読む人に届いていない本文がそこにある、というだけである。
+    """
+    issues: list[Issue] = []
+    for node in graph.sorted_nodes():
+        try:
+            text = node.path.read_text(encoding="utf-8")
+        except OSError:
+            continue  # 読めないものは他のルールが指す
+
+        found = content_after_auto_block(text)
+        if found is None:
+            continue
+
+        lineno, line = found
+        issues.append(
+            Issue(
+                "G021",
+                ERROR,
+                f"{lineno} 行目から、自動生成ブロックより後ろに本文が残っています。"
+                "ブロックは文書の締めなので、読む人はここまで来ません。"
+                f"本文をブロックの前へ移してください: {line[:60]}",
+                node.rel,
+            )
+        )
 
     return issues

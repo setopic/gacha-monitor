@@ -1,0 +1,233 @@
+"""G020（取り下げた決定を現在の根拠として引いている）のテスト。
+
+**問題は「参照していること」ではなく「現在の根拠として引いていること」である。**
+歴史として引くのは正当なので、`G019` と違ってエラーにはできない。
+`G009`〜`G015` と同じ警告にして、承知のうえで放置できる形にする。
+
+**黙る条件を実データで決めた。** 7 リポジトリに当てて、
+
+- 段落の中で置き換え先も指していれば黙る → 44 ノード
+- 文書のどこかで指していれば黙る → 28 ノード。**本物を 1 件取りこぼした**
+- ADR をまるごと除外 → 31 ノード。**本物を 3 件とも取りこぼした**
+
+段落に絞った案だけが、断って引いている 3 件を黙らせたうえで、
+理由の節で古い決定を引いている 3 件を残せた。ここはその判定を固定する。
+"""
+
+from __future__ import annotations
+
+import shutil
+import tempfile
+import unittest
+from pathlib import Path
+
+from tools.graph.loader import load
+from tools.graph.model import WARN, Node
+from tools.graph.rules import (
+    rule_g020_deprecated_references,
+    superseded_index,
+    unacknowledged_citations,
+)
+
+from .helpers import make_graph
+
+
+def node(
+    node_id: str,
+    *,
+    type_: str = "usecase",
+    status: str = "stable",
+    body: str = "",
+    supersedes: list[str] | None = None,
+) -> Node:
+    meta = {"id": node_id, "type": type_, "title": node_id, "status": status}
+    if supersedes is not None:
+        meta["supersedes"] = supersedes
+    return Node(
+        id=node_id,
+        type=type_,
+        title=node_id,
+        status=status,
+        tags=[],
+        path=Path(f"docs/{node_id}.md"),
+        rel=f"docs/{node_id}.md",
+        meta=meta,
+        body=body,
+    )
+
+
+# 取り下げられた決定と、それを置き換えた決定。どのテストもこの 2 つを使う。
+OLD = node("ADR-0008", type_="adr", status="deprecated")
+NEW = node("ADR-0014", type_="adr", status="stable", supersedes=["ADR-0008"])
+
+
+class Citations(unittest.TestCase):
+    """段落単位の判定そのもの。"""
+
+    def cite(self, body: str, **kw) -> list[str]:
+        citing = node("UC-01", body=body, **kw)
+        graph = make_graph([OLD, NEW, citing])
+        return unacknowledged_citations(citing, graph, superseded_index(graph))
+
+    def test_bare_citation_is_flagged(self) -> None:
+        """断りなく引いている。**これが直したい形。**"""
+        self.assertEqual(self.cite("報告期限は締めである（[[ADR-0008]]）。"), ["ADR-0008"])
+
+    def test_successor_in_same_paragraph_is_silent(self) -> None:
+        """その場で置き換え先も指していれば、承知のうえと見なす。"""
+        self.assertEqual(
+            self.cite("以前は締めだった（[[ADR-0008]]。いまは [[ADR-0014]]）。"), []
+        )
+
+    def test_successor_in_another_paragraph_still_flags(self) -> None:
+        """**文書のどこかにあれば足りる、にはしない。**
+
+        長い文書では別の話題で置き換え先に触れているだけで黙ってしまい、
+        実データで本物を取りこぼした。
+        """
+        body = "報告期限は締めである（[[ADR-0008]]）。\n\n別の話。[[ADR-0014]] を見よ。\n"
+        self.assertEqual(self.cite(body), ["ADR-0008"])
+
+    def test_superseding_node_may_cite_what_it_replaces(self) -> None:
+        """置き換えた側は指さないほうがおかしい。"""
+        citing = node(
+            "ADR-0014",
+            type_="adr",
+            body="[[ADR-0008]] を置き換える。",
+            supersedes=["ADR-0008"],
+        )
+        graph = make_graph([OLD, citing])
+        self.assertEqual(
+            unacknowledged_citations(citing, graph, superseded_index(graph)), []
+        )
+
+    def test_table_row_counts_as_one_paragraph(self) -> None:
+        """表は空行を挟まないので 1 段落。同じ表の中で断れば黙る。"""
+        body = (
+            "| 決定 | 扱い |\n"
+            "| --- | --- |\n"
+            "| [[ADR-0008]] | [[ADR-0014]] が置き換えた |\n"
+        )
+        self.assertEqual(self.cite(body), [])
+
+    def test_code_block_is_ignored(self) -> None:
+        """規約文書と雛形は書き方をコードブロックで例示する。そこは数えない。"""
+        self.assertEqual(self.cite("説明。\n\n```\n[[ADR-0008]]\n```\n"), [])
+
+    def test_html_comment_is_ignored(self) -> None:
+        """雛形の記入案内はコメントの中にある。"""
+        self.assertEqual(self.cite("<!-- 例: [[ADR-0008]] を引く -->\n本文。\n"), [])
+
+    def test_stable_target_is_not_flagged(self) -> None:
+        """取り下げていない決定を引くのは当たり前。"""
+        self.assertEqual(self.cite("[[ADR-0014]] による。"), [])
+
+    def test_unresolved_link_is_ignored(self) -> None:
+        """リンク切れは G004 の仕事。ここでは黙る。"""
+        self.assertEqual(self.cite("[[ADR-9999]] による。"), [])
+
+
+class Rule(unittest.TestCase):
+    """ルールとしての出方。"""
+
+    def issues(self, *nodes: Node):
+        return rule_g020_deprecated_references(make_graph([OLD, NEW, *nodes]))
+
+    def test_warns_not_errors(self) -> None:
+        """**歴史参照が正当なので、エラーにはできない。**"""
+        issues = self.issues(node("UC-01", body="[[ADR-0008]] による。"))
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0].severity, WARN)
+        self.assertEqual(issues[0].code, "G020")
+        self.assertEqual(issues[0].location, "docs/UC-01.md")
+
+    def test_message_names_the_successor(self) -> None:
+        """どこを指し直せばよいかを、読まずに分かる形で出す。"""
+        issues = self.issues(node("UC-01", body="[[ADR-0008]] による。"))
+        self.assertIn("ADR-0008（置き換え先: ADR-0014）", issues[0].message)
+
+    def test_index_nodes_are_exempt(self) -> None:
+        """一覧は取り下げたものも並べる。それが仕事である。"""
+        self.assertEqual(
+            self.issues(node("IDX-ADR", type_="index", body="- [[ADR-0008]]")), []
+        )
+
+    def test_deprecated_node_may_cite_deprecated(self) -> None:
+        """歴史が歴史を引いている。"""
+        self.assertEqual(
+            self.issues(
+                node("UC-02", status="deprecated", body="[[ADR-0008]] による。")
+            ),
+            [],
+        )
+
+    def test_one_issue_per_node(self) -> None:
+        """節ごとではなくノードごとに 1 件。指し先は並べて出す。"""
+        old2 = node("ADR-0003", type_="adr", status="deprecated")
+        body = "[[ADR-0008]] による。\n\nまた [[ADR-0003]] による。\n"
+        graph = make_graph([OLD, NEW, old2, node("UC-01", body=body)])
+        issues = rule_g020_deprecated_references(graph)
+        self.assertEqual(len(issues), 1)
+        self.assertIn("ADR-0003", issues[0].message)
+        self.assertIn("ADR-0008", issues[0].message)
+
+    def test_target_without_successor_says_so(self) -> None:
+        """置き換えずに取り下げただけの決定もある。指し直す先が無いと書く。"""
+        graph = make_graph([OLD, node("UC-01", body="[[ADR-0008]] による。")])
+        issues = rule_g020_deprecated_references(graph)
+        self.assertIn("置き換え先なし", issues[0].message)
+
+
+class MarkdownLinks(unittest.TestCase):
+    """`[題](./xxx.md)` の形も数える。**実データではこちらが主だった。**"""
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.docs = self.tmp / "docs"
+        (self.docs / "50-adr").mkdir(parents=True)
+
+    def write(self, rel: str, text: str) -> None:
+        (self.docs / rel).write_text(text, encoding="utf-8", newline="\n")
+
+    def build(self, citing_body: str) -> None:
+        self.write(
+            "index.md",
+            "---\nid: IDX-ROOT\ntype: index\ntitle: 目次\nstatus: stable\n---\n\n"
+            "# 目次\n\n- [ADR-0008](./50-adr/adr-0008-old.md)\n"
+            "- [ADR-0014](./50-adr/adr-0014-new.md)\n",
+        )
+        self.write(
+            "50-adr/adr-0008-old.md",
+            "---\nid: ADR-0008\ntype: adr\ntitle: 古い決定\nstatus: deprecated\n---\n\n"
+            "# 古い決定\n",
+        )
+        self.write(
+            "50-adr/adr-0014-new.md",
+            "---\nid: ADR-0014\ntype: adr\ntitle: 新しい決定\nstatus: stable\n"
+            "supersedes:\n  - ADR-0008\n---\n\n# 新しい決定\n",
+        )
+        self.write(
+            "50-adr/adr-0020-citing.md",
+            "---\nid: ADR-0020\ntype: adr\ntitle: 引いている決定\nstatus: stable\n---\n\n"
+            "# 引いている決定\n\n" + citing_body,
+        )
+
+    def codes(self) -> list[str]:
+        graph = load(self.tmp)
+        return [i.location for i in rule_g020_deprecated_references(graph)]
+
+    def test_markdown_link_to_deprecated_is_flagged(self) -> None:
+        self.build("報告期限は締めである（[ADR-0008](./adr-0008-old.md)）。\n")
+        self.assertEqual(self.codes(), ["docs/50-adr/adr-0020-citing.md"])
+
+    def test_markdown_link_with_successor_is_silent(self) -> None:
+        self.build(
+            "以前は締めだった（[ADR-0008](./adr-0008-old.md)。"
+            "いまは [ADR-0014](./adr-0014-new.md)）。\n"
+        )
+        self.assertEqual(self.codes(), [])
+
+
+if __name__ == "__main__":
+    unittest.main()
