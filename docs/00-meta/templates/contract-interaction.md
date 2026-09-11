@@ -14,7 +14,7 @@ related: []
 チャットプラットフォームの操作（スラッシュコマンド、ボタン、メニュー）を
 書くための雛形。HTTP の API なら別の雛形を使う:
 
-    python -m tools.graph new --template contract-http --type contract --id CON-02 --title "..."
+    python -m tools.graph new --type contract --template contract-http --id CON-02 --title "..."
 
 **この形が契約になるのは、受け口の名前と引数が利用者の手元に固定されるため。**
 コマンド名やボタンの識別子を変えると、設置済みのメッセージが動かなくなる。
@@ -68,4 +68,4 @@ related: []
 
 ## 未確認
 
-<!-- 実機で確かめていないこと。無ければ「無し」と書く -->
+<!-- 実機で確かめていないこと。無ければ「なし」と書く -->
