@@ -1003,13 +1003,24 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
     「以前は X と書いていた（[[ADR-0008]]）」は正しい使い方である。
     `G009`〜`G015` と同じ警告にして、承知のうえで放置できる形にする。
 
-    黙るのは 3 つ。
+    警告に添える直し方も**「置き換え先を指す」だけ**にする。「引き継がれた範囲を
+    書く」は、書く場所が**置き換えた側の ADR の「決定」**であって、
+    引いている側ではない。
 
-    - 自分の `supersedes` に挙げた指し先（**置き換えた側は指さないとおかしい**）
+    黙るのは 4 つ。
+
+    - **確定した記録**（`schema.IMMUTABLE_RECORD_TYPES`。既定では `stable` な ADR）。
+      **確定した ADR は書き換えない**ので、本文を直させる指摘は成立しない。
+      確定前（`draft` / `review`）はまだ決めている途中なので対象に残す
+    - 自分が連鎖上の置き換え先である指し先（**置き換えた側は指さないとおかしい**）
     - `index` ノード（一覧は取り下げたものも並べる。それが仕事である）
-    - 自分も `deprecated`（歴史が歴史を引いている）
+    - 自分も `deprecated`
 
     加えて、**同じ段落の中で置き換え先も指していれば黙る。**
+
+    **残るのは実質、現在の設計を述べる層である。** そこは「いまどうなっているか」
+    だけを書く場所なので、古い決定を指していたら**生きている決定に差し替える。**
+    経緯を書き足すのではなく、取り下げた ADR への参照ごと消えるのが正しい。
 
     `G009` と重ならない。あちらは `stable` なノードの `depends_on` だけを見る。
     こちらは status を問わず**本文のリンク**を見るので、実データの残りは
@@ -1020,6 +1031,8 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
 
     for node in graph.sorted_nodes():
         if node.type == "index" or node.status == "deprecated":
+            continue
+        if schema.is_immutable_record(node.type, node.status):
             continue
         stale = unacknowledged_citations(node, graph, replaced_by)
         if not stale:
@@ -1039,7 +1052,7 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
                 WARN,
                 "取り下げた決定を、断りなく引いています: "
                 + " / ".join(named)
-                + "。置き換え先を指すか、引き継いだ範囲を書いてください"
+                + "。生きている決定に差し替えてください"
                 "（歴史として引いているならそのままでよい）",
                 node.rel,
             )

@@ -197,6 +197,33 @@ class Rule(unittest.TestCase):
         issues = self.issues(node("UC-01", body="[[ADR-0008]] による。"))
         self.assertIn("ADR-0008（置き換え先: ADR-0014）", issues[0].message)
 
+    def test_settled_adr_is_exempt(self) -> None:
+        """**確定した ADR は不変の記録。** 本文を直させる指摘は成立しない。
+
+        決定を変えるときは本文を書き換えず、新しい ADR を起こす。古い ADR に
+        要るのは後継へのリンクだけで、本文の維持は要らない。
+        **直せないものを鳴らし続けると `--strict` が塞がるだけである。**
+        """
+        self.assertEqual(
+            self.issues(node("ADR-0020", type_="adr", body="[[ADR-0008]] による。")), []
+        )
+
+    def test_unsettled_adr_is_still_checked(self) -> None:
+        """**確定前はまだ決めている途中なので、直してよい。**"""
+        for status in ("draft", "review"):
+            with self.subTest(status=status):
+                issues = self.issues(
+                    node("ADR-0020", type_="adr", status=status, body="[[ADR-0008]] による。")
+                )
+                self.assertEqual(len(issues), 1)
+
+    def test_non_adr_layers_are_checked_whatever_the_status(self) -> None:
+        """現在の設計を述べる層は、確定していても「いまの姿」に保つ場所である。"""
+        for type_ in ("architecture", "domain", "usecase", "contract"):
+            with self.subTest(type_=type_):
+                citing = node("X-01", type_=type_, body="[[ADR-0008]] による。")
+                self.assertEqual(len(self.issues(citing)), 1)
+
     def test_index_nodes_are_exempt(self) -> None:
         """一覧は取り下げたものも並べる。それが仕事である。"""
         self.assertEqual(
@@ -260,7 +287,8 @@ class MarkdownLinks(unittest.TestCase):
         )
         self.write(
             "50-adr/adr-0020-citing.md",
-            "---\nid: ADR-0020\ntype: adr\ntitle: 引いている決定\nstatus: stable\n---\n\n"
+            # **確定前なので対象に残る。** stable にすると不変の記録として黙る。
+            "---\nid: ADR-0020\ntype: adr\ntitle: 引いている決定\nstatus: review\n---\n\n"
             "# 引いている決定\n\n" + citing_body,
         )
 
