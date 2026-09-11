@@ -105,11 +105,17 @@ issue が持っていた問いに答えが出た時点で、issue の役目は�
 必要になったら打つ。**打っていないことを既定値として書いておく**のは、
 「打ち忘れている」のか「打たない方針」なのかを後から区別するためである。
 
+**履歴は 3 つに分かれていて、持ち主が違う。**
+
 | 何を | どこに書くか |
 | --- | --- |
-| テンプレート自身の変更 | `TEMPLATE_CHANGELOG.md` と `tools/graph/version.py`（SemVer） |
+| 検証ツールの層（`graph-doc-template`）の変更 | `TEMPLATE_CHANGELOG.md` と `tools/graph/version.py`（SemVer） |
+| 統合型の層（`graph-project-template`）の変更 | `PROJECT_TEMPLATE_CHANGELOG.md` |
 | **このプロジェクト自身の変更** | **`PROJECT_CHANGELOG.md`** |
 | 配置の手順 | ユースケース（`usecase-runbook` 雛形） |
+
+**上 2 つはテンプレートの層の履歴で、マージで流れてくる。**
+派生プロジェクトが書くのは `PROJECT_CHANGELOG.md` だけである。
 
 **配置は自動と手動の両方がある。** CI から送るもの（GAS への `clasp` など）と、
 手順書に沿って人が送るもの（ホストへの配置など）がある。
