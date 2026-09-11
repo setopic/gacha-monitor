@@ -39,6 +39,7 @@ RULE_INDEX: dict[str, str] = {
     "G018": "README の図が GitHub の描画上限に近い / 超えている",
     "G019": "Markdown の表が途中で切れている",
     "G020": "取り下げた決定を現在の根拠として引いている",
+    "G021": "自動生成ブロックより後ろに本文がある",
 }
 
 
@@ -72,6 +73,7 @@ def check_all(
         rule_g018_diagram_size,
         rule_g019_broken_tables,
         rule_g020_deprecated_references,
+        rule_g021_content_after_auto_block,
     ):
         issues.extend(rule(graph))
 
@@ -1021,3 +1023,76 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
 
     return issues
 
+
+# --------------------------------------------------------------------------
+# G021: 自動生成ブロックより後ろに本文がある
+# --------------------------------------------------------------------------
+def content_after_auto_block(text: str) -> tuple[int, str] | None:
+    """自動生成ブロックより後ろに残った本文を `(行番号, 最初の行)` で返す。
+
+    **ファイルの生テキストを渡す。** `node.body` は `strip_auto_block` を
+    通した後なので、ブロックの前後が繋がってしまい判定にならない。
+
+    目印は `graph:auto:end` **だけ**を見る。目次の `graph:children:end` は
+    文書の途中に置かれるのが正しい（一覧の後ろに使い方を書く）。
+
+    ブロックが 2 つある文書は既に壊れているが、**最後の 1 つ**を基準にする。
+    間に挟まった本文まで数えると、直す場所が分からない指摘になる。
+    """
+    index = text.rfind(schema.AUTO_BLOCK_END)
+    if index == -1:
+        return None
+
+    tail = text[index + len(schema.AUTO_BLOCK_END) :]
+    if not tail.strip():
+        return None
+
+    before = text[: index + len(schema.AUTO_BLOCK_END)].count("\n")
+    for offset, line in enumerate(tail.split("\n")):
+        if line.strip():
+            return before + offset + 1, line.strip()
+    return None
+
+
+def rule_g021_content_after_auto_block(graph: Graph) -> list[Issue]:
+    """`sync` が書くブロックより後ろに本文が残っていないか。
+
+    自動ブロックは「関連ドキュメント（自動生成 / 手で編集しない）」という
+    **文書の締め**である。**その下に本文が続くとは読む人は思わない。**
+
+    しかも CLAUDE.md が「この塊を手で編集するな」と書いているので、
+    **下の本文を直したい人は「触るな」と書かれた塊を越えて行くことになる。**
+
+    `sync` は自分では直せない。ブロックが既にあれば**その場で入れ替える**だけで、
+    後ろに回った本文は動かさない。だから一度こうなると、黙って残り続ける。
+
+    **実際に `META-01` で 85 行（文書の 12%）が落ちていた。**
+    共有ファイルなので 7 リポジトリすべてが同じ状態だった。1.14.2 で直した。
+
+    **警告ではなくエラーにした。** `G019` と同じで、承知のうえで放置してよい
+    場合が無い。読む人に届いていない本文がそこにある、というだけである。
+    """
+    issues: list[Issue] = []
+    for node in graph.sorted_nodes():
+        try:
+            text = node.path.read_text(encoding="utf-8")
+        except OSError:
+            continue  # 読めないものは他のルールが指す
+
+        found = content_after_auto_block(text)
+        if found is None:
+            continue
+
+        lineno, line = found
+        issues.append(
+            Issue(
+                "G021",
+                ERROR,
+                f"{lineno} 行目から、自動生成ブロックより後ろに本文が残っています。"
+                "ブロックは文書の締めなので、読む人はここまで来ません。"
+                f"本文をブロックの前へ移してください: {line[:60]}",
+                node.rel,
+            )
+        )
+
+    return issues
