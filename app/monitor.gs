@@ -81,6 +81,7 @@ function initConfigSheet_(ss) {
     ['週次サマリーの曜日', '月', '日 月 火 水 木 金 土 のいずれか'],
     ['稼働', 'ON', 'OFF にすると毎日の実行を止める'],
     ['対象月', '', '自動更新。手で触らない'],
+    ['課金済みUTC日', '', '自動更新。手で触らない'],
     ['今月の取得件数', 0, '自動更新。手で触らない'],
   ];
 
@@ -171,11 +172,9 @@ function runOnce_(ss, conf) {
 
   // --- ユーザーID（初回だけ API で引いて設定シートに書き戻す） ---
   let userId = String(conf['ユーザーID'] || '').trim();
-  let userReads = 0;
   if (!userId) {
     userId = fetchUserId_(token, String(conf['監視アカウント']).trim());
     writeConfigValue_(ss, 'ユーザーID', userId);
-    userReads = 1;
   }
 
   // --- 取得 ---
@@ -190,7 +189,7 @@ function runOnce_(ss, conf) {
   });
 
   // --- 課金件数の積算（フィルタ前の件数が課金対象） ---
-  addUsage_(ss, conf, posts.length + userReads);
+  addUsage_(ss, conf, posts.length);
 
   // --- オリジナル投稿だけに絞る（API のパラメータは当てにしない） ---
   const originals = posts.filter(function (p) { return kindOf_(p) === 'オリジナル'; });
@@ -440,7 +439,7 @@ function sendWeeklySummary_(ss, conf) {
       + Utilities.formatDate(new Date(), CFG.tz, 'M/d') + '】\n' +
     '追跡した投稿 ' + Object.keys(ids).length + '件 ／ エラー ' + errors + '件\n' +
     '今週の最大ブックマーク：' + comma_(maxBookmark) + '\n' +
-    '今月の API 利用額：$' + (Math.round(usd * 100) / 100) + '（約' + comma_(yen) + '円）';
+    '今月の概算利用額：$' + (Math.round(usd * 100) / 100) + '（約' + comma_(yen) + '円）';
 
   sendLine_(text);
   appendLog_(ss, [[nowStr_(), LOG_KIND.weekly, '', '', '', maxBookmark, '', '取得' +
@@ -462,7 +461,7 @@ function checkBudget_(ss, conf) {
   });
   if (already) return;
 
-  const msg = '【ガチャモニター 予算警告】\n今月の API 利用額が約' + comma_(yen) + '円になりました。'
+  const msg = '【ガチャモニター 予算警告】\n今月の概算利用額が約' + comma_(yen) + '円になりました。'
             + '\n月額予算 ' + comma_(budget) + '円 の ' + Math.round(ratio * 100) + '% を超えています。'
             + '\n設定シートの「追跡日数」を減らすと下がります。';
   sendLine_(msg);
@@ -492,28 +491,66 @@ function readConfig_(ss) {
   return map;
 }
 
-function writeConfigValue_(ss, key, value) {
+function writeConfigValue_(ss, key, value, asText) {
   const sh = mustSheet_(ss, CFG.sheet.config);
   const keys = sh.getRange(2, 1, Math.max(sh.getLastRow() - 1, 1), 1).getValues();
   for (let i = 0; i < keys.length; i++) {
     if (String(keys[i][0]).trim() === key) {
-      sh.getRange(i + 2, 2).setValue(value);
+      setConfigCell_(sh.getRange(i + 2, 2), value, asText);
       return;
     }
   }
-  sh.appendRow([key, value, '']);
+  const row = sh.getLastRow() + 1;
+  sh.getRange(row, 1, 1, 3).setValues([[key, '', '']]);
+  setConfigCell_(sh.getRange(row, 2), value, asText);
 }
 
-/** 月が変わったらリセットしたうえで、当日の課金件数を足す */
-function addUsage_(ss, conf, count) {
+/**
+ * 日付に見える文字列は Sheets が日付値に変換する。変換されると読み戻したときに
+ * Date になり、文字列としての比較が必ず外れる。「2026-09」が毎回一致せず、
+ * 月の集計が実行のたびに 0 に戻っていた。書式をテキストに固定して防ぐ。
+ */
+function setConfigCell_(cell, value, asText) {
+  if (asText) cell.setNumberFormat('@');
+  cell.setValue(value);
+}
+
+/**
+ * 課金の概算を積み上げる。月が変わったらリセットする。
+ *
+ * **同じ UTC 日の 2 回目以降は加算しない。** X は同じ投稿を 24 時間 UTC 以内に
+ * 何度読んでも 1 回しか課金しない（ARCH-02 / CON-01）。手で動かした日に
+ * 二重計上すると、予算警告が実態より早く鳴る。
+ *
+ * **ここで出るのは概算で、正は X Developer Portal の請求画面。**
+ * 初回だけ発生するユーザー情報の取得は単価が違うため、この概算には含めない。
+ */
+function addUsage_(ss, conf, postCount) {
+  ensureConfigKeys_(ss, conf);
+
+  const today = utcDayKey_();
+  if (asDayKey_(conf['課金済みUTC日']) === today) return;
+
   const month = monthKey_();
-  const current = String(conf['対象月'] || '').trim();
-  const base = (current === month) ? num_(conf['今月の取得件数'], 0) : 0;
-  if (current !== month) writeConfigValue_(ss, '対象月', month);
-  const total = base + count;
+  const base = (asMonthKey_(conf['対象月']) === month) ? num_(conf['今月の取得件数'], 0) : 0;
+  const total = base + postCount;
+
+  writeConfigValue_(ss, '対象月', month, true);
+  writeConfigValue_(ss, '課金済みUTC日', today, true);
   writeConfigValue_(ss, '今月の取得件数', total);
+
   conf['対象月'] = month;
+  conf['課金済みUTC日'] = today;
   conf['今月の取得件数'] = total;
+}
+
+/** 導入済みの設定シートに、後から増えたキーを足す */
+function ensureConfigKeys_(ss, conf) {
+  if ('課金済みUTC日' in conf) return;
+  const sh = mustSheet_(ss, CFG.sheet.config);
+  const row = sh.getLastRow() + 1;
+  sh.getRange(row, 1, 1, 3).setValues([['課金済みUTC日', '', '自動更新。手で触らない']]);
+  conf['課金済みUTC日'] = '';
 }
 
 function appendSnapshot_(ss, rows) {
@@ -574,6 +611,21 @@ function comma_(n)      { return Number(n || 0).toLocaleString('ja-JP'); }
 function fmt_(d)        { return Utilities.formatDate(d, CFG.tz, 'yyyy-MM-dd HH:mm'); }
 function nowStr_()      { return fmt_(new Date()); }
 function monthKey_()    { return Utilities.formatDate(new Date(), CFG.tz, 'yyyy-MM'); }
+function utcDayKey_()   { return Utilities.formatDate(new Date(), 'UTC', 'yyyy-MM-dd'); }
+
+// 設定シートの値は、Sheets が日付値に変換していることがある（setConfigCell_ 参照）。
+// 文字列でも Date でも同じ鍵に正規化してから比べる。
+function asMonthKey_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, CFG.tz, 'yyyy-MM');
+  const m = String(v == null ? '' : v).trim().match(/^(\d{4})\D+(\d{1,2})/);
+  return m ? m[1] + '-' + ('0' + m[2]).slice(-2) : '';
+}
+
+function asDayKey_(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, 'UTC', 'yyyy-MM-dd');
+  const m = String(v == null ? '' : v).trim().match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  return m ? m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2) : '';
+}
 
 function asDate_(v) {
   if (v instanceof Date) return v;
