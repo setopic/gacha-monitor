@@ -43,7 +43,7 @@ X API の課金には**同じ投稿を短い間隔で何度読んでも 1 回し
 
 - **費用は「1 日に読む別々の投稿の数」だけで決まる。** 取得の頻度を落としても
   投稿は結局 1 回は読むので、費用はほとんど下がらない。効くのは追跡を打ち切る日を
-  早めることだけ（[ADR-0003](../50-adr/adr-0003-tracking-window.md)）
+  早めることだけ（[ADR-0007](../50-adr/adr-0007-tracking-window-2days.md)）
 - **実行時刻は指定した時刻から最大 1 時間ずれる。** Apps Script の仕様であり、
   これ以上の精度は出せない。反応の数を測るのに分単位の精度は要らない
 - 取得は 1 ページ 100 件で、**3 ページ（300 件）でページングを打ち切る。**
@@ -69,6 +69,7 @@ X API の課金には**同じ投稿を短い間隔で何度読んでも 1 回し
 
 - (decides) [ADR-0003 追跡期間を 4 日にする](../50-adr/adr-0003-tracking-window.md)
 - (decides) [ADR-0006 実行基盤に Apps Script を選ぶ](../50-adr/adr-0006-apps-script-runtime.md)
+- (decides) [ADR-0007 追跡期間を 2 日に短縮する](../50-adr/adr-0007-tracking-window-2days.md)
 - (depends_on) [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 - (depends_on) [UC-02 週次サマリーを送る](../30-usecases/uc-02-weekly-summary.md)
 - (depends_on) [UC-03 異常と予算超過を知らせる](../30-usecases/uc-03-alert-anomaly.md)

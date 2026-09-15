@@ -79,6 +79,8 @@ graph LR
     ADR-0004["ADR-0004<br/>閾値を 3 段階にする"]
     ADR-0005["ADR-0005<br/>転載と返信をコード側で除外する"]
     ADR-0006["ADR-0006<br/>実行基盤に Apps Script を選ぶ"]
+    ADR-0007["ADR-0007<br/>追跡期間を 2 日に短縮する"]
+    ADR-0008["ADR-0008<br/>閾値を 1,000 / 2,000 / 4,000 に引き上げる"]
   end
   ADR-0001 -.->|decides| META-01
   ADR-0001 -.->|decides| ARCH-01
@@ -90,6 +92,11 @@ graph LR
   ADR-0005 -.->|decides| CON-01
   ADR-0006 -.->|decides| ARCH-01
   ADR-0006 -.->|decides| ARCH-02
+  ADR-0007 ==>|supersedes| ADR-0003
+  ADR-0007 -.->|decides| ARCH-02
+  ADR-0007 -.->|decides| UC-01
+  ADR-0008 ==>|supersedes| ADR-0004
+  ADR-0008 -.->|decides| UC-01
   ARCH-02 -->|depends_on| ARCH-01
   CON-01 -->|depends_on| UC-01
   CON-02 -->|depends_on| UC-01
@@ -117,6 +124,7 @@ graph LR
   UC-03 -->|depends_on| ARCH-02
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;
+  class ADR-0003,ADR-0004 deprecated;
 ```
 
 <!-- graph:diagram:end -->

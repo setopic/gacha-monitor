@@ -2,7 +2,7 @@
 id: ADR-0003
 type: adr
 title: 追跡期間を 4 日にする
-status: stable
+status: deprecated
 tags: [cost]
 decides:
   - ARCH-02
@@ -14,7 +14,7 @@ related: []
 # 追跡期間を 4 日にする
 
 - 日付: 2026-09-10
-- 状態: stable
+- 状態: deprecated（[ADR-0007](./adr-0007-tracking-window-2days.md) が置き換えた）
 
 ## 背景
 
@@ -109,5 +109,9 @@ related: []
 
 - [ARCH-02 日次バッチの実行モデル](../10-architecture/arch-02-daily-batch.md)
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
+
+**このノードを参照しているノード**
+
+- (supersedes) [ADR-0007 追跡期間を 2 日に短縮する](./adr-0007-tracking-window-2days.md)
 
 <!-- graph:auto:end -->
