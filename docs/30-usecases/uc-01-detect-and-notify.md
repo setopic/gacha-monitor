@@ -79,6 +79,8 @@ related: []
 
 - (decides) [ADR-0003 追跡期間を 4 日にする](../50-adr/adr-0003-tracking-window.md)
 - (decides) [ADR-0004 閾値を 3 段階にする](../50-adr/adr-0004-three-thresholds.md)
+- (decides) [ADR-0007 追跡期間を 2 日に短縮する](../50-adr/adr-0007-tracking-window-2days.md)
+- (decides) [ADR-0008 閾値を 1,000 / 2,000 / 4,000 に引き上げる](../50-adr/adr-0008-raise-thresholds.md)
 - (depends_on) [CON-01 X API からの投稿取得](../40-contracts/con-01-x-api-fetch.md)
 - (depends_on) [CON-02 LINE への通知送信](../40-contracts/con-02-line-notify.md)
 - (depends_on) [CON-03 スプレッドシートのシート構成](../40-contracts/con-03-sheet-schema.md)

@@ -2,7 +2,7 @@
 id: ADR-0004
 type: adr
 title: 閾値を 3 段階にする
-status: stable
+status: deprecated
 tags: [notification]
 decides:
   - UC-01
@@ -13,7 +13,7 @@ related: []
 # 閾値を 3 段階にする
 
 - 日付: 2026-09-10
-- 状態: stable
+- 状態: deprecated（[ADR-0008](./adr-0008-raise-thresholds.md) が置き換えた）
 
 ## 背景
 
@@ -81,5 +81,9 @@ related: []
 **decides** — この決定が影響を与えるノード（ADR 用）
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
+
+**このノードを参照しているノード**
+
+- (supersedes) [ADR-0008 閾値を 1,000 / 2,000 / 4,000 に引き上げる](./adr-0008-raise-thresholds.md)
 
 <!-- graph:auto:end -->

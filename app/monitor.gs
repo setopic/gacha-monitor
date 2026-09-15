@@ -18,7 +18,7 @@
  *   止めたいときは「設定」シートの 稼働 を OFF にする。
  *
  * ── 費用 ────────────────────────────────
- *   月額 ≈ 410円 × 追跡日数。追跡4日で約1,640円（実測18.3投稿/日での試算）。
+ *   月額 ≈ 600円 × 追跡日数。追跡2日で約1,200円（実測 1日21〜28投稿での試算）。
  *   同じ投稿は24時間UTC以内に何回読んでも1回しか課金されないため、
  *   費用を決めるのは取得頻度ではなく「1投稿を何日間追いかけるか」。
  */
@@ -69,10 +69,10 @@ function initConfigSheet_(ss) {
     ['キー', '値', '説明'],
     ['監視アカウント', '', 'X のユーザー名。@ は付けない。**導入時に手で入れる**'],
     ['ユーザーID', '', '初回実行時に自動で入る。手で触らない'],
-    ['追跡日数', 4, '投稿日から何日間追いかけるか。1日増やすと月額が約410円増える'],
-    ['閾値1（初回通知）', 500, 'ブックマーク数がこれを超えたら通知する'],
-    ['閾値2', 1000, '2段階目。ラベル2を付けて再通知する'],
-    ['閾値3', 2000, '3段階目。ラベル3を付けて再通知する'],
+    ['追跡日数', 2, '投稿日から何日間追いかけるか。1日増やすと月額が約600円増える'],
+    ['閾値1（初回通知）', 1000, 'ブックマーク数がこれを超えたら通知する'],
+    ['閾値2', 2000, '2段階目。ラベル2を付けて再通知する'],
+    ['閾値3', 4000, '3段階目。ラベル3を付けて再通知する'],
     ['ラベル2', '【要チェック】', ''],
     ['ラベル3', '【要注意！！】', ''],
     ['月額予算（円）', 3000, ''],
@@ -168,7 +168,7 @@ function dailyRun() {
 
 function runOnce_(ss, conf) {
   const token = requireProp_('X_BEARER_TOKEN');
-  const trackDays = num_(conf['追跡日数'], 4);
+  const trackDays = num_(conf['追跡日数'], 2);
 
   // --- ユーザーID（初回だけ API で引いて設定シートに書き戻す） ---
   let userId = String(conf['ユーザーID'] || '').trim();
@@ -354,9 +354,9 @@ function toRow_(p, conf, now) {
 /** 設定の3段階を、小さい順の配列にして返す */
 function thresholdSteps_(conf) {
   return [
-    { value: num_(conf['閾値1（初回通知）'], 500),  label: '' },
-    { value: num_(conf['閾値2'], 1000),             label: String(conf['ラベル2'] || '') },
-    { value: num_(conf['閾値3'], 2000),             label: String(conf['ラベル3'] || '') },
+    { value: num_(conf['閾値1（初回通知）'], 1000), label: '' },
+    { value: num_(conf['閾値2'], 2000),             label: String(conf['ラベル2'] || '') },
+    { value: num_(conf['閾値3'], 4000),             label: String(conf['ラベル3'] || '') },
   ];
 }
 
@@ -740,7 +740,7 @@ function dryRun() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const conf = readConfig_(ss);
   const token = requireProp_('X_BEARER_TOKEN');
-  const trackDays = num_(conf['追跡日数'], 4);
+  const trackDays = num_(conf['追跡日数'], 2);
 
   let userId = String(conf['ユーザーID'] || '').trim();
   if (!userId) userId = fetchUserId_(token, String(conf['監視アカウント']).trim());

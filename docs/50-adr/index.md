@@ -24,6 +24,8 @@ tags: [index]
 - [ADR-0004 閾値を 3 段階にする](./adr-0004-three-thresholds.md)
 - [ADR-0005 転載と返信をコード側で除外する](./adr-0005-filter-in-code.md)
 - [ADR-0006 実行基盤に Apps Script を選ぶ](./adr-0006-apps-script-runtime.md)
+- [ADR-0007 追跡期間を 2 日に短縮する](./adr-0007-tracking-window-2days.md)
+- [ADR-0008 閾値を 1,000 / 2,000 / 4,000 に引き上げる](./adr-0008-raise-thresholds.md)
 <!-- graph:children:end -->
 
 ## 追加するとき

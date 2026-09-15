@@ -73,7 +73,7 @@ implemented_by:
 ## 冪等性・整合性
 
 **同じ投稿を短い間隔で何度取得しても課金は 1 回になる。** これが
-[ARCH-02](../10-architecture/arch-02-daily-batch.md) の実行モデルと、[ADR-0003](../50-adr/adr-0003-tracking-window.md) の費用の試算
+[ARCH-02](../10-architecture/arch-02-daily-batch.md) の実行モデルと、[ADR-0007](../50-adr/adr-0007-tracking-window-2days.md) の費用の試算
 （月額 ≒ 410 円 × 追跡日数）の土台になっている。
 **この節がその単位の正で、他のノードは数字を繰り返さない。**
 
