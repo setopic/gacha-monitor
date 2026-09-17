@@ -1,12 +1,24 @@
 # issue と PR を GitHub Project に載せる。**載せるだけ**で、列（Status）の移動は
 # Project の組み込みのワークフロー（閉じたら Done など）に任せる。
 #
+# **先に Project の組み込みの Auto-add を使う。** トークンが要らず、このファイルも要らない。
+#
+#   Project の右上のメニュー → Workflows → Auto-add to project → Edit
+#     Filters でリポジトリを選び、絞り込みを is:issue,pr にして Save and turn on workflow
+#     2 つ目のリポジトリは、Auto-add to project の「…」→ Duplicate workflow で足す
+#
+# **このファイルは、Auto-add の数が足りないときに使う。** Auto-add は 1 つで
+# 1 リポジトリしか覆えず、作れる数にプランの上限がある（Free は 1、Pro と Team は 5）。
+# こちらは数の上限が無い代わりに、PAT を秘密に置くことになる。
+#
 # **設定が無ければ何もしない。** 次の 2 つが揃ったリポジトリでだけ動く。
 # テンプレートは Project を持たないので、取り込んだだけの派生では CI も落ちない。
 #
 #   Settings → Secrets and variables → Actions
 #     Variables: PROJECT_URL         https://github.com/users/<持ち主>/projects/<番号>
 #     Secrets:   ADD_TO_PROJECT_PAT  classic の PAT。project スコープ（非公開なら repo も）
+#
+# **秘密を先に置く。** URL だけ先に置くと、issue と PR のたびに警告が出る。
 #
 # **GITHUB_TOKEN では Projects v2 に書けない。** だから PAT が要る。
 # Project はリポジトリと同じ持ち主の下に作る。持ち主が違うと、issue ではなく
