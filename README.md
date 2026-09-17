@@ -3,13 +3,15 @@
 **設計文書と実装を同じリポジトリで扱う**プロジェクトテンプレート。
 
 [graph-doc-template](https://github.com/setopic/graph-doc-template) の上流に接続しており、
-検証ツールはそちらから流れてくる。**こちらが足しているのは 5 つだけ。**
+検証ツールはそちらから流れてくる。**こちらが足しているのは 7 つだけ。**
 
 | 足しているもの | 何のため |
 | --- | --- |
 | `implemented_by` の使い方（[META-04](docs/00-meta/implementation-layout.md)） | 文書が規定している実装を指す |
 | **開発の流れ（[META-05](docs/00-meta/dev-flow.md)）** | **順番・関門・`/grill` を回す 4 つの場面。`merge=ours` なのでプロジェクトごとに書き換えてよい** |
+| **開発の原則（[META-06](docs/00-meta/principles.md)）と `/lean`** | **書く前に、書かずに済む道を探す**（YAGNI と決定の梯子。[ponytail](https://github.com/dietrichgebert/ponytail) を作り直したもの） |
 | `.github/workflows/app-check.yml` | 実装の検査と、PR が実在するノードを指すかの確認 |
+| `.github/workflows/add-to-project.yml` | issue と PR を GitHub Project に載せる。**設定したリポジトリでだけ動く** |
 | `.github/ISSUE_TEMPLATE/` と PR テンプレート | 要件を issue から始め、決まったら文書へ移す |
 | `.gitignore` の実装向けの行 | **秘密（`.env`）を版管理に入れない** |
 
@@ -124,6 +126,7 @@ graph LR
     META-03["META-03<br/>本文のレビュー（AI）"]
     META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
     META-05["META-05<br/>開発の流れ"]
+    META-06["META-06<br/>開発の原則"]
   end
   subgraph architecture["アーキテクチャ"]
     ARCH-01["ARCH-01<br/>システム全体構成"]
@@ -155,8 +158,10 @@ graph LR
   META-03 -.->|related| META-01
   META-04 -.->|related| META-01
   META-04 -.->|related| META-05
+  META-04 -.->|related| META-06
   META-05 -.->|related| META-01
   META-05 -.->|related| META-04
+  META-06 -.->|related| META-04
   UC-01 -->|depends_on| DOM-01
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;
@@ -215,8 +220,12 @@ python -m tools.graph render --format mermaid --focus DOM-01
 `make check` `make sync` `make linkify` `make readme` も同じことをする（Makefile 参照）。
 **まとめて回すなら `make all`**（`check` + `sync` + `linkify` + `readme`）。
 
-エージェント向けのスキルが `.claude/skills/` にある（`/grill` — 要件を書き始める前に詰める）。
-**いつ回すかは [META-05](docs/00-meta/dev-flow.md) が 4 つの場面に決めている。**
+エージェント向けのスキルが `.claude/skills/` にある。
+
+| スキル | 何をするか | いつ回すか |
+| --- | --- | --- |
+| `/grill` | 要件を書き始める前に詰める | [META-05](docs/00-meta/dev-flow.md) が 4 つの場面に決めている |
+| `/lean` | 書かずに済む道を探し、書いた差分から過剰な実装を削る | 実装に着手する前と、差分を出す前（[META-06](docs/00-meta/principles.md)） |
 
 ## 新しいノードを作る
 

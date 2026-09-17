@@ -43,3 +43,7 @@ docs/00-meta/dev-flow.md merge=ours
 
 # .gitignore は merge=ours にしない。**秘密の除外を後から強くしたとき、
 # 派生プロジェクトに届かなくなる。** 追記どうしは行が離れるので競合しにくい。
+
+# add-to-project.yml も merge=ours にしない。app-check.yml と違い、
+# **プロジェクトは中身を書き換えずに、設定（PROJECT_URL と PAT）の有無だけで使い分ける。**
+# 書き換える理由が無いので、テンプレート側の直しが届くほうを取る。
