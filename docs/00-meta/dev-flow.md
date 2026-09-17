@@ -31,8 +31,9 @@ issue ──▶ grill ──▶ 文書（ADR / UC / DOM）──▶ 実装 ─�
 `.github/ISSUE_TEMPLATE/requirement.md` を使う。**issue が持つのは
 「まだ答えが無い問い」だけ**で、受け入れ条件も決定も持たない（[META-04](./implementation-layout.md)）。
 
-**issue と PR は GitHub Project に自動で載せられる。** 設定したリポジトリでだけ動く。
-設定の仕方とボードの読み方は `.github/workflows/add-to-project.yml` の冒頭にある。
+**issue と PR は GitHub Project に自動で載せられる。** 先に Project の組み込みの
+Auto-add を使い、数が足りないときだけ `.github/workflows/add-to-project.yml` を使う。
+設定の仕方とボードの読み方は、そのファイルの冒頭にある。
 
 ## 2. grill で詰める
 

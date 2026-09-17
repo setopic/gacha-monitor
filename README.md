@@ -11,7 +11,7 @@
 | **開発の流れ（[META-05](docs/00-meta/dev-flow.md)）** | **順番・関門・`/grill` を回す 4 つの場面。`merge=ours` なのでプロジェクトごとに書き換えてよい** |
 | **開発の原則（[META-06](docs/00-meta/principles.md)）と `/lean`** | **書く前に、書かずに済む道を探す**（YAGNI と決定の梯子。[ponytail](https://github.com/dietrichgebert/ponytail) を作り直したもの） |
 | `.github/workflows/app-check.yml` | 実装の検査と、PR が実在するノードを指すかの確認 |
-| `.github/workflows/add-to-project.yml` | issue と PR を GitHub Project に載せる。**設定したリポジトリでだけ動く** |
+| `.github/workflows/add-to-project.yml` | issue と PR を GitHub Project に載せる。**Project の組み込みの Auto-add で数が足りないときに使う。** 設定したリポジトリでだけ動く |
 | `.github/ISSUE_TEMPLATE/` と PR テンプレート | 要件を issue から始め、決まったら文書へ移す |
 | `.gitignore` の実装向けの行 | **秘密（`.env`）を版管理に入れない** |
 
