@@ -31,6 +31,9 @@ issue ──▶ grill ──▶ 文書（ADR / UC / DOM）──▶ 実装 ─�
 `.github/ISSUE_TEMPLATE/requirement.md` を使う。**issue が持つのは
 「まだ答えが無い問い」だけ**で、受け入れ条件も決定も持たない（[META-04](./implementation-layout.md)）。
 
+**issue と PR は GitHub Project に自動で載せられる。** 設定したリポジトリでだけ動く。
+設定の仕方とボードの読み方は `.github/workflows/add-to-project.yml` の冒頭にある。
+
 ## 2. grill で詰める
 
 **次の 4 つの場面では、書き始める前に `/grill` を回す。**
@@ -57,6 +60,8 @@ issue が持っていた問いに答えが出た時点で、issue の役目は�
 
 ## 4. 実装する
 
+- **着手する前と、差分を出す前に `/lean` を回す。** 書かずに済む道を先に探す
+  （[META-06](./principles.md)）
 - **モジュールの説明の 1 行目にノード id を書く。** `implemented_by` の根拠になる
 - **識別子はドメインの用語表に合わせる。** `G013` はコードに届かないので、書くときに合わせる
 - **文書と実装は同じコミットに入れる。** リポジトリを分けると原理的にできないことで、

@@ -66,6 +66,23 @@ class ParseFindings(unittest.TestCase):
         self.assertEqual(review.parse_findings(node(), api_response([])), [])
 
 
+class OverDesign(unittest.TestCase):
+    """A008・A009（文書に現れた過剰な設計）。"""
+
+    def test_codes_are_accepted(self):
+        data = api_response([
+            {"code": "A008", "quote": "将来に備えて", "message": "要求が無い"},
+            {"code": "A009", "quote": "通知を抽象化する", "message": "具体が 1 つ"},
+        ])
+        found = review.parse_findings(node(), data)
+        self.assertEqual([f.code for f in found], ["A008", "A009"])
+
+    def test_the_prompt_keeps_what_is_not_over_design(self):
+        """案を並べる ADR も、先送りの明記も正しい書き方である。除外が消えるとそこを挙げる。"""
+        self.assertIn("却下した案", review.SYSTEM_PROMPT)
+        self.assertIn("先送りを明記した", review.SYSTEM_PROMPT)
+
+
 class Prompt(unittest.TestCase):
     def test_includes_the_body_and_the_type(self):
         prompt = review.build_prompt(make_graph([node()]), node())
