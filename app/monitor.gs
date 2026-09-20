@@ -569,15 +569,18 @@ function appendLog_(ss, rows)      { appendRows_(ss, CFG.sheet.log,      rows, C
 /**
  * 記録の2シートへの追記。**投稿IDの列はテキスト書式に固定してから書く。**
  *
- * 投稿IDは19桁ある。書式を指定せずに置くとスプレッドシートが数値に変換し、
- * 倍精度で表せるのは16桁までなので下位の桁が落ちる。読み戻した値は元のIDと
- * 一致しない。
+ * スプレッドシートは入力を解釈して型を決める。設定シートの対象月が日付値に
+ * 変換されていたのと同じ仕組みである（setConfigCell_ 参照）。19桁の投稿IDが
+ * 数値になると、倍精度で表せる16桁を超えた下位が落ちる。
  *
- * 通知ログの投稿IDは二重通知を防ぐ唯一の根拠なので（CON-03）、ここが崩れると
- * readNotifiedStages_ の照合が常に外れ、同じ投稿の同じ段階が毎日通知される。
- * UC-01 の事後条件「同じ投稿の同じ段階は二度通知されない」を満たせなくなる。
+ * **実測では変換されていなかった。** 2026-09-20 に既存の 799 行と 73 行を
+ * URL の列と突き合わせ、不一致 0 件だった。**ただし変換されない理由を
+ * 確かめていないので、解釈に頼らず書式で固定する。**
  *
- * **対象月が日付値に変換されていたのと同じ型の不具合である**（setConfigCell_ 参照）。
+ * 通知ログの投稿IDは二重通知を防ぐ唯一の根拠であり（CON-03）、ここが崩れても
+ * 例外は出ない。readNotifiedStages_ の照合が黙って外れ、同じ投稿の同じ段階が
+ * 毎日通知される形で表に出る。
+ *
  * 既に動いているシートには列の書式が無いので、追記のたびに当て直す。
  */
 function appendRows_(ss, name, rows, idCol) {
@@ -749,53 +752,6 @@ function recreateTrigger() {
   console.log('dailyRun のトリガーを作り直しました。'
     + '毎日 ' + CFG.triggerHour + ':00〜' + (CFG.triggerHour + 1) + ':00 に実行されます。'
     + '\n最初の自動実行は、今日の枠を過ぎていれば翌朝になります。');
-}
-
-/**
- * 既にある行の投稿IDを、URLの列から復元する。**1回だけ実行すればよい。**
- *
- * 数値に変換されて落ちた下位の桁は、その列からは戻せない。ただしURLの列は
- * 文字列なので無傷で残っており、末尾が投稿IDそのものである。そこから書き戻す。
- *
- * 書式を先に固定してから書く。順序を逆にすると、書いた値がまた数値になる。
- */
-function repairPostIds() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  console.log(repairIdColumn_(ss, CFG.sheet.snapshot, CFG.col.snapshotId, CFG.col.snapshotUrl));
-  console.log(repairIdColumn_(ss, CFG.sheet.log,      CFG.col.logId,      CFG.col.logUrl));
-}
-
-function repairIdColumn_(ss, name, idCol, urlCol) {
-  const sh = ss.getSheetByName(name);
-  if (!sh) return name + '：シートがありません。';
-
-  const last = sh.getLastRow();
-  if (last < 2) {
-    setIdColumnText_(sh, idCol);
-    return name + '：データ行がありません。書式だけ直しました。';
-  }
-
-  const ids  = sh.getRange(2, idCol,  last - 1, 1).getValues();
-  const urls = sh.getRange(2, urlCol, last - 1, 1).getValues();
-
-  let fixed = 0;
-  let orphan = 0;
-  for (let i = 0; i < ids.length; i++) {
-    const m = String(urls[i][0] || '').match(/\/status\/(\d+)/);
-    if (!m) {
-      // URLが空の行（種別 異常 / 週次 / 予算）は投稿IDも空。直す対象ではない。
-      if (String(ids[i][0] || '').trim()) orphan++;
-      continue;
-    }
-    if (String(ids[i][0]) !== m[1]) fixed++;
-    ids[i][0] = m[1];
-  }
-
-  setIdColumnText_(sh, idCol);
-  sh.getRange(2, idCol, ids.length, 1).setValues(ids);
-
-  return name + '：' + ids.length + '行を見て、' + fixed + '行の投稿IDを書き戻しました。'
-       + (orphan ? '（URLが無く復元できない行 ' + orphan + '件）' : '');
 }
 
 /** LINE の疎通だけを確かめる */
