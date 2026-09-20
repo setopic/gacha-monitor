@@ -383,14 +383,27 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
 3. `merge=ours` ドライバを有効にする。`.gitattributes` の指定はこれがないと効かない。
 
    ```bash
-   git config merge.ours.driver true
+   make setup
    ```
+
+   **クローンごとに要る。** 設定されていないと git は指定を黙って無視し、
+   通常のマージに落ちる。**警告は出ない。** 冪等なので何度実行してもよい。
 
 4. 初回だけ `--allow-unrelated-histories` を付けてマージする。
 
    ```bash
    git fetch template && git merge template/main --allow-unrelated-histories
    ```
+
+5. issue の型が使うラベルを作る。
+
+   ```bash
+   gh label clone setopic/graph-project-template
+   ```
+
+   **ラベルの実体が無いと `labels:` の指定は黙って無視される。** issue は立つが、
+   ラベルが付かないまま残る。`gh` の組み込みで、既にあるラベルは飛ばすので
+   何度実行してもよい。
 
 ### 取り込む
 
