@@ -55,11 +55,22 @@
 
 ### 取り込む側の作業
 
-**`.github/ISSUE_TEMPLATE/` はマージで流れる。** 3 つの型と導線はそれで入る。
+**`git merge template/main` で 3 つの型も META-05 も入る。**
 
-**`docs/00-meta/dev-flow.md` は `merge=ours` なので流れない。**
-既に持っている派生は、META-05 の「1. issue を立てる」を手で差し替える。
-差し替えないと、**型が 3 つあるのに文書は 1 つだと言っている**状態になる。
+**`merge=ours` は両側が変更したときにだけ働く。** 既定値のまま使っている派生には
+新しい「1. issue を立てる」がそのまま流れる。`dev-flow.md` を**手で書き換えている
+派生だけ**、自分の版が残るので 3 つの型と上流への出し方を手で足す。
+
+**ラベルの実体はマージでは作られない。** `labels:` に書いた名前のラベルが
+リポジトリに無いと、**黙って付かないまま issue が立つ。** 0.10.0 の配布時、
+既存の 5 リポジトリすべてで「要件」ラベルが存在せず、`requirement.md` の
+`labels: 要件` は最初から効いていなかった。取り込んだら 1 回だけ実行する。
+
+```bash
+gh label create "要件" --color 1d76db --description "機能の追加・変更。決めることが書ける"
+gh label create "問題" --color d73a4a --description "見つかった不具合。現象しか書けない"
+gh label create "TODO" --color fbca04 --description "いま着手しないが、条件が揃ったらやること"
+```
 
 ---
 
