@@ -152,7 +152,6 @@ python -m tools.graph check
 ```
 app/
   monitor.gs        本体。日次の取得・判定・記録・通知
-  spike.gs          検証用。取得できるかと、指標の水準を 1 回だけ測る
   appsscript.json   マニフェスト
 ```
 
