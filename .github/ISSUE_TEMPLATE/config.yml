@@ -1,1 +1,11 @@
 blank_issues_enabled: true
+
+# **テンプレート由来のものは上流に出す。** 理由と層の見分け方は META-05 の
+# 「1. issue を立てる」にある。ここが持つのは導線だけ。
+contact_links:
+  - name: テンプレートへの報告（検証ツール層）
+    url: https://github.com/setopic/graph-doc-template/issues/new
+    about: tools/graph と G0xx の検査の話。どの派生で何をしていて気づいたかを書く
+  - name: テンプレートへの報告（統合型の層）
+    url: https://github.com/setopic/graph-project-template/issues/new
+    about: 文書と実装の同居・CI・配置・issue の型そのものの話
