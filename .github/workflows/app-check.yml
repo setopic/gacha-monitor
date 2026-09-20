@@ -51,6 +51,34 @@ jobs:
             node --check "$f"
           done
 
+      # **ファイルをまたぐ名前の衝突を見る。** Apps Script は全ての .gs が
+      # 1 つのグローバル名前空間を共有し、同名の宣言は後に読まれたほうが勝つ。
+      # 例外も警告も出ないので、機械が気づける場所はここしか無い（issue #10）。
+      # 実際、spike.gs と monitor.gs が fmt_ / numOrNull_ / testLineNotify を
+      # 二重定義したまま、上の構文検査を通り続けていた（issue #4）。
+      #
+      # **連結して ES モジュールとして解析する。** スクリプトとして解析すると
+      # 関数宣言の重複は合法で通ってしまう。モジュールの最上位は字句宣言なので
+      # SyntaxError になる。連結の順序は問わない。どちらが勝つかではなく、
+      # 同じ名前が 2 つあることだけを見るためである。
+      #
+      # **見えないもの**: 最上位の var の重複。モジュールでも合法である。
+      # いま app/*.gs に最上位の var は無い。
+      #
+      # **代償**: モジュールは常に strict なので、sloppy でしか書けない構文
+      # （8 進数リテラル、with、仮引数の重複）が誤検出として落ちる。
+      # **app/*.gs をそう書かないことが条件になる。**
+      - name: ファイルをまたぐ名前の衝突を検査する
+        run: |
+          set -eu
+          cat app/*.gs > "$RUNNER_TEMP/all.mjs"
+          if node --check "$RUNNER_TEMP/all.mjs"; then
+            echo "名前の衝突はありません"
+          else
+            echo "::error::app/*.gs に同じ名前の最上位の宣言があります。Apps Script は全ての .gs が 1 つのグローバル名前空間を共有するため、後に読まれたほうが黙って勝ちます"
+            exit 1
+          fi
+
       - name: マニフェストが JSON として読めるか
         run: node -e "JSON.parse(require('fs').readFileSync('app/appsscript.json','utf8'))"
 
