@@ -103,11 +103,13 @@ graph LR
   ADR-0008 -.->|decides| UC-01
   ARCH-02 -->|depends_on| ARCH-01
   CON-01 -->|depends_on| UC-01
+  CON-01 -->|depends_on| UC-03
   CON-02 -->|depends_on| UC-01
   CON-02 -->|depends_on| UC-02
   CON-02 -->|depends_on| UC-03
   CON-03 -->|depends_on| UC-01
   CON-03 -->|depends_on| UC-02
+  CON-03 -->|depends_on| UC-03
   DOM-01 -->|depends_on| ARCH-01
   DOM-02 -->|depends_on| DOM-01
   META-01 -.->|related| META-02

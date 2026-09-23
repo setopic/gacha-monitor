@@ -79,6 +79,8 @@ related: []
 
 **このノードを参照しているノード**
 
+- (depends_on) [CON-01 X API からの投稿取得](../40-contracts/con-01-x-api-fetch.md)
 - (depends_on) [CON-02 LINE への通知送信](../40-contracts/con-02-line-notify.md)
+- (depends_on) [CON-03 スプレッドシートのシート構成](../40-contracts/con-03-sheet-schema.md)
 
 <!-- graph:auto:end -->

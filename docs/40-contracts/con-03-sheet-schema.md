@@ -7,6 +7,7 @@ tags: [storage]
 depends_on:
   - UC-01
   - UC-02
+  - UC-03
 related: []
 implemented_by:
   - app/monitor.gs
@@ -119,5 +120,6 @@ implemented_by:
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 - [UC-02 週次サマリーを送る](../30-usecases/uc-02-weekly-summary.md)
+- [UC-03 異常と予算超過を知らせる](../30-usecases/uc-03-alert-anomaly.md)
 
 <!-- graph:auto:end -->
