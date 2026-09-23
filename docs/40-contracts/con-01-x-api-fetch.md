@@ -6,6 +6,7 @@ status: stable
 tags: [external]
 depends_on:
   - UC-01
+  - UC-03
 related: []
 implemented_by:
   - app/monitor.gs
@@ -106,6 +107,7 @@ implemented_by:
 **depends_on** — この文書が成立するために前提となるノード
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
+- [UC-03 異常と予算超過を知らせる](../30-usecases/uc-03-alert-anomaly.md)
 
 **このノードを参照しているノード**
 
