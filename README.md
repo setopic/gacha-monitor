@@ -2,19 +2,19 @@
 
 設計文書と実装を、同じリポジトリで扱うためのプロジェクトテンプレートである。
 
-上流の[graph-doc-template](https://github.com/setopic/graph-doc-template)に繋がっていて、検証ツールはそちらから流れてくる。こちらが足しているのは、次の7つだけである。
+上流の[graph-doc-template](https://github.com/setopic/graph-doc-template)に繋がっていて、検証ツールはそちらから流れてくる。こちらが足しているのは、次の5つだけである。
 
 | 足しているもの | 何のため |
 | --- | --- |
 | `implemented_by`の使い方（[META-04](docs/00-meta/implementation-layout.md)） | 文書が規定している実装を指す |
 | 開発の流れ（[META-05](docs/00-meta/dev-flow.md)） | 順番・関門・`/grill`を回す4つの場面。`merge=ours`なので、プロジェクトごとに書き換えてよい |
 | 開発の原則（[META-06](docs/00-meta/principles.md)）と`/lean` | 書く前に、書かずに済む道を探す（YAGNIと決定の梯子。[ponytail](https://github.com/dietrichgebert/ponytail)を作り直したもの） |
-| `.github/workflows/app-check.yml` | 実装の検査と、PRが実在するノードを指すかの確認 |
-| `.github/workflows/add-to-project.yml` | issueとPRを、GitHub Projectに載せる。Projectに組み込まれたAuto-addで数が足りないときに使う。設定したリポジトリでだけ動く |
-| `.github/ISSUE_TEMPLATE/`とPRの雛形 | 要件をissueから始め、決まったら文書へ移す |
+| `.github/workflows/app-check.yml` | 実装の検査 |
 | `.gitignore`の実装向けの行 | 秘密（`.env`）を版管理に入れない |
 
-[CONTRIBUTING.md](CONTRIBUTING.md)は、META-05を指すだけの入口で、中身は持たない。GitHubが、issueとPRの作成画面に自動でリンクするために置いてある。**2か所に同じことを書くと、どちらかが必ず古くなる。**
+issueとPRの流れ（雛形、PRのidの確認、Projectへの追加）は、上流の検証ツールの層が[META-07](docs/00-meta/issue-pr-flow.md)として配っている。
+
+[CONTRIBUTING.md](CONTRIBUTING.md)は、META-05とMETA-07を指すだけの入口で、中身は持たない。GitHubが、issueとPRの作成画面に自動でリンクするために置いてある。**2か所に同じことを書くと、どちらかが必ず古くなる。**
 
 文書だけのプロジェクトには、`graph-doc-template`を使う。
 
@@ -419,7 +419,9 @@ CIは2本ある。`.github/workflows/graph-check.yml`は、pushとPRで文書の
 
 5つ目は、`render --into README.md --check`を`make`経由で呼ぶ。`graph.mk`の`README_GRAPH_ARGS`（`--aggregate`など）を効かせるためである。5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
 
-`.github/workflows/app-check.yml`は、PRの本文にノードのidがあるかを確かめ、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
+PRのときは、別のジョブ（`refs`）が、PRの本文に書いたノードのidが実在するかも確かめる（[META-07](docs/00-meta/issue-pr-flow.md)）。
+
+`.github/workflows/app-check.yml`は、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
 
 ## ライセンス
 

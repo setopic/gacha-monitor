@@ -11,7 +11,38 @@
 **派生プロジェクトはこのファイルを書き換えない。** 自分の履歴は
 `PROJECT_CHANGELOG.md` に書く。
 
-現在の版: **0.11.6**
+現在の版: **0.12.0**
+
+---
+
+## 0.12.0 — 2026-10-02
+
+### 変更
+
+この層の文書を、テンプレート1.25.0の[META-07](docs/00-meta/issue-pr-flow.md)（issueとPRの流れ）を正とする形に揃えた（setopic/graph-doc-template#3）。issueの型・PRの粒度・PRのidの確認・Projectへの自動追加は、検証ツールの層に移った。この層に残っていた同じ記述は、META-07への参照に置き換えた。同じ話題を複数の文書で扱うと、どちらかが必ず古くなるためである。
+
+| 対象 | 変えたこと |
+| --- | --- |
+| META-05（`dev-flow.md`） | 1節のissueの型・上流への導線・Projectへの追加と、5節のPRの粒度を、META-07への参照にした。PRでだけ動く検査の表は、`graph-check.yml`の`refs`に直した |
+| META-04（`implementation-layout.md`） | 「要件はissueから始める」の表を、META-07への参照にした。実装の置き場の説明だけを残した |
+| CLAUDE.mdの独自の節 | 「要件はissueから始める」「PRにはノードのidを書く」を外した。テンプレートの「issueとPR」の節が、META-07を案内している |
+| `app-check.yml` | `refs`ジョブを外した。PRのidの確認は、`graph-check.yml`の`refs`が行う |
+| README | 「足しているもの」から、検証ツールの層に移ったもの（issueとPRの雛形、`add-to-project.yml`）を外した |
+| `docs/index.md`・`CONTRIBUTING.md` | 最初に読む文書と、読む順番に、META-07を足した |
+
+### 取り込む側の作業
+
+`merge=ours`のファイルは、派生の側で書き換えていれば、取り込んでもこの版の内容が入らない。古い写しが残るので、次のものを確かめて手で直す。
+
+| ファイル | 確かめること |
+| --- | --- |
+| `.github/workflows/app-check.yml` | `refs`ジョブが残っていれば消す。残すと、PRのidの確認が`graph-check.yml`と二重に走る。実装の検査を書き足した派生では、ほぼ確実に残っている |
+| `docs/00-meta/dev-flow.md`（META-05） | 1節にissueの型の表、5節に「1つのPRには、1つの変更だけを入れる」が残っていれば、META-07への参照に置き換える |
+| `docs/index.md` | 最初に読む文書にMETA-07を足す。足さなくても、META-01から辿れるので`G005`は出ない |
+
+`CLAUDE.md`は共有ファイルなので、通常のマージで入る。CLAUDE.mdを自分で書き換えている派生では、独自の節で競合することがある。
+
+0.x系なので、取り込む側に作業が要る変更として、minorを上げた。
 
 ---
 
