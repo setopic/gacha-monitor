@@ -9,7 +9,15 @@
 | [PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md) | `graph-project-template`（統合型の層） |
 | **このファイル** | **このプロジェクト自身。** 上流は触らない |
 
-現在の版: **0.1.8**
+現在の版: **0.1.9**
+
+---
+
+## 0.1.9 — 2026-10-02
+
+`app-check.yml`から、PRの本文のidを確かめる`refs`ジョブを外した。テンプレートの取り込み（graph-project-template 0.12.1・検証ツールの層1.26.0）で、同じ確認が`graph-check.yml`の`refs`に移ったためである。`app-check.yml`は`merge=ours`なので、取り込みでは変わらず、手で外した。残すと、同じ確認が2回走る。
+
+`dev-flow.md`と`docs/index.md`は、このプロジェクトで書き換えていなかったので、取り込みでテンプレートの新しい版がそのまま入った。手で直すものは無かった。
 
 ---
 

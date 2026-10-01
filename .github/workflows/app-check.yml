@@ -11,21 +11,6 @@ on:
   pull_request:
 
 jobs:
-  refs:
-    # PR が実在する文書ノードを指しているかだけを見る。言語に依存しない。
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-      - name: PR が指すノードが実在するか
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: python .github/scripts/check_refs.py
-
   app:
     runs-on: ubuntu-latest
     steps:
