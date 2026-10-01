@@ -81,7 +81,7 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**decides** — この決定が影響を与えるノード（ADR 用）
+`decides`: この決定が影響を与えるノード（ADR用）
 
 - [CON-01 X API からの投稿取得](../40-contracts/con-01-x-api-fetch.md)
 - [DOM-01 監視対象と投稿](../20-domain/dom-01-post.md)

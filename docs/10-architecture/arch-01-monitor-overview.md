@@ -58,7 +58,7 @@ Apps Script が時刻起動で動き、外へ出ていくだけの一方向で�
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0001 設計文書をグラフとして管理する](../50-adr/adr-0001-graph-driven-docs.md)
 - (decides) [ADR-0006 実行基盤に Apps Script を選ぶ](../50-adr/adr-0006-apps-script-runtime.md)

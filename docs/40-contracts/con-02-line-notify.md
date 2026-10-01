@@ -82,7 +82,7 @@ implemented_by:
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 - [UC-02 週次サマリーを送る](../30-usecases/uc-02-weekly-summary.md)

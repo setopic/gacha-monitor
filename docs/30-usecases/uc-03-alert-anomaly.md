@@ -73,11 +73,11 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [ARCH-02 日次バッチの実行モデル](../10-architecture/arch-02-daily-batch.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (depends_on) [CON-01 X API からの投稿取得](../40-contracts/con-01-x-api-fetch.md)
 - (depends_on) [CON-02 LINE への通知送信](../40-contracts/con-02-line-notify.md)

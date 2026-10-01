@@ -69,13 +69,13 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [ARCH-02 日次バッチの実行モデル](../10-architecture/arch-02-daily-batch.md)
 - [DOM-01 監視対象と投稿](../20-domain/dom-01-post.md)
 - [DOM-02 エンゲージメント指標と注目度](../20-domain/dom-02-metrics.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0003 追跡期間を 4 日にする](../50-adr/adr-0003-tracking-window.md)
 - (decides) [ADR-0004 閾値を 3 段階にする](../50-adr/adr-0004-three-thresholds.md)

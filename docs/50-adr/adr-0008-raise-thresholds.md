@@ -96,11 +96,11 @@ ADR-0004 は 500 / 2,000 / 5,000 を「初回と 2 段階目の間が空きす�
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**supersedes** — この決定が置き換える過去の決定（ADR 用）
+`supersedes`: この決定が置き換える過去の決定（ADR用）
 
 - [ADR-0004 閾値を 3 段階にする](./adr-0004-three-thresholds.md)
 
-**decides** — この決定が影響を与えるノード（ADR 用）
+`decides`: この決定が影響を与えるノード（ADR用）
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 

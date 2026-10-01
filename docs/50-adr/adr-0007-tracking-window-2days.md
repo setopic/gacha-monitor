@@ -113,11 +113,11 @@ ADR-0003 の時点では 4 日ぶんの推移が手元に無かったが、今�
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**supersedes** — この決定が置き換える過去の決定（ADR 用）
+`supersedes`: この決定が置き換える過去の決定（ADR用）
 
 - [ADR-0003 追跡期間を 4 日にする](./adr-0003-tracking-window.md)
 
-**decides** — この決定が影響を与えるノード（ADR 用）
+`decides`: この決定が影響を与えるノード（ADR用）
 
 - [ARCH-02 日次バッチの実行モデル](../10-architecture/arch-02-daily-batch.md)
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
