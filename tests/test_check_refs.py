@@ -1,8 +1,8 @@
-"""PR の参照の検査（`.github/scripts/check_refs.py`）のテスト。
+"""PRの参照の検査（`.github/scripts/check_refs.py`）のテスト。
 
-**文中の「なし」で照合を飛ばさないこと**が最も大事な性質である。
-部分一致で見ていた頃は「問題なし」「更新なし」「みなし」でも飛び、
-派生の PR 30 件のうち 10 件が照合されていなかった（意図したものは 1 件）。
+**文の途中の「なし」で、照合を飛ばさないこと**が、最も大事な性質である。
+部分一致で見ていた頃は、「問題なし」「更新なし」「みなし」でも照合が飛び、
+派生のPR 30件のうち10件が照合されていなかった（意図したものは1件）。
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ class DeclaresNone(unittest.TestCase):
                 self.assertTrue(self.refs.declares_none(text))
 
     def test_none_in_the_middle_of_a_sentence_is_not(self):
-        """実際に照合を飛ばしていた書き方。"""
+        """実際に、照合を飛ばしていた書き方。"""
         for text in (
             "- `check --strict`: 184 ノード、問題なし",
             "更新なし（すべて最新）",
@@ -68,7 +68,7 @@ class Check(unittest.TestCase):
         self.assertEqual(self.run_check("予約を直す。UC-01 / ADR-0001\n本文"), 0)
 
     def test_a_missing_id_fails_even_if_the_body_says_no_problem(self):
-        """「問題なし」を貼っても、書き間違えた id は見逃さない。"""
+        """「問題なし」を貼っても、書き間違えたidは見逃さない。"""
         self.assertEqual(self.run_check("予約を直す。UC-99\n- check: 問題なし"), 1)
 
     def test_no_id_and_no_declaration_fails(self):
