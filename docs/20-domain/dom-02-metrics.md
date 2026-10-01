@@ -68,11 +68,11 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [DOM-01 監視対象と投稿](./dom-01-post.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0002 主指標に保存数を採用する](../50-adr/adr-0002-save-count-as-metric.md)
 - (depends_on) [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)

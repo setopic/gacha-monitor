@@ -60,11 +60,11 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [ARCH-01 システム全体](../10-architecture/arch-01-monitor-overview.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0005 転載と返信をコード側で除外する](../50-adr/adr-0005-filter-in-code.md)
 - (depends_on) [DOM-02 エンゲージメント指標と注目度](./dom-02-metrics.md)

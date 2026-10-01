@@ -104,12 +104,12 @@ implemented_by:
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 - [UC-03 異常と予算超過を知らせる](../30-usecases/uc-03-alert-anomaly.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0005 転載と返信をコード側で除外する](../50-adr/adr-0005-filter-in-code.md)
 

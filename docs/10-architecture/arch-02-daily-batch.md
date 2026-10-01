@@ -61,11 +61,11 @@ X API の課金には**同じ投稿を短い間隔で何度読んでも 1 回し
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [ARCH-01 システム全体](./arch-01-monitor-overview.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (decides) [ADR-0003 追跡期間を 4 日にする](../50-adr/adr-0003-tracking-window.md)
 - (decides) [ADR-0006 実行基盤に Apps Script を選ぶ](../50-adr/adr-0006-apps-script-runtime.md)

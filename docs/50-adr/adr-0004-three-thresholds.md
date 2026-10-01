@@ -78,11 +78,11 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**decides** — この決定が影響を与えるノード（ADR 用）
+`decides`: この決定が影響を与えるノード（ADR用）
 
 - [UC-01 注目商品を検知して通知する](../30-usecases/uc-01-detect-and-notify.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (supersedes) [ADR-0008 閾値を 1,000 / 2,000 / 4,000 に引き上げる](./adr-0008-raise-thresholds.md)
 

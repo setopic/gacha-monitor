@@ -62,12 +62,12 @@ related: []
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**depends_on** — この文書が成立するために前提となるノード
+`depends_on`: この文書が成立するために前提となるノード
 
 - [ARCH-02 日次バッチの実行モデル](../10-architecture/arch-02-daily-batch.md)
 - [DOM-02 エンゲージメント指標と注目度](../20-domain/dom-02-metrics.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (depends_on) [CON-02 LINE への通知送信](../40-contracts/con-02-line-notify.md)
 - (depends_on) [CON-03 スプレッドシートのシート構成](../40-contracts/con-03-sheet-schema.md)
