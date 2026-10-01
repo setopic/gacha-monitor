@@ -242,7 +242,7 @@ python -m tools.graph new --type usecase --id UC-02 --title "予約をキャン�
 あとは本文と `depends_on` を書いて `check` を通す。
 
 同じ type に複数の書式が要るときは `--template` で雛形を選ぶ。
-`contract` には汎用（既定）と HTTP 用の 2 つがある。
+`contract`には、汎用（既定）、HTTP用、チャットの操作用の3つがある。
 
 ```bash
 python -m tools.graph new --type contract --template contract-http --id CON-02 --title "..."
@@ -372,9 +372,9 @@ PR の `--strict` は `--since` を付けずに走らせるので、`G015`・`G0
 先に共有ファイルをテンプレートと一致させ、競合面を消してから繋ぐ。
 
 1. 共有ファイルをテンプレートの内容で上書きしてコミットする。
-   対象は `tools/`、`docs/00-meta/graph-rules.md`、`docs/00-meta/node-types.md`、
-   `docs/00-meta/templates/`、`CLAUDE.md`、`Makefile`、`.github/`、
-   `.gitattributes`、`.gitignore`、`LICENSE`。
+   対象は`tools/`、`tests/`、`docs/00-meta/`（`dev-flow.md`を除く）、`.claude/skills/`、
+   `CLAUDE.md`、`TEMPLATE_CHANGELOG.md`、`PROJECT_TEMPLATE_CHANGELOG.md`、`Makefile`、
+   `.github/`（`workflows/app-check.yml`を除く）、`.gitattributes`、`.gitignore`、`LICENSE`である。
    **`README.md`・`docs/index.md`・各 `index.md`・ノード本体は対象外**（プロジェクト固有）
 
 2. upstream を追加する。
@@ -456,22 +456,19 @@ python -m tools.graph check && python -m tools.graph sync
 
 ## CI
 
-`.github/workflows/graph-check.yml` が push / PR で次の 3 つを回す。
-GitHub 以外を使うなら、この 3 コマンドを同等のジョブに移すだけでよい。
+CIは2本ある。`.github/workflows/graph-check.yml`は、pushとPRで文書のグラフについて次の5つを確かめ、最後に`stats`で集計も出す。GitHub以外を使うなら、これらのコマンドを同等のジョブに移すだけでよい。
 
-```bash
-python -m tools.graph check
-```
+| 順 | コマンド | 確かめること |
+| --- | --- | --- |
+| 1 | `python -m unittest discover -s tests -t .` | ツール自体のテスト |
+| 2 | `python -m tools.graph check` | グラフの検証。mainへのpushとPRでは`--strict`を付ける。PRでは`--since`付きで追従漏れの一覧も出す |
+| 3 | `python -m tools.graph sync --check` | 関連ドキュメント・目次の一覧・用語の一覧が最新か |
+| 4 | `python -m tools.graph linkify --check` | 本文の`[[ID]]`が相対リンクに直っているか |
+| 5 | `make readme-check` | READMEの図が最新か |
 
-```bash
-python -m tools.graph sync --check
-```
+5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
 
-```bash
-python -m tools.graph render --format mermaid --into README.md --check
-```
-
-3 つ目があるので、**グラフを変えたまま README の図を更新し忘れると CI が落ちる**。
+`.github/workflows/app-check.yml`は、PRの本文にノードのidがあるかを確かめ、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
 
 ## ライセンス
 
