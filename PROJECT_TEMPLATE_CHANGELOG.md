@@ -11,7 +11,25 @@
 **派生プロジェクトはこのファイルを書き換えない。** 自分の履歴は
 `PROJECT_CHANGELOG.md` に書く。
 
-現在の版: **0.12.0**
+現在の版: **0.12.1**
+
+---
+
+## 0.12.1 — 2026-10-02
+
+### 修正
+
+READMEの「テンプレートの更新を取り込む」の手順を、`make update`に直した。テンプレート1.26.0で、取り込みは`make update`で行い、`merge=ours`のドライバをそのときだけ効かせるようになった（setopic/graph-doc-template#36）。`README.md`は`merge=ours`なので、取り込みでは変わらず、手で反映した。
+
+| 箇所 | 変えたこと |
+| --- | --- |
+| 「最初に一度だけ」の3と4 | 初回の取り込みを`make update UPDATE_ARGS=--allow-unrelated-histories`にし、以前の`make setup`が常設した設定を外す手順を足した |
+| 「取り込む」 | `make setup && git fetch template && git merge template/main`を`make update`にした |
+| 「取り込むときに知っておくこと」 | `git merge`を直接使うと`merge=ours`が効かず、競合することを書いた |
+
+### 取り込む側の作業
+
+`README.md`は`merge=ours`なので、取り込む側には届かない。自分のREADMEに取り込みの手順を写しているなら、同じように直す（テンプレート1.26.0の「取り込む側の作業」）。
 
 ---
 
