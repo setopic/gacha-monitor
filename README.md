@@ -116,6 +116,7 @@ graph LR
     META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
     META-05["META-05<br/>開発の流れ"]
     META-06["META-06<br/>開発の原則"]
+    META-07["META-07<br/>issueとPRの流れ"]
   end
   subgraph architecture["アーキテクチャ"]
     ARCH-01["ARCH-01<br/>システム全体構成"]
@@ -143,6 +144,7 @@ graph LR
   META-01 -.->|related| META-03
   META-01 -.->|related| META-04
   META-01 -.->|related| META-05
+  META-01 -.->|related| META-07
   META-02 -.->|related| META-01
   META-03 -.->|related| META-01
   META-04 -.->|related| META-01
@@ -151,6 +153,7 @@ graph LR
   META-05 -.->|related| META-01
   META-05 -.->|related| META-04
   META-06 -.->|related| META-04
+  META-07 -.->|related| META-01
   UC-01 -->|depends_on| DOM-01
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;
