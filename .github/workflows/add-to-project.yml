@@ -25,7 +25,7 @@
 # 下書きとして載る（actions/add-to-project の仕様）。
 #
 # **ボードの「済」は 2 つの意味を持つ。** issue を閉じるのは答えが出て文書へ移したとき
-# （META-05）で、PR を閉じるのは入ったとき。ビューを is:issue と is:pr で分けて見る。
+# （META-07）で、PR を閉じるのは入ったとき。ビューを is:issue と is:pr で分けて見る。
 #
 # 限界: フォークからの PR は載らない（pull_request には秘密が渡らない）。
 # 外から PR を受けるようになったら pull_request_target に変える。

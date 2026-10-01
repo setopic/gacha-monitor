@@ -23,7 +23,7 @@ def load_script():
     return module
 
 
-@unittest.skipUnless(SCRIPT.exists(), "文書だけの派生には check_refs.py が無い")
+@unittest.skipUnless(SCRIPT.exists(), "check_refs.pyを消したリポジトリでは飛ばす")
 class DeclaresNone(unittest.TestCase):
     def setUp(self):
         self.refs = load_script()
@@ -55,7 +55,7 @@ class DeclaresNone(unittest.TestCase):
         self.assertFalse(self.refs.declares_none(text))
 
 
-@unittest.skipUnless(SCRIPT.exists(), "文書だけの派生には check_refs.py が無い")
+@unittest.skipUnless(SCRIPT.exists(), "check_refs.pyを消したリポジトリでは飛ばす")
 class Check(unittest.TestCase):
     def setUp(self):
         self.refs = load_script()
