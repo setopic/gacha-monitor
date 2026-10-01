@@ -112,11 +112,11 @@ related:
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**related** — 依存はしないが併読すべきノード
+`related`: 依存はしないが、一緒に読むべきノード
 
 - [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 

@@ -106,13 +106,13 @@ git merge impl/main --allow-unrelated-histories
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**related** — 依存はしないが併読すべきノード
+`related`: 依存はしないが、一緒に読むべきノード
 
 - [META-01 グラフの規約](./graph-rules.md)
 - [META-05 開発の流れ](./dev-flow.md)
 - [META-06 開発の原則](./principles.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (related) [META-01 グラフの規約](./graph-rules.md)
 - (related) [META-05 開発の流れ](./dev-flow.md)

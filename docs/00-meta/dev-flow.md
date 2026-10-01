@@ -190,12 +190,12 @@ ADR に「grill した」と書いても、それが本当かは確かめられ�
 
 ## 関連ドキュメント（自動生成 / 手で編集しない）
 
-**related** — 依存はしないが併読すべきノード
+`related`: 依存はしないが、一緒に読むべきノード
 
 - [META-01 グラフの規約](./graph-rules.md)
 - [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 
-**このノードを参照しているノード**
+このノードを参照しているノード
 
 - (related) [META-01 グラフの規約](./graph-rules.md)
 - (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
