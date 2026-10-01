@@ -212,6 +212,7 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | --- | --- | --- |
 | `/grill` | 要件を書き始める前に詰める | [META-05](docs/00-meta/dev-flow.md)が4つの場面に決めている |
 | `/lean` | 書かずに済む道を探し、書いた差分から過剰な実装を削る | 実装に着手する前と、差分を出す前（[META-06](docs/00-meta/principles.md)） |
+| `/yomiyasu` | 日本語の文章を読みやすく直す | 日本語を書いたあと。書き方の決まりはCLAUDE.mdの「日本語の書き方」にある |
 
 ## 新しいノードを作る
 
@@ -282,7 +283,9 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
 
 `G015`と`G016`・`G017`は、使う場面が違う。`G015`は文書どうしの追従漏れを、`G016`・`G017`は文書と実装の対応を見る。`G016`・`G017`は、`implemented_by`を書いたときだけ働く。**どちらも「見たか」を確かめるもので、「直せ」という指示ではない。**
 
-`G020`は`G009`と重ならない。`G009`は、`stable`なノードの`depends_on`だけを見る。`G020`は`status`を問わず本文のリンクを見て、取り下げた決定を断りなく引いていないかを確かめる。同じ段落で置き換え先も指していれば、警告しない。
+`G020`は`G009`と重ならない。`G009`は、`stable`なノードの`depends_on`だけを見る。`G020`は本文のリンクを見て、取り下げた決定を断りなく引いていないかを確かめる。同じ段落で置き換え先も指していれば、警告しない。
+
+`G020`は、確定した記録を見ない（`schema.py`の`IMMUTABLE_RECORD_TYPES`。既定は`stable`なADR）。確定したADRは書き換えないもので、決定を変えるときは新しいADRを起こす。直せないものに警告を出しても、`--strict`を通らなくするだけである。確定前（`draft`・`review`）のADRは直せるので、対象に残る。実際に見るのは、現在の設計を述べる層だけになる。
 
 **CIでは、mainへのpushとPRで`--strict`を使う。** PRで落ちなければ、マージした後のmainも落ちない。PRの`--strict`は`--since`を付けずに走らせるので、`G015`・`G017`では失敗しない（一覧だけを出す）。それ以外のブランチへのpushでは、警告を出すだけにして、書いている途中で止めない。
 
@@ -290,7 +293,13 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
 
 コードブロック・コードスパン・HTMLコメントの中は検査しない。規約の文書や雛形に記法の例を書いても、落ちない。逆に、コメントアウトした参照はグラフに現れない。
 
-本文の`[[ID]]`は、リンク切れしか検査されない。層（`G007`）と循環（`G006`）の検査を受けるのは、フロントマターの型つきエッジだけである。前提は本文ではなく、`depends_on`に書く（詳しくは[graph-rules.md](docs/00-meta/graph-rules.md)の「本文リンクは層と循環の検査を受けない」）。
+本文のリンクは、リンク切れしか検査されない。層（`G007`）と循環（`G006`）の検査を受けるのは、フロントマターの型つきエッジだけである。前提は本文ではなく、`depends_on`に書く（詳しくは[graph-rules.md](docs/00-meta/graph-rules.md)の「本文リンクは層と循環の検査を受けない」）。
+
+本文に残す形は相対リンクである。`[[ID]]`は書くときの略記で、そのままではGitHub上でただの文字として表示され、読み手はクリックできない。2つの形はどちらも同じ参照として扱われるので、`linkify`が相対リンクに整形する。
+
+```bash
+python -m tools.graph linkify
+```
 
 ## 自分のプロジェクトに合わせる
 
@@ -340,7 +349,7 @@ contract | CON-02 | キャンセル API | cancel-api | draft | contract-http
    make setup
    ```
 
-   **この設定はクローンごとに要る。** 設定されていないと、gitは指定を何も言わずに無視し、通常のマージを行う。警告は出ない。何度実行しても、結果は同じである。
+   **この設定はクローンごとに要る。** 設定されていないと、gitは指定を何も言わずに無視し、通常のマージを行う。警告は出ないので、保護が外れていること自体が見えない。何度実行しても結果は同じなので、取り込みの前に毎回実行してよい。
 
 4. 初回だけ、`--allow-unrelated-histories`を付けてマージする。
 
@@ -369,7 +378,7 @@ python -m tools.graph upgrade
 取り込みの手順は次のとおりである。
 
 ```bash
-git fetch template && git merge template/main
+make setup && git fetch template && git merge template/main
 ```
 
 ```bash
@@ -405,7 +414,7 @@ CIは2本ある。`.github/workflows/graph-check.yml`は、pushとPRで文書の
 | 4 | `python -m tools.graph linkify --check` | 本文の`[[ID]]`が相対リンクに直っているか |
 | 5 | `make readme-check` | READMEの図が最新か |
 
-5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
+5つ目は、`render --into README.md --check`を`make`経由で呼ぶ。`graph.mk`の`README_GRAPH_ARGS`（`--aggregate`など）を効かせるためである。5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
 
 `.github/workflows/app-check.yml`は、PRの本文にノードのidがあるかを確かめ、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
 
