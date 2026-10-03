@@ -343,7 +343,7 @@ python -m tools.graph linkify
 2. upstreamを追加する。
 
    ```bash
-   git remote add template https://github.com/setopic/graph-doc-template.git
+   git remote add template https://github.com/setopic/graph-project-template.git
    ```
 
 3. 初回だけ、`--allow-unrelated-histories`を付けて取り込む。
