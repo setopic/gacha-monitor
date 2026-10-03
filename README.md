@@ -360,7 +360,7 @@ python -m tools.graph linkify
    make setup
    ```
 
-5. issueの型が使うラベルを作る。
+5. issueの型が使うラベルを作る（[META-07](docs/00-meta/issue-pr-flow.md)）。
 
    ```bash
    gh label clone setopic/graph-project-template
