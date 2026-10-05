@@ -47,12 +47,6 @@ class ParseFindings(unittest.TestCase):
         self.assertEqual(found[0].code, "A001")
         self.assertEqual(found[0].message, "曖昧")
 
-    def test_unwraps_a_fenced_code_block(self):
-        """モデルが ```json で包むことがある。"""
-        inner = json.dumps({"findings": [{"code": "A002", "message": "冗長"}]})
-        data = {"content": [{"type": "text", "text": f"```json\n{inner}\n```"}]}
-        self.assertEqual(len(review.parse_findings(node(), data)), 1)
-
     def test_drops_unknown_codes(self):
         """G 系の番号を返してきても受け取らない。名前空間を分けた意味が消える。"""
         data = api_response([{"code": "G014", "message": "節が無い"}])
@@ -64,6 +58,37 @@ class ParseFindings(unittest.TestCase):
 
     def test_empty_findings(self):
         self.assertEqual(review.parse_findings(node(), api_response([])), [])
+
+
+class EnsureComplete(unittest.TestCase):
+    """切れた応答を「指摘なし」として扱わない。"""
+
+    def test_truncated_response_raises(self):
+        with self.assertRaises(review.ReviewError):
+            review.ensure_complete({"stop_reason": "max_tokens", "content": []})
+
+    def test_refusal_raises(self):
+        with self.assertRaises(review.ReviewError):
+            review.ensure_complete({"stop_reason": "refusal", "content": []})
+
+    def test_finished_response_passes(self):
+        review.ensure_complete({"stop_reason": "end_turn", "content": []})
+
+
+class CallApi(unittest.TestCase):
+    """通信の失敗は、どれもReviewErrorにする。reviewの終了コードは常に0である。"""
+
+    def test_read_timeout_becomes_review_error(self):
+        def slow_urlopen(request, timeout):
+            raise TimeoutError("The read operation timed out")
+
+        original = review.urllib.request.urlopen
+        review.urllib.request.urlopen = slow_urlopen
+        try:
+            with self.assertRaises(review.ReviewError):
+                review.call_api({}, "dummy")
+        finally:
+            review.urllib.request.urlopen = original
 
 
 class OverDesign(unittest.TestCase):
@@ -83,9 +108,13 @@ class OverDesign(unittest.TestCase):
         self.assertIn("先送りを明記した", review.SYSTEM_PROMPT)
 
 
+def prompt_text(blocks: list[dict]) -> str:
+    return "\n\n".join(block["text"] for block in blocks)
+
+
 class Prompt(unittest.TestCase):
     def test_includes_the_body_and_the_type(self):
-        prompt = review.build_prompt(make_graph([node()]), node())
+        prompt = prompt_text(review.build_prompt(make_graph([node()]), node()))
         self.assertIn("仮の本文", prompt)
         self.assertIn("type: domain", prompt)
 
@@ -101,7 +130,7 @@ class Prompt(unittest.TestCase):
         child.edges.append(
             Edge(src="UC-01", dst="DOM-02", kind="depends_on", origin="frontmatter")
         )
-        prompt = review.build_prompt(make_graph([owner, child]), child)
+        prompt = prompt_text(review.build_prompt(make_graph([owner, child]), child))
         self.assertIn("参加", prompt)
         self.assertIn("エントリー", prompt)
 
@@ -114,8 +143,24 @@ class Prompt(unittest.TestCase):
             "| 棄権 | 対戦を行えなくなったこと | — |\n"
         ))
         upstream = node("DOM-01", body="## 定義\n両チームが辞退した場合など。\n")
-        prompt = review.build_prompt(make_graph([sibling, upstream]), upstream)
+        prompt = prompt_text(review.build_prompt(make_graph([sibling, upstream]), upstream))
         self.assertIn("棄権（DOM-14）: 対戦を行えなくなったこと", prompt)
+
+    def test_the_vocabulary_comes_first_and_is_cached(self):
+        """用語の一覧はどのノードでも同じなので、先頭に置いてキャッシュする。"""
+        owner = node("DOM-02", body=(
+            "## 用語\n\n"
+            "| 用語 | 意味 | 旧称 |\n"
+            "| --- | --- | --- |\n"
+            "| 棄権 | 対戦を行えなくなったこと | — |\n"
+        ))
+        other = node("UC-01", "usecase", "## 概要\nx\n")
+        graph = make_graph([owner, other])
+        first = review.build_prompt(graph, owner)
+        second = review.build_prompt(graph, other)
+        self.assertEqual(first[0], second[0])
+        self.assertIn("cache_control", first[0])
+        self.assertNotIn("cache_control", first[-1])
 
 
 class ReviewNode(unittest.TestCase):
@@ -135,6 +180,10 @@ class ReviewNode(unittest.TestCase):
         self.assertEqual(seen["key"], "dummy")
         self.assertEqual(seen["payload"]["model"], "test-model")
         self.assertIn("A001", seen["payload"]["system"])
+        self.assertEqual(
+            seen["payload"]["output_config"]["format"]["schema"],
+            review.FINDINGS_SCHEMA,
+        )
 
 
 class SelectNodes(unittest.TestCase):
@@ -150,6 +199,21 @@ class SelectNodes(unittest.TestCase):
         nodes = [node("IDX-ROOT", "index"), node("DOM-01")]
         picked = review.select_nodes(make_graph(nodes), limit=0)
         self.assertEqual([n.id for n in picked], ["DOM-01"])
+
+
+class Usage(unittest.TestCase):
+    def test_adds_up_the_usage_of_each_response(self):
+        totals: dict[str, int] = {}
+        review.add_usage(totals, {"usage": {"input_tokens": 10, "output_tokens": 3}})
+        review.add_usage(totals, {"usage": {"input_tokens": 5, "cache_read_input_tokens": 7}})
+        self.assertEqual(totals["input_tokens"], 15)
+        self.assertEqual(totals["output_tokens"], 3)
+        self.assertEqual(totals["cache_read_input_tokens"], 7)
+
+    def test_a_response_without_usage_counts_as_zero(self):
+        totals: dict[str, int] = {}
+        review.add_usage(totals, {})
+        self.assertEqual(totals["input_tokens"], 0)
 
 
 class WithoutAnApiKey(unittest.TestCase):
