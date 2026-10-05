@@ -25,7 +25,8 @@ API_URL = "https://api.anthropic.com/v1/messages"
 API_VERSION = "2023-06-01"
 DEFAULT_MODEL = "claude-sonnet-5"
 DEFAULT_LIMIT = 10
-MAX_TOKENS = 2000
+# 思考に使った分も、この上限に数える。thinkingを省くと、claude-sonnet-5は適応型の思考を使う。
+MAX_TOKENS = 16000
 TIMEOUT_SECONDS = 120
 
 API_KEY_ENV = "ANTHROPIC_API_KEY"
@@ -44,6 +45,29 @@ FINDING_CODES: dict[str, str] = {
 }
 
 _CODE_LIST = "\n".join(f"- {code}: {desc}" for code, desc in FINDING_CODES.items())
+
+# 応答の形。structured outputs（output_config.format）で、この形のJSONだけを返させる。
+FINDINGS_SCHEMA: dict = {
+    "type": "object",
+    "properties": {
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string", "enum": list(FINDING_CODES)},
+                    "quote": {"type": "string", "description": "本文からの短い引用"},
+                    "message": {"type": "string", "description": "何が問題か"},
+                    "suggestion": {"type": "string", "description": "どう直すか"},
+                },
+                "required": ["code", "quote", "message", "suggestion"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["findings"],
+    "additionalProperties": False,
+}
 
 SYSTEM_PROMPT = f"""あなたは、設計文書のレビュアーである。日本語のMarkdownの文書を読み、
 文章の質と、文書に現れた過剰な設計だけを指摘すること。
@@ -80,10 +104,6 @@ SYSTEM_PROMPT = f"""あなたは、設計文書のレビュアーである。日
 - A008・A009は断定しない。依存先の本文は渡していないので、根拠が依存先にだけ
   あることがある。「根拠が本文から辿れない」と書き、根拠のノードを本文から指すか、
   先送りとして書き直すことを提案する
-
-次のJSONだけを返すこと。前後に説明を書かない。
-
-{{"findings": [{{"code": "A001", "quote": "本文からの短い引用", "message": "何が問題か", "suggestion": "どう直すか"}}]}}
 """
 
 
@@ -133,12 +153,30 @@ def call_api(payload: dict, api_key: str) -> dict:
     )
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-            return json.loads(response.read().decode("utf-8"))
+            data = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as error:
         detail = error.read().decode("utf-8", "replace")[:300]
         raise ReviewError(f"APIが{error.code}を返した: {detail}") from error
     except urllib.error.URLError as error:
         raise ReviewError(f"APIに接続できない: {error.reason}") from error
+    except TimeoutError as error:
+        # 応答の読み込み中のタイムアウトは、URLErrorに包まれずにここへ来る
+        raise ReviewError(f"APIの応答が{TIMEOUT_SECONDS}秒で返らない") from error
+    ensure_complete(data)
+    return data
+
+
+def ensure_complete(data: dict) -> None:
+    """応答が最後まで返っていなければ、ReviewErrorにする。
+
+    途中で切れた応答や断った応答からは、指摘を読めない。そのまま渡すと、
+    `parse_findings`が空の一覧を返し、「指摘なし」と区別が付かなくなる。
+    """
+    reason = data.get("stop_reason")
+    if reason == "max_tokens":
+        raise ReviewError(f"応答がmax_tokens（{MAX_TOKENS}）で切れた")
+    if reason == "refusal":
+        raise ReviewError("モデルが応答を断った（stop_reason: refusal）")
 
 
 def vocabulary_for(graph: Graph, node: Node) -> list[tuple[str, str, str, list[str]]]:
@@ -163,8 +201,30 @@ def vocabulary_for(graph: Graph, node: Node) -> list[tuple[str, str, str, list[s
     return vocabulary
 
 
-def build_prompt(graph: Graph, node: Node) -> str:
-    """1ノード分の入力を組み立てる。"""
+def build_prompt(graph: Graph, node: Node) -> list[dict]:
+    """1ノード分の入力を、テキストのブロックの並びで組み立てる。
+
+    用語の一覧は、同じ実行のどのノードでも同じなので、先頭のブロックに置いて
+    キャッシュの区切りを付ける。2つ目以降のノードでは、システムプロンプトと
+    用語の一覧をキャッシュから読む。ノードごとに変わる部分は、その後ろに置く。
+    """
+    blocks: list[dict] = []
+
+    vocabulary = vocabulary_for(graph, node)
+    if vocabulary:
+        rows = "\n".join(
+            f"- {term}（{owner_id}）: {meaning}"
+            + (f"。使わない語: {'、'.join(avoided)}" if avoided else "")
+            for owner_id, term, meaning, avoided in vocabulary
+        )
+        blocks.append(
+            {
+                "type": "text",
+                "text": f"# ドメインの用語（全ドメインノード）\n\n{rows}",
+                "cache_control": {"type": "ephemeral"},
+            }
+        )
+
     parts = [
         f"# 対象ノード\n\nid: {node.id}\ntype: {node.type}\ntitle: {node.title}",
     ]
@@ -176,17 +236,9 @@ def build_prompt(graph: Graph, node: Node) -> str:
             "節の有無は別の検査が見ているので、指摘しないこと。"
         )
 
-    vocabulary = vocabulary_for(graph, node)
-    if vocabulary:
-        rows = "\n".join(
-            f"- {term}（{owner_id}）: {meaning}"
-            + (f"。使わない語: {'、'.join(avoided)}" if avoided else "")
-            for owner_id, term, meaning, avoided in vocabulary
-        )
-        parts.append(f"# ドメインの用語（全ドメインノード）\n\n{rows}")
-
     parts.append(f"# 本文\n\n{node.body.strip()}")
-    return "\n\n".join(parts)
+    blocks.append({"type": "text", "text": "\n\n".join(parts)})
+    return blocks
 
 
 def parse_findings(node: Node, data: dict) -> list[Finding]:
@@ -194,9 +246,6 @@ def parse_findings(node: Node, data: dict) -> list[Finding]:
     blocks = data.get("content") or []
     text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
     text = text.strip()
-    # モデルが```jsonで包むことがある
-    if text.startswith("```"):
-        text = text.split("\n", 1)[-1].rsplit("```", 1)[0]
     try:
         parsed = json.loads(text)
     except json.JSONDecodeError:
@@ -234,6 +283,7 @@ def review_node(
         "max_tokens": MAX_TOKENS,
         "system": SYSTEM_PROMPT,
         "messages": [{"role": "user", "content": build_prompt(graph, node)}],
+        "output_config": {"format": {"type": "json_schema", "schema": FINDINGS_SCHEMA}},
     }
     return parse_findings(node, transport(payload, api_key))
 
@@ -247,3 +297,22 @@ def select_nodes(graph: Graph, *, limit: int) -> list[Node]:
 def api_key_from_env() -> str | None:
     key = (os.environ.get(API_KEY_ENV) or "").strip()
     return key or None
+
+
+USAGE_FIELDS = (
+    "input_tokens",
+    "cache_creation_input_tokens",
+    "cache_read_input_tokens",
+    "output_tokens",
+)
+
+
+def add_usage(totals: dict[str, int], data: dict) -> None:
+    """応答の`usage`を`totals`に足す。費用とキャッシュの効き方を見るために使う。"""
+    usage = data.get("usage") or {}
+    for field in USAGE_FIELDS:
+        totals[field] = totals.get(field, 0) + int(usage.get(field) or 0)
+
+
+def format_usage(totals: dict[str, int]) -> str:
+    return "、".join(f"{field} {totals.get(field, 0)}" for field in USAGE_FIELDS)
