@@ -342,7 +342,7 @@ python -m tools.graph linkify
    | `CLAUDE.md` | エージェント向けの前提。グラフの規約の部分はそのまま使える |
    | `docs/index.md` | グラフのルート。層の表は流用でき、冒頭にプロジェクトの説明を足す |
 
-4. 語彙を決める。`tools/graph/schema.py`の`NODE_TYPES`と`EDGE_KINDS`を編集する。層を増やしたり減らしたり、ノード種別を足したりするのは、ここだけで済む。まず1〜3の状態で書き始めてみて、層が合わないと分かってから触ればよい
+4. 語彙を決める。ノード種別を差し替えるときは、リポジトリの根に`graph.toml`を置く（[META-02](docs/00-meta/node-types.md)の「プロジェクトごとの種別」）。層を増やしたり減らしたり、ノード種別を足したりするのは、ここだけで済む。まず1〜3の状態で書き始めてみて、層が合わないと分かってから触ればよい
 
 5. 表を合わせる。4を変えたら、`docs/00-meta/node-types.md`の表を一致させる
 
@@ -350,74 +350,18 @@ python -m tools.graph linkify
 
 ## テンプレートの更新を取り込む
 
-このテンプレートから作ったプロジェクトに、あとからテンプレート側の改善を反映する手順である。**ファイルをコピーしない。** コピーすると、どれが共通のファイルかを毎回判断することになり、削除も伝わらず、いずれ気づかないうちにテンプレートとずれていく。
+このテンプレートから作ったプロジェクトに、あとからテンプレート側の改善を反映する手順は、[META-08 テンプレートの更新を取り込む](docs/00-meta/template-upgrade.md)にある。初回の準備、`make update`での取り込み、テンプレートの層ごとの版、取り込みのPRの書き方を扱う。
 
-### 最初に一度だけ
+手順をこのREADMEに置かないのは、`README.md`が`.gitattributes`の`merge=ours`で、取り込みが届かないからである。META-08は共通ファイルなので、取り込むたびに手順も新しくなる。ここには、この層がMETA-08の手順に足すものだけを書く。
 
-"Use this template"で作ったリポジトリは、テンプレートと履歴を共有していない。そのままマージすると、共通の祖先が無いので、共有ファイルまで軒並み競合する。先に共有ファイルをテンプレートと一致させ、競合するところを無くしてから繋ぐ。
-
-1. 共有ファイルをテンプレートの内容で上書きして、コミットする。対象は`tools/`、`tests/`、`docs/00-meta/`（`dev-flow.md`を除く）、`.claude/skills/`、`CLAUDE.md`、`TEMPLATE_CHANGELOG.md`、`PROJECT_TEMPLATE_CHANGELOG.md`、`Makefile`、`.github/`（`workflows/app-check.yml`を除く）、`.gitattributes`、`.gitignore`、`LICENSE`である。`README.md`・`docs/index.md`・各`index.md`・ノード本体は、プロジェクト固有なので対象外である
-
-2. upstreamを追加する。
-
-   ```bash
-   git remote add template https://github.com/setopic/graph-project-template.git
-   ```
-
-3. 初回だけ、`--allow-unrelated-histories`を付けて取り込む。
-
-   ```bash
-   make update UPDATE_ARGS=--allow-unrelated-histories
-   ```
-
-   `make update`は、`.gitattributes`の`merge=ours`を効かせて取り込む。`merge=ours`のドライバは、この取り込みのときだけ効かせる。クローンに常設すると、作業ブランチどうしのマージでも`merge=ours`が効き、相手の変更が何も言わずに落ちる。
-
-4. 以前の`make setup`でドライバを常設したクローンなら、設定を外す。設定が無ければ何もしないので、何度実行してもよい。
-
-   ```bash
-   make setup
-   ```
-
-5. issueの型が使うラベルを作る（[META-07](docs/00-meta/issue-pr-flow.md)）。
-
-   ```bash
-   gh label clone setopic/graph-project-template
-   ```
-
-   ラベルの実体が無いと、`labels:`の指定は何も言わずに無視される。issueは立つが、ラベルが付かないまま残る。`gh`の組み込みのコマンドで、すでにあるラベルは飛ばすので、何度実行してもよい。
-
-### 取り込む
-
-まず、テンプレートとの差を調べる。このコマンドは読み取りだけで、何も書き込まない。
-
-```bash
-python -m tools.graph upgrade
-```
-
-テンプレートより遅れていれば、その間の変更履歴と、変更されるファイルの一覧が出る。**majorが上がっていれば、移行作業が要る。** マージしただけでは動かなくなるので、表示された移行手順を先に読む。
-
-取り込みの手順は次のとおりである。
-
-```bash
-make update
-```
-
-```bash
-python -m tools.graph reset-samples --yes
-```
-
-```bash
-python -m tools.graph check && python -m tools.graph sync
-```
-
-取り込むときに知っておくことは、次のとおりである。
-
-| 知っておくこと | 説明 |
+| 場面 | この層で足すもの |
 | --- | --- |
-| サンプルノードは毎回追加される | マージは、テンプレート側にしかないファイルをそのまま足す。そのため、`reset-samples`で消すところまでが1セットである。省くと、プロジェクト側の同じidと衝突して`G002`が残る |
-| `README.md`と`docs/index.md`は競合しない | `make update`で取り込めば、`.gitattributes`の`merge=ours`で、プロジェクト側が優先される。`git merge`を直接使うと`merge=ours`が効かず、競合する。テンプレート側の改善を取り込みたいときは、`git diff HEAD template/main -- README.md`で差分を見て、手で反映する |
-| テンプレートがサンプルノードを変更したときだけ、modify/deleteの競合が出る | `git rm <path>`で解決してよい |
-| 初回のマージだけ`--allow-unrelated-histories`が要る | GitHubの"Use this template"は、履歴を引き継がないため |
+| 初回に上書きする共通ファイル | META-08の一覧に加えて、`PROJECT_TEMPLATE_CHANGELOG.md`と`CONTRIBUTING.md`を上書きする。この層の版を持つ`tools/graph/layers/graph-project-template.toml`は、`tools/`に含まれる。`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`は`merge=ours`のプロジェクト固有のファイルなので、上書きしない |
+| upstreamのURL | `git remote add template https://github.com/setopic/graph-project-template.git`にする。`graph-doc-template`を指すと、この層（META-04〜06、`app-check.yml`、`/lean`など）が届かない |
+| ラベルを作る | `gh label clone setopic/graph-project-template`を使う |
+| `merge=ours`のファイル | この層では、`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`も`merge=ours`で、取り込みでは変わらない。手で反映するものは、この層の変更履歴（[PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md)）の「取り込む側の作業」に書く |
+
+このリポジトリ自身が下の層の`graph-doc-template`を取り込むときは、`reset-samples`を回さない。このリポジトリはサンプルノードを配るので、回すと配るはずのサンプルノードが消える。このテンプレートから作ったプロジェクトは、META-08のとおり`reset-samples`を回す。
 
 ## AIエージェントと使う
 
