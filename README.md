@@ -205,6 +205,7 @@ python -m tools.graph render --format mermaid --focus DOM-01
 | `python -m tools.graph new --from <file>` | 1行に1ノードを書いたファイルから、まとめて作る |
 | `python -m tools.graph reset-samples` | 同梱のサンプルノードをまとめて取り除く |
 | `python -m tools.graph upgrade` | テンプレートとの差を調べる（読み取りのみ） |
+| `python -m tools.graph upgrade --label` | 取り込みの版だけを出す（`make update`が使う。fetchはしない） |
 | `python -m tools.graph --version` | テンプレートの版を表示する |
 | `python -m tools.graph stats` | ノード数・エッジ数を集計し、構造の見直しの候補を出す（下の「構造の見直しの候補」） |
 | `python -m tools.graph review` | 本文の質をAIに見てもらう（任意・通信あり） |
@@ -379,7 +380,7 @@ workflowは3本あり、そのうち検査をするのは2本である。`.githu
 
 5つ目は、`render --into README.md --check`を`make`経由で呼ぶ。`graph.mk`の`README_GRAPH_ARGS`（`--aggregate`など）を付けて確かめるためである。5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
 
-PRのときは、別のジョブ（`refs`）が、PRの本文に書いたノードのidが実在するかも確かめる（[META-07](docs/00-meta/issue-pr-flow.md)）。
+PRのときは、別のジョブ（`refs`）が、PRの本文に書いたノードのidが実在するかも確かめる。もう1つのジョブ（`names`）は、ブランチ名・PRの題・コミットの1行目が決まりに合うかを確かめる（[META-07](docs/00-meta/issue-pr-flow.md)）。
 
 `.github/workflows/app-check.yml`は、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
 
