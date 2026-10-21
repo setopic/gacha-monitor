@@ -103,7 +103,7 @@ issue ──▶ grill ──▶ 文書（ADR / UC / DOM）──▶ 実装 ─�
 | 何を | どこに書くか |
 | --- | --- |
 | 検証ツールの層（`graph-doc-template`）の変更 | `TEMPLATE_CHANGELOG.md`と`tools/graph/version.py`（SemVer） |
-| 統合型の層（`graph-project-template`）の変更 | `PROJECT_TEMPLATE_CHANGELOG.md` |
+| 統合型の層（`graph-project-template`）の変更 | `PROJECT_TEMPLATE_CHANGELOG.md`と`tools/graph/layers/graph-project-template.toml` |
 | このプロジェクト自身の変更 | `PROJECT_CHANGELOG.md` |
 | 配置の手順 | ユースケース（`usecase-runbook`雛形） |
 
