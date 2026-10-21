@@ -2,7 +2,7 @@
 
 このファイルは、このプロジェクト自身の履歴である。テンプレートは雛形を1回配るだけで、以後の取り込み（`make update`）では上書きしない（`.gitattributes`の`merge=ours`）。最初に、この説明ごと自分の内容に書き換える。
 
-`git merge template/main`を直接使うと、`merge=ours`が効かず、このファイルが雛形と競合することがある。取り込みの手順は[META-08](docs/00-meta/template-upgrade.md)にある。
+`git merge template/main`を直接使うと、`merge=ours`が使われず、このファイルが雛形と競合することがある。取り込みの手順は[META-08](docs/00-meta/template-upgrade.md)にある。
 
 履歴は3つに分かれており、それぞれ持ち主が違う。
 
@@ -12,7 +12,7 @@
 | [PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md) | `graph-project-template`（統合型の層） | 流れてくる |
 | このファイル | このプロジェクト自身 | 流れてこない |
 
-上流の版を上げるために、このファイルを触らない。上流の版は、`tools/graph/version.py`と`tools/graph/layers/graph-project-template.toml`が持つ。
+上流の版を上げるときは、このファイルを書き換えない。上流の版は、`tools/graph/version.py`と`tools/graph/layers/graph-project-template.toml`が持つ。
 
 ---
 

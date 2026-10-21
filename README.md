@@ -22,7 +22,7 @@ issueとPRの流れ（雛形、PRのidの確認、Projectへの追加）は、�
 
 設計文書をグラフとして管理し、その整合性をCIで検証するためのプロジェクトテンプレートである。
 
-1つの文書を1つのノード、フロントマターの型つきリンクをエッジとして扱う。リンク切れ・孤立ノード・循環依存・層の逆流を、機械で検証する。外部依存は無く、Python 3.12+ の標準ライブラリだけで動く。**検証はオフラインで完結する。** 通信するのは、本文の質をAIに見てもらう`review`だけである。`review`は任意のコマンドで、CIでは回さない（[ai-review.md](docs/00-meta/ai-review.md)）。
+1つの文書を1つのノード、フロントマターの型つきリンクをエッジとして扱う。リンク切れ・孤立ノード・循環依存・層の逆流を、機械で検証する。外部依存は無く、Python 3.12+の標準ライブラリだけで動く。**検証はオフラインで完結する。** 通信するのは、本文の質をAIに見てもらう`review`だけである。`review`は任意のコマンドで、CIでは回さない（[ai-review.md](docs/00-meta/ai-review.md)）。
 
 ## なぜ
 
@@ -40,7 +40,7 @@ issueとPRの流れ（雛形、PRのidの確認、Projectへの追加）は、�
 
 | 向く | 向かない |
 | --- | --- |
-| 概念と不変条件を持つドメインがある | 手順の順序が主役（配置手順、移行計画） |
+| 概念と不変条件を持つドメインがある | 手順の順序が中心になる（配置手順、移行計画） |
 | 前提と影響範囲を追いたい | 時間の経過にともなう状態を扱いたい |
 | 境界の契約を固めたい | ドメインが存在しない（運用記録、設定集） |
 
@@ -353,7 +353,7 @@ python -m tools.graph linkify
 | 場面 | この層で足すもの |
 | --- | --- |
 | 初回に上書きする共通ファイル | META-08の一覧に加えて、`PROJECT_TEMPLATE_CHANGELOG.md`と`CONTRIBUTING.md`を上書きする。この層の版を持つ`tools/graph/layers/graph-project-template.toml`は、`tools/`に含まれる。`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`は`merge=ours`のプロジェクト固有のファイルなので、上書きしない |
-| upstreamのURL | `git remote add template https://github.com/setopic/graph-project-template.git`にする。`graph-doc-template`を指すと、この層（META-04〜06、`app-check.yml`、`/lean`など）が届かない |
+| upstreamのURL | `git remote add template https://github.com/setopic/graph-project-template.git`にする。`graph-doc-template`を指すと、この層（META-04〜06、`app-check.yml`、`/lean`など）を取り込めない |
 | ラベルを作る | `gh label clone setopic/graph-project-template`を使う |
 | `merge=ours`のファイル | この層では、`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`も`merge=ours`で、取り込みでは変わらない。手で反映するものは、この層の変更履歴（[PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md)）の「取り込む側の作業」に書く |
 
@@ -375,7 +375,7 @@ workflowは3本あり、そのうち検査をするのは2本である。`.githu
 | 4 | `python -m tools.graph linkify --check` | 本文の`[[ID]]`が相対リンクに直っているか |
 | 5 | `make readme-check` | READMEの図が最新か |
 
-5つ目は、`render --into README.md --check`を`make`経由で呼ぶ。`graph.mk`の`README_GRAPH_ARGS`（`--aggregate`など）を効かせるためである。5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
+5つ目は、`render --into README.md --check`を`make`経由で呼ぶ。`graph.mk`の`README_GRAPH_ARGS`（`--aggregate`など）を付けて確かめるためである。5つ目があるので、グラフを変えたままREADMEの図を更新し忘れると、CIが落ちる。
 
 PRのときは、別のジョブ（`refs`）が、PRの本文に書いたノードのidが実在するかも確かめる（[META-07](docs/00-meta/issue-pr-flow.md)）。
 

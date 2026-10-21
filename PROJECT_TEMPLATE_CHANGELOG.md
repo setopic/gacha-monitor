@@ -1,15 +1,14 @@
-# graph-project-template の変更履歴
+# graph-project-templateの変更履歴
 
-**この層だけの履歴。** 履歴は 3 つに分かれており、**それぞれ持ち主が違う。**
+この層だけの履歴である。履歴は3つに分かれており、それぞれ持ち主が違う。
 
 | ファイル | 誰の履歴か | 派生への流れ方 |
 | --- | --- | --- |
 | [TEMPLATE_CHANGELOG.md](TEMPLATE_CHANGELOG.md) | `graph-doc-template`（検証ツール） | 下流すべてに流れる |
-| **このファイル** | `graph-project-template`（統合型の層） | その派生に流れる |
-| [PROJECT_CHANGELOG.md](PROJECT_CHANGELOG.md) | **そのプロジェクト自身** | **流れない**（`merge=ours`） |
+| このファイル | `graph-project-template`（統合型の層） | その派生に流れる |
+| [PROJECT_CHANGELOG.md](PROJECT_CHANGELOG.md) | そのプロジェクト自身 | 流れない（`merge=ours`） |
 
-**派生プロジェクトはこのファイルを書き換えない。** 自分の履歴は
-`PROJECT_CHANGELOG.md` に書く。
+**派生プロジェクトはこのファイルを書き換えない。** 自分の履歴は`PROJECT_CHANGELOG.md`に書く。
 
 現在の版は、`tools/graph/layers/graph-project-template.toml`の`version`に書く。版はここにだけ持ち、このファイルの本文には書かない。
 
@@ -24,6 +23,27 @@
 版を上げるときは、このファイルに項目を足し、`tools/graph/layers/graph-project-template.toml`の`version`を同じ版にする。`upgrade`は、この`version`と項目の見出しの版を読んで、派生が遅れているかを判断する（[META-08](docs/00-meta/template-upgrade.md)）。
 
 各版の見出しは`## 1.2.3（2026-10-21）`の形で書く。`upgrade`は見出しの先頭の版を読み、取り込む側の版より新しい項目を見せる。
+
+---
+
+## 0.14.9（2026-10-21）
+
+### 修正
+
+この層だけが持つ文書の日本語を、yomiyasuの変換原則で見直した（#82）。意味・手順・決まり・idや参照は変えていない。下の層は1.43.4で共通ファイルを見直した。
+
+| 直したもの | 例 |
+| --- | --- |
+| 比喩の動詞 | `G013`が「コードに届かない」を「コードを検査しない」に、`merge=ours`が「効かず」「守っている」を「使われず」「`merge=ours`にしてある」にした |
+| ぼかし | `/lean`のスキルの「何も言わずに削らない」を「依頼した人に伝えずに削らない」に、CLAUDE.mdの「機械は何も言わない」を「`check`は何も出さない」にした |
+| 用語の揺れ | META-06の「本家」を、`/lean`のスキルと同じ「原典」にした。META-04の「共有ファイル」を「共通ファイル」にした |
+| 太字と空白 | この変更履歴の冒頭とMETA-06の太字を減らした。日本語と英数字の間の半角空白を詰めた |
+
+対象は、README、CONTRIBUTING.md、CLAUDE.mdのうちこの層が足した節、`PROJECT_CHANGELOG.md`の雛形、この変更履歴の冒頭、META-04〜06、`/lean`のスキルである。下の層から取り込むファイルと、この変更履歴の過去の項目は書き換えていない。
+
+### 取り込む側の作業
+
+なし。`README.md`・`docs/00-meta/dev-flow.md`・`PROJECT_CHANGELOG.md`は`merge=ours`なので、この版の直しは取り込みでは届かない。意味は変えていないので、手で反映しなくてよい。
 
 ---
 
