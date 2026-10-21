@@ -101,14 +101,6 @@ tools/graph/            検証・可視化・生成ツール（依存なし）
 
 ```mermaid
 graph LR
-  subgraph index["目次"]
-    IDX-ADR["IDX-ADR<br/>決定記録"]
-    IDX-ARCH["IDX-ARCH<br/>アーキテクチャ"]
-    IDX-CON["IDX-CON<br/>契約"]
-    IDX-DOM["IDX-DOM<br/>ドメイン"]
-    IDX-ROOT["IDX-ROOT<br/>ドキュメントグラフのルート"]
-    IDX-UC["IDX-UC<br/>ユースケース"]
-  end
   subgraph meta["メタ / 規約"]
     META-01["META-01<br/>グラフの規約"]
     META-02["META-02<br/>ノード種別と層"]
@@ -141,20 +133,13 @@ graph LR
   CON-01 -->|depends_on| UC-01
   CON-01 -->|depends_on| DOM-01
   DOM-01 -->|depends_on| ARCH-01
-  META-01 -.->|related| META-02
-  META-01 -.->|related| META-03
-  META-01 -.->|related| META-07
-  META-01 -.->|related| META-08
-  META-02 -.->|related| META-01
-  META-03 -.->|related| META-01
-  META-04 -.->|related| META-05
-  META-04 -.->|related| META-06
-  META-05 -.->|related| META-04
-  META-06 -.->|related| META-04
-  META-07 -.->|related| META-01
-  META-07 -.->|related| META-08
-  META-08 -.->|related| META-01
-  META-08 -.->|related| META-07
+  META-01 -.-|related| META-02
+  META-01 -.-|related| META-03
+  META-01 -.-|related| META-07
+  META-01 -.-|related| META-08
+  META-04 -.-|related| META-05
+  META-04 -.-|related| META-06
+  META-07 -.-|related| META-08
   UC-01 -->|depends_on| DOM-01
   classDef draft stroke-dasharray: 4\,3;
   classDef deprecated opacity:0.5;
