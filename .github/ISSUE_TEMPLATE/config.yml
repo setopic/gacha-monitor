@@ -2,6 +2,7 @@ blank_issues_enabled: true
 
 # テンプレート由来のものは、上流に出す。理由と層の見分け方は、META-07の
 # 「テンプレート由来のものは上流に出す」にある。ここが持つのは、上流への導線だけである。
+# この層が置くのは、この層への導線だけである。上の層は、自分への導線を下に足す。
 contact_links:
   - name: テンプレートへの報告（検証ツールの層）
     url: https://github.com/setopic/graph-doc-template/issues/new
