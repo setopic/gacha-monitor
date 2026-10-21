@@ -26,6 +26,42 @@ python -m tools.graph --version
 
 ---
 
+## 1.45.1（2026-10-21）
+
+### 修正
+
+1.44.2で[META-07](docs/00-meta/issue-pr-flow.md)にしたのと同じく、ほかの箇所の例からも上の層の名前を外した（#161）。対象は[META-08](docs/00-meta/template-upgrade.md)、`CLAUDE.md`、`Makefile`と`.gitattributes`のコメント、`.github/scripts/check_names.py`のコメント、`tools/graph/upgrade.py`のdocstringである。上の層は「上の層」と書き、取り込みの版は`<label>-<版>`の形で書いた。META-08の層の宣言の例は`<層の名前>`や`<owner>/<repo>`の形にした。META-08の「テンプレートの層」には下の層と上の層の定義を1文足した。[META-02](docs/00-meta/node-types.md)の番号の表は例ではなく、実在する層が使っている番号の一覧なので変えていない。コードの振る舞いは変えていない。
+
+### 取り込む側の作業
+
+なし。変えたファイルに`merge=ours`のものは無いので、取り込むだけで済む。
+
+## 1.45.0（2026-10-21）
+
+### 追加
+
+[META-08](docs/00-meta/template-upgrade.md)の「テンプレートの層」に、上の層が下の層のサンプルノードを指すノードを足さない決まりを書いた（#152）。サンプルノードの自動生成ブロックには、そのノードを参照しているノードが書かれる。上の層と下の層が同じサンプルノードを指すノードをそれぞれ足すと、このブロックが上の層の取り込みで競合する。コードは変えていない。
+
+### 取り込む側の作業
+
+上の層のテンプレートは、下の層のサンプルノードを指すノードを持っていないかを確かめる。持っていれば、そのノードから参照を外す。末端の派生は何もしなくてよい。
+
+## 1.44.4（2026-10-21）
+
+### 修正
+
+`tools/graph/schema.py`の冒頭のdocstringと`README.md`から、`schema.py`の書き換えを促す文を外した（#158）。1.44.0で、用語表の見出しと列名と必須の節を`graph.toml`で変えられるようにした。docstringは、`schema.py`を書き換えないことと、`graph.toml`で変えることを書き、書き方の場所として[META-02](docs/00-meta/node-types.md)と[META-01](docs/00-meta/graph-rules.md)を指す。`README.md`の検査の説明は、必須の節を`graph.toml`の`[required_sections]`で変えられると書く。
+
+### 取り込む側の作業
+
+`README.md`は派生では`merge=ours`なので、取り込んでも変わらない。派生の`README.md`に「必須の節の既定は、`tools/graph/schema.py`にある。」の文が残っていれば、次の文に手で直す。
+
+```markdown
+必須の節は、`graph.toml`の`[required_sections]`で変えられる（[META-02](docs/00-meta/node-types.md)の「必須の節」）。
+```
+
+この文を消したか書き換えた派生は、何もしなくてよい。`schema.py`は取り込みで変わる。
+
 ## 1.44.3（2026-10-21）
 
 ### 修正

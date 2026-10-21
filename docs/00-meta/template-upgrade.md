@@ -83,7 +83,7 @@ make update
 python -m tools.graph reset-samples --yes
 ```
 
-**取り込む側が、自分でもサンプルノードを配るテンプレート（graph-project-templateなど）なら、`reset-samples`は回さない。** 配るはずのサンプルノードが消え、目次からも外れる。
+**取り込む側が、自分でもサンプルノードを配るテンプレートなら、`reset-samples`は回さない。** 配るはずのサンプルノードが消え、目次からも外れる。
 
 ```bash
 python -m tools.graph check && python -m tools.graph sync
@@ -100,22 +100,22 @@ python -m tools.graph check && python -m tools.graph sync
 
 ## 3. テンプレートの層
 
-テンプレートは層を重ねられる。graph-project-templateは、graph-doc-templateの上に重ねた層である。版と変更履歴は層ごとにあり、`upgrade`は層ごとに比べる。
+テンプレートは層を重ねられる。下の層は土台になるテンプレート（このリポジトリ、`graph-doc-template`）で、上の層は下の層の上に重ねたテンプレートである。版と変更履歴は層ごとにあり、`upgrade`は層ごとに比べる。
 
 | 層 | 版 | 変更履歴 | 取り込みの版の書き方 |
 | --- | --- | --- | --- |
 | graph-doc-template | `tools/graph/version.py`の`TEMPLATE_VERSION` | `TEMPLATE_CHANGELOG.md` | `1.38.0` |
-| 上の層 | `tools/graph/layers/<層の名前>.toml`の`version` | 同じファイルの`changelog`が指すもの | `<label>-<版>`（`project-0.14.0`など） |
+| 上の層 | `tools/graph/layers/<層の名前>.toml`の`version` | 同じファイルの`changelog`が指すもの | `<label>-<版>`（`<label>-0.14.0`など） |
 
-両方の層が遅れていれば、取り込みの版は`1.38.0-project-0.14.0`になる。上の層を作るときは、`tools/graph/layers/<層の名前>.toml`を1つ置く。層ごとにファイルの名前が違うので、層を重ねても取り込みで競合しない。
+両方の層が遅れていれば、取り込みの版は`1.38.0-<label>-0.14.0`になる。上の層を作るときは、`tools/graph/layers/<層の名前>.toml`を1つ置く。層ごとにファイルの名前が違うので、層を重ねても取り込みで競合しない。
 
 ```toml
-name = "graph-project-template"
-label = "project"
+name = "<層の名前>"
+label = "<label>"
 below = "graph-doc-template"
 version = "0.14.0"
-changelog = "PROJECT_TEMPLATE_CHANGELOG.md"
-repository = "https://github.com/setopic/graph-project-template.git"
+changelog = "<変更履歴のファイル>"
+repository = "https://github.com/<owner>/<repo>.git"
 ```
 
 `label`は、取り込みの版で層を見分ける名前で、英小文字と数字で書く。`below`には1つ下の層の`name`を書く。リモート`template`が無いとき、`upgrade`はいちばん上の層の`repository`を案内する。
@@ -123,6 +123,8 @@ repository = "https://github.com/setopic/graph-project-template.git"
 PRの題に版を求めるときは、`versioned_title = true`を足す。書かなければ求めない。CIの`names`は、`repository`がPRのリポジトリと同じ層だけに当てるので、宣言が写った派生では求めない（[META-07](issue-pr-flow.md)）。
 
 上の層が足す規約の文書は、下の層の規約の文書を`related`に入れない。`related`は相互に書く決まりなので、入れると下の層の共通ファイルを書き換えることになる。下の層の規約の文書へは、本文のリンクで案内する（[META-01](graph-rules.md)の「規約の文書には逆引きを書かない」）。
+
+上の層は、下の層のサンプルノードを指すノードを足さない。サンプルノードの自動生成ブロックには、そのノードを参照しているノードが書かれる。上の層と下の層が同じサンプルノードを指すノードをそれぞれ足すと、このブロックが上の層の取り込みで競合する。
 
 上の層のREADMEには、その層が足したもの（共通ファイル・サンプルノード・手順の例外）の説明と、この文書へのリンクだけを書く。取り込みの手順を写すと、写した側が古くなる。
 
