@@ -107,8 +107,4 @@ related:
 
 - [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 
-このノードを参照しているノード
-
-- (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
-
 <!-- graph:auto:end -->

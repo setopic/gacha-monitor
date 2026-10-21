@@ -5,7 +5,6 @@ title: 文書と実装を同じリポジトリに置く
 status: stable
 tags: [meta, layout]
 related:
-  - META-01
   - META-05
   - META-06
 ---
@@ -84,14 +83,7 @@ git merge impl/main --allow-unrelated-histories
 
 `related`: 依存はしないが、一緒に読むべきノード
 
-- [META-01 グラフの規約](./graph-rules.md)
 - [META-05 開発の流れ](./dev-flow.md)
 - [META-06 開発の原則](./principles.md)
-
-このノードを参照しているノード
-
-- (related) [META-01 グラフの規約](./graph-rules.md)
-- (related) [META-05 開発の流れ](./dev-flow.md)
-- (related) [META-06 開発の原則](./principles.md)
 
 <!-- graph:auto:end -->

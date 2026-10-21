@@ -5,7 +5,7 @@
 
     「自分は遅れているか。遅れているなら、何が変わり、移行作業は要るか」
 
-これが分からないと、派生リポジトリは、気づかないうちに古くなる。マージし忘れても
+これが分からないと、派生プロジェクトは、気づかないうちに古くなる。マージし忘れても
 何も起きないので、気づく機会が無い。
 
 テンプレートは層を重ねられる（graph-doc-templateの上にgraph-project-templateを
@@ -44,7 +44,8 @@ LAYER_KEYS = ("name", "label", "below", "version", "changelog", "repository")
 LABEL_RE = re.compile(r"^[a-z][a-z0-9]*$")
 
 VERSION_RE = re.compile(r'TEMPLATE_VERSION\s*=\s*["\']([^"\']+)["\']')
-# 変更履歴の見出しの形（例: "## 1.2.0 — 2026-08-14"）
+# 変更履歴の見出しの形（例: "## 1.2.0（2026-08-14）"）。版の後ろは問わない。
+# 1.43.2までの見出しは版と日付をダッシュでつないでいた。上の層や派生の変更履歴には残っているので、どちらも読む
 ENTRY_RE = re.compile(r"^##\s+(\d+\.\d+\.\d+)\b(.*)$")
 
 # check-attrに一度に渡す経路の数。多すぎると、コマンド行の長さの上限に当たる
@@ -63,6 +64,8 @@ class Layer:
     # 取り込みのブランチ名で、版の前に付ける名前。下の層は付けない（`chore/template-<版>`のまま）
     label: str | None = None
     below: str | None = None
+    # PRの題（squashのコミット）に版を求めるか。上の層は、tomlの`versioned_title`で選ぶ（META-07）
+    versioned_title: bool = False
 
 
 class UpgradeError(RuntimeError):
@@ -150,6 +153,9 @@ def _parse_layer(text: str, source: str) -> Layer:
         raise UpgradeError(f"{source}に{'・'.join(missing)}が無い")
     if not LABEL_RE.match(data["label"]):
         raise UpgradeError(f"{source}のlabelは、英小文字で始まる英小文字と数字にする")
+    versioned_title = data.get("versioned_title", False)
+    if not isinstance(versioned_title, bool):
+        raise UpgradeError(f"{source}のversioned_titleは、trueかfalseにする")
     return Layer(
         name=data["name"],
         version=data["version"],
@@ -157,6 +163,7 @@ def _parse_layer(text: str, source: str) -> Layer:
         repository=data["repository"],
         label=data["label"],
         below=data["below"],
+        versioned_title=versioned_title,
     )
 
 
@@ -187,6 +194,7 @@ def read_layers(read: Callable[[str], str | None], names: list[str]) -> list[Lay
         version=found.group(1) if found else None,
         changelog=CHANGELOG_PATH,
         repository=BASE_REPOSITORY,
+        versioned_title=True,
     )
     upper = []
     for name in names:
