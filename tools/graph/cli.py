@@ -111,6 +111,47 @@ def cmd_render(args: argparse.Namespace) -> int:
         )
         return 1
 
+    if args.reduce and (args.aggregate or args.format == "json"):
+        print(
+            "エラー: --reduceは、--aggregateとも--format jsonとも同時に使えない"
+            "（線の本数や、depends_onに書いた前提が実態とずれる）",
+            file=sys.stderr,
+        )
+        return 1
+
+    types: set[str] | None = None
+    if args.type:
+        if args.aggregate or args.focus:
+            print(
+                "エラー: --typeは、--aggregateとも--focusとも同時に使えない"
+                "（どれも図に描くノードを選ぶので、組み合わせると意味が決まらない）",
+                file=sys.stderr,
+            )
+            return 1
+        types = {t.strip() for t in args.type.split(",") if t.strip()}
+        unknown = sorted(t for t in types if t not in schema.NODE_TYPES)
+        if unknown:
+            print(
+                f"エラー: 存在しない種別: {', '.join(unknown)}"
+                f"（使えるのは{', '.join(schema.NODE_TYPES)}）",
+                file=sys.stderr,
+            )
+            return 1
+
+    if args.hide_edges:
+        hidden = {k.strip() for k in args.hide_edges.split(",") if k.strip()}
+        known = (*schema.frontmatter_edge_kinds(), schema.BODY_EDGE_KIND)
+        unknown = sorted(k for k in hidden if k not in known)
+        if unknown:
+            print(
+                f"エラー: 存在しない線の種類: {', '.join(unknown)}"
+                f"（使えるのは{', '.join(known)}）",
+                file=sys.stderr,
+            )
+            return 1
+        # 先に線を外す。--focusも--aggregateも、残った線だけを見る
+        graph = graph.without_kinds(hidden)
+
     if args.focus:
         focus = {i.strip() for i in args.focus.split(",") if i.strip()}
         unknown = sorted(i for i in focus if i not in graph.nodes)
@@ -132,7 +173,25 @@ def cmd_render(args: argparse.Namespace) -> int:
         if omitted:
             print(f"予算{args.budget}字に収まらず、名前だけを出したノード: {len(omitted)}", file=sys.stderr)
 
-    if args.format == "mermaid" and args.aggregate:
+    if types and args.format != "mermaid":
+        # jsonとdotには箱を描かない。その種別のノードと、その間の線だけを出す
+        graph = graph.subgraph(
+            {n.id for n in graph.nodes.values() if n.type in types},
+            include_mentions=args.include_mentions,
+        )
+
+    reduced = 0
+    if args.reduce:
+        # 個別に描くノードの間の線だけを見る。--typeの箱を通る経路では省かない
+        among = {n.id for n in graph.nodes.values() if n.type in types} if types else None
+        graph, reduced = graph.without_implied("depends_on", among)
+        print(f"ほかのdepends_onを辿れば分かる依存を、図から{reduced}本省いた", file=sys.stderr)
+
+    if args.format == "mermaid" and types:
+        output = render_mod.to_mermaid_types(
+            graph, types, include_mentions=args.include_mentions
+        )
+    elif args.format == "mermaid" and args.aggregate:
         output = render_mod.to_mermaid_aggregate(
             graph, include_mentions=args.include_mentions
         )
@@ -146,6 +205,9 @@ def cmd_render(args: argparse.Namespace) -> int:
         )
     else:
         output = render_mod.to_dot(graph, include_mentions=args.include_mentions)
+
+    if args.reduce:
+        output = render_mod.note_reduced(output, args.format, reduced)
 
     if args.into:
         if args.format != "mermaid":
@@ -617,6 +679,24 @@ def build_parser() -> argparse.ArgumentParser:
         "--aggregate",
         action="store_true",
         help="型ごとに1つの箱へまとめる（ノードが増えても図が大きくならない。G018を避ける）",
+    )
+    p_render.add_argument(
+        "--hide-edges",
+        metavar="KIND[,KIND...]",
+        help="挙げた種類の線を描かない（例: decides,supersedes）。"
+        "その線しか持たないノードは、図から外れる",
+    )
+    p_render.add_argument(
+        "--type",
+        metavar="TYPE[,TYPE...]",
+        help="挙げた種別のノードだけを描く（例: domain）。"
+        "mermaidでは、ほかの種別を型ごとの箱にまとめる",
+    )
+    p_render.add_argument(
+        "--reduce",
+        action="store_true",
+        help="ほかのdepends_onを辿れば分かる依存を、図から省く（A→B→CがあるときのA→C）。"
+        "検査とフロントマターは変えない",
     )
     p_render.add_argument(
         "--budget",
