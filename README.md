@@ -352,12 +352,14 @@ python -m tools.graph linkify
 
 | 場面 | この層で足すもの |
 | --- | --- |
-| 初回に上書きする共通ファイル | META-08の一覧に加えて、`PROJECT_TEMPLATE_CHANGELOG.md`と`CONTRIBUTING.md`を上書きする。この層の版を持つ`tools/graph/layers/graph-project-template.toml`は、`tools/`に含まれる。`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`は`merge=ours`のプロジェクト固有のファイルなので、上書きしない |
+| 初回に上書きする共通ファイル | META-08の一覧に加えて、`PROJECT_TEMPLATE_CHANGELOG.md`と`CONTRIBUTING.md`を上書きする。この層の版を持つ`tools/graph/layers/graph-project-template.toml`は、`tools/`に含まれる。`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`は`merge=ours`のプロジェクト固有のファイルなので、上書きしない。`.github/ISSUE_TEMPLATE/config.yml`も`merge=ours`だが、中身はテンプレートへの導線なので、テンプレートの内容で上書きする |
 | upstreamのURL | `git remote add template https://github.com/setopic/graph-project-template.git`にする。`graph-doc-template`を指すと、この層（META-04〜06、`app-check.yml`、`/lean`など）を取り込めない |
 | ラベルを作る | `gh label clone setopic/graph-project-template`を使う |
-| `merge=ours`のファイル | この層では、`docs/00-meta/dev-flow.md`と`.github/workflows/app-check.yml`も`merge=ours`で、取り込みでは変わらない。手で反映するものは、この層の変更履歴（[PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md)）の「取り込む側の作業」に書く |
+| `merge=ours`のファイル | この層では、`docs/00-meta/dev-flow.md`・`.github/workflows/app-check.yml`・`.github/ISSUE_TEMPLATE/config.yml`も`merge=ours`で、取り込みでは変わらない。手で反映するものは、この層の変更履歴（[PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md)）の「取り込む側の作業」に書く |
 
 このリポジトリ自身が下の層の`graph-doc-template`を取り込むときは、`reset-samples`を回さない。このリポジトリはサンプルノードを配るので、回すと配るはずのサンプルノードが消える。このテンプレートから作ったプロジェクトは、META-08のとおり`reset-samples`を回す。
+
+このリポジトリ自身が下の層を取り込むとき、`.github/ISSUE_TEMPLATE/config.yml`は`merge=ours`なので変わらない。この層の導線は残るが、下の層が自分の導線を変えても、その変更は届かない。取り込む人は、下の層の変更履歴（`TEMPLATE_CHANGELOG.md`）の「取り込む側の作業」を読む。`config.yml`の導線の変更が書いてあれば、その変更をこの層の`config.yml`に手で反映する。
 
 ## AIエージェントと使う
 
