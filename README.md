@@ -369,7 +369,7 @@ python -m tools.graph linkify
 
 ## CI
 
-CIは2本ある。`.github/workflows/graph-check.yml`は、pushとPRで文書のグラフについて次の5つを確かめ、最後に`stats`で集計も出す。GitHub以外を使うなら、これらのコマンドを同等のジョブに移すだけでよい。
+workflowは3本あり、そのうち検査をするのは2本である。`.github/workflows/graph-check.yml`は、pushとPRで文書のグラフについて次の5つを確かめ、最後に`stats`で集計も出す。GitHub以外を使うなら、これらのコマンドを同等のジョブに移すだけでよい。
 
 | 順 | コマンド | 確かめること |
 | --- | --- | --- |
@@ -384,6 +384,8 @@ CIは2本ある。`.github/workflows/graph-check.yml`は、pushとPRで文書の
 PRのときは、別のジョブ（`refs`）が、PRの本文に書いたノードのidが実在するかも確かめる（[META-07](docs/00-meta/issue-pr-flow.md)）。
 
 `.github/workflows/app-check.yml`は、実装の検査を回す。実装の検査はプロジェクトごとに書く（このファイルは`merge=ours`）。
+
+`.github/workflows/add-to-project.yml`は検査をしない。issueとPRをGitHub Projectに載せるだけなので、検査の本数には数えない。設定（`PROJECT_URL`と`ADD_TO_PROJECT_PAT`）が無ければ何もしない。使い方はファイルの冒頭にある（[META-07](docs/00-meta/issue-pr-flow.md)）。
 
 ## ライセンス
 

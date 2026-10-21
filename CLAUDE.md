@@ -219,12 +219,17 @@ implemented_by:
 
 全ノードには書かない。ドメインと契約には実装との対応があるが、アーキテクチャとADRには無いことが多い。無いなら書かない。
 
-### CIは2本ある
+### 検査のCIは2本ある
+
+workflowは3本ある。検査をするのは2本である。
 
 | ファイル | 見るもの | 誰のものか |
 | --- | --- | --- |
 | `graph-check.yml` | 文書のグラフと、PRの参照 | テンプレートが配る。書き換えない |
 | `app-check.yml` | 実装のテスト | プロジェクトのもの（`merge=ours`） |
+| `add-to-project.yml` | 検査はしない。issueとPRをGitHub Projectに載せる | テンプレートが配る。書き換えない |
+
+`add-to-project.yml`は、設定（`PROJECT_URL`と`ADD_TO_PROJECT_PAT`）が無ければ何もしない。使い方はファイルの冒頭にある。
 
 実装のテストを`graph-check.yml`に書き足さないこと。テンプレートを取り込むたびに競合する。
 

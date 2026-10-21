@@ -25,6 +25,18 @@
 
 ---
 
+## 0.14.4 — 2026-10-21
+
+### 修正
+
+`README.md`と`CLAUDE.md`は、CIを2本と書いていた（#61）。workflowは`add-to-project.yml`を含めて3本ある。両方に3本目を足し、検査の本数に数えない理由を書いた。`add-to-project.yml`は検査をせず、issueとPRをGitHub Projectに載せるだけである。`CLAUDE.md`の見出しは「検査のCIは2本ある」に直した。
+
+### 取り込む側の作業
+
+`README.md`は`merge=ours`なので、取り込みでは変わらない。`README.md`のCIの節にこの層の説明を残しているなら、3本目の`add-to-project.yml`に触れる一文を手で足すことを勧める。直さなくても、取り込みそのものには影響しない。`CLAUDE.md`は取り込みで届く。
+
+---
+
 ## 0.14.3 — 2026-10-21
 
 ### 修正
