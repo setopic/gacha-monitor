@@ -10,6 +10,7 @@ related:
   - META-04
   - META-05
   - META-07
+  - META-08
 ---
 
 # グラフの規約
@@ -744,6 +745,7 @@ python -m tools.graph new --type contract --template contract-http --id CON-02 -
 - [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 - [META-05 開発の流れ](./dev-flow.md)
 - [META-07 issueとPRの流れ](./issue-pr-flow.md)
+- [META-08 テンプレートの更新を取り込む](./template-upgrade.md)
 
 このノードを参照しているノード
 
@@ -753,5 +755,6 @@ python -m tools.graph new --type contract --template contract-http --id CON-02 -
 - (related) [META-04 文書と実装を同じリポジトリに置く](./implementation-layout.md)
 - (related) [META-05 開発の流れ](./dev-flow.md)
 - (related) [META-07 issueとPRの流れ](./issue-pr-flow.md)
+- (related) [META-08 テンプレートの更新を取り込む](./template-upgrade.md)
 
 <!-- graph:auto:end -->
