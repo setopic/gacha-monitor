@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v7
 
       # ここから下はプロジェクトごとに書き換える。
-      # 実装が無いうちは何もしない。
+      # 実装が無いうちは、最後のステップが警告を出す。警告ではCIは落ちない。
 
       # --- Python の例 ---
       # - uses: actions/setup-python@v7
@@ -33,5 +33,6 @@ jobs:
       # - run: npm ci
       # - run: npm test
 
+      # 検査を書いたら、このステップを消す。
       - name: 実装の検査は未設定
-        run: echo "app-check.yml にプロジェクトの検査を書いてください"
+        run: echo "::warning title=app-check::実装の検査が未設定である。app-check.ymlにプロジェクトの検査を書く"
