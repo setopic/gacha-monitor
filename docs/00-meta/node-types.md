@@ -72,12 +72,54 @@ required_sections = ["人物像", "用語"]
 | `hub_exempt` | 任意 | `true`なら、その種別からの`depends_on`を`G012`の数に入れない。毎回同じノードに依存するのが当然な末端の種別（連載小説の各話など）に付ける。既定は`false` |
 | `required_sections` | 任意 | 必須の節（`G014`）。既定は無し |
 | `required_sections_refined` | 任意 | `refines`を持つノードに求める節。書かなければ`required_sections`を使う |
+| `template` | 任意 | `new`が使う雛形のファイルのパス。リポジトリの根からの相対で書く。書かなければ`00-meta/templates/<type>.md`を使う |
 
-**種別を1つでも書いたら、書いたものが種別の全体になる。** テンプレートの`architecture`・`domain`・`usecase`・`contract`・`adr`は使えなくなるので、残したいなら同じ内容で書く。混ぜられるようにすると、使わない種別の雛形と規約が残り、どれが生きているのか分からなくなる。
+**種別を1つでも書いたら、書いたものが種別の全体になる。** テンプレートの`architecture`・`domain`・`usecase`・`contract`・`adr`は使えなくなる。既定の種別を使わない題材で、使わない種別の雛形と規約が残ると、どれが生きているのか分からなくなるからである。
+
+既定の種別を使い続けたまま種別を足すときは、`graph.toml`の一番上に`extend_default_types = true`を置く。置くと、`[node_types]`に書いた種別を、既定の種別に足す。既定の種別を同じ内容で書き写さずに済むので、上流が既定の種別に入れた変更（必須の節など）がそのまま届く。
+
+```toml
+extend_default_types = true
+
+[node_types.pdr]
+prefix = "PDR"
+dir = "60-pdr"
+layer = 90
+label = "製品の決定"
+exempt_layer = true
+immutable = true
+```
+
+このときの種別は、次のように決まる。
+
+| 種別 | 定義 |
+| --- | --- |
+| `[node_types]`に書かなかった既定の種別 | `schema.py`の既定の定義。必須の節（`REQUIRED_SECTIONS`）・`terms`・`immutable`も既定のまま |
+| `[node_types]`に書いた、既定と同じ名前の種別 | 書いた定義だけ。既定の定義とキーごとに混ぜない |
+| `[node_types]`に書いた、新しい名前の種別 | 書いた定義 |
+
+既定と同じ名前の種別は、書いたほうで丸ごと上書きする。キーごとに混ぜると、書かなかったキーが上流の値のまま残り、どの値が効いているのかを`graph.toml`だけでは読めなくなるからである。上書きするときは、`prefix`などの必須のキーも、残したい`immutable`や`required_sections`も、すべて書く。足した種別の`prefix`と`dir`は、残した既定の種別とも重ねられない。
+
+全体を差し替えているか、既定に足しているかは、`graph.toml`の一番上に`extend_default_types = true`があるかで見分ける。無いか`false`なら全体を差し替えていて、`[node_types]`に書いたものと`index`・`meta`だけが種別である。あるなら、既定の種別に`[node_types]`を足したものが種別である。`[node_types]`を書かずに`extend_default_types`だけを置くと、エラーで止まる。
 
 `index`と`meta`だけは、書かなくても常に残り、書き換えられない。`index`は目次の仕組みそのもので、`meta`はテンプレートが配る`00-meta/`の規約文書の種別だからである。
 
-`new`が使う雛形は、ほかの種別と同じく`00-meta/templates/<type>.md`に置く。種別ごとの目次（`index.md`）も、`dir`に置いたディレクトリに自分で作る。`terms = true`の種別の目次には、`sync`が用語の一覧を作る。
+`new`が使う雛形は、`template`に書いたファイルである。書かなければ、ほかの種別と同じく`00-meta/templates/<type>.md`に置く。`00-meta/templates/`は上流と共通のフォルダなので、上の層や派生が自分の雛形をそこに置くと、上流が同じ名前の雛形を変えたときや足したときに、取り込みで競合する。自分の雛形は、`templates/adr.md`のように共通のフォルダの外に置き、`template`で指す。
+
+```toml
+[node_types.adr]
+prefix = "ADR"
+dir = "50-adr"
+layer = 90
+label = "決定記録"
+exempt_layer = true
+immutable = true
+template = "templates/adr.md"
+```
+
+`template`のパスは、`exclude`や`implemented_by`と同じく、リポジトリの根から数える。雛形を文書のフォルダの外にも置けるようにするためと、`docs_dir`を変えても書き直さずに済むようにするためである。`/`で始まるパスと、`.`や`..`を含むパスは断る。指したファイルが無ければ、`new`を待たずに、`graph.toml`を読むときにエラーで止まる。`template`で指したファイルは、文書のフォルダの中に置いても、グラフに含めない。雛形のフロントマターは`{{ID}}`のままで、ノードとして読むと`check`が落ちるからである。
+
+`new`に`--template`を渡したときは、`template`より`--template`を優先する。雛形が見つからないときは、`new`が止まり、`template`を書くか`--template`を渡すよう案内する。種別ごとの目次（`index.md`）も、`dir`に置いたディレクトリに自分で作る。`terms = true`の種別の目次には、`sync`が用語の一覧を作る。
 
 `G023`（契約が対応するユースケース）は、`contract`と`usecase`という名前の種別だけを見る。差し替えてその名前が無くなれば、`G023`は何も出さない。
 
@@ -138,7 +180,7 @@ domain = ["用語"]
 
 値は見出しの文字列の配列で書く。空の配列にすると、その種別は検査しない。既定の値は[META-01](graph-rules.md)の`G014`の節と`schema.py`の`REQUIRED_SECTIONS`にある。
 
-この2つの表は、`[node_types]`と一緒には書けない。種別を差し替えたときは、各種別の`required_sections`と`required_sections_refined`に書く。知らない種別の名前を書くと、エラーで止まる。
+この2つの表は、全体を差し替えたときの`[node_types]`と一緒には書けない。種別を差し替えたときは、各種別の`required_sections`と`required_sections_refined`に書く。`extend_default_types = true`を置いたときは、`[node_types]`に書かなかった既定の種別にだけ使える。`[node_types]`に書いた種別の必須の節は、その種別の表に書く。2か所に書けると、どちらが効くのか分からないからである。知らない種別の名前と、`[node_types]`に書いた種別の名前を書くと、エラーで止まる。
 
 ### 文書のフォルダ
 
@@ -253,7 +295,7 @@ python -m tools.graph new --type usecase --id UC-02 --title "予約をキャン�
 
 ## 雛形
 
-既定では、`00-meta/templates/<type>.md`が使われる。`contract`と`usecase`には、別の種類の雛形もある。
+既定では、`00-meta/templates/<type>.md`が使われる。`graph.toml`の種別に`template`を書いたときは、そのファイルが使われる（上の「プロジェクトごとの種別」）。`contract`と`usecase`には、別の種類の雛形もある。
 
 | type | 既定の雛形 | 別の雛形 |
 | --- | --- | --- |

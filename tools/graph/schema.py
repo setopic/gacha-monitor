@@ -234,11 +234,18 @@ EXCLUDE_PREFIXES = ("00-meta/templates",)
 # 文書のフォルダにあってもノードではないファイルを外すのに使う。
 EXCLUDE: tuple[str, ...] = ()
 
+# graph.tomlの種別の`template`に書いた、種別ごとの雛形（種別の名前→リポジトリの根からの相対パス）。
+# 書かなかった種別は、文書のフォルダの00-meta/templates/<種別>.mdを使う。
+# 雛形はノードではないので、文書のフォルダの中に置いても、グラフに含めない。
+TYPE_TEMPLATES: dict[str, str] = {}
+
 
 def is_excluded(rel: str) -> bool:
     """リポジトリの根からの相対パス`rel`を、グラフに含めないか。"""
     prefix = DOCS_DIR + "/"
     if rel.startswith(prefix) and any(rel[len(prefix) :].startswith(p) for p in EXCLUDE_PREFIXES):
+        return True
+    if rel in TYPE_TEMPLATES.values():
         return True
     return is_excluded_by_config(rel)
 
@@ -337,6 +344,21 @@ def frontmatter_edge_kinds() -> tuple[str, ...]:
 # `index`と`meta`は、書かなくても常に残し、書き換えさせない。`index`は目次の仕組み
 # そのもので、`meta`はテンプレートが配る規約文書（00-meta/）の種別だからである。
 #
+# 一番上に`extend_default_types = true`を置くと、既定の種別を残したまま、書いた種別を足す。
+# 既定と同じ名前の種別は、書いたほうで丸ごと上書きする。置かなければ、全体を差し替える。
+#
+#     extend_default_types = true
+#
+#     [node_types.pdr]
+#     prefix = "PDR"
+#     dir = "50-pdr"
+#     layer = 90
+#     label = "製品の決定"
+#     exempt_layer = true
+#
+# 種別の`template`には、`new`が使う雛形のパスを、リポジトリの根からの相対で書ける。
+# 書かなければ、文書のフォルダの00-meta/templates/<種別>.mdを使う。
+#
 # `[commit]`の表には、ブランチ名とコミットの1行目に使う種類を足せる（META-07）。
 #
 #     [commit]
@@ -355,6 +377,7 @@ def frontmatter_edge_kinds() -> tuple[str, ...]:
 # `[required_sections]`と`[required_sections_refined]`の表には、既定の種別の
 # 必須の節（G014）を書ける。書いた種別だけを差し替え、書かなかった種別は既定のままにする。
 # 種別を差し替えたときは、[node_types]の各種別に書くので、この2つの表は使えない。
+# extend_default_typesを置いたときは、[node_types]に書かなかった既定の種別にだけ使える。
 #
 #     [required_sections]
 #     domain = ["定義", "用語"]
@@ -385,6 +408,7 @@ _TYPE_KEYS = {
     "required_sections",
     "required_sections_refined",
     "hub_exempt",
+    "template",
 }
 _THRESHOLD_KEYS = {"max_incoming_dependencies", "stale_after_days"}
 _TERMS_KEYS = {
@@ -407,6 +431,7 @@ _DEFAULTS = {
     "HUB_EXEMPT_TYPES": HUB_EXEMPT_TYPES,
     "DOCS_DIR": DOCS_DIR,
     "EXCLUDE": EXCLUDE,
+    "TYPE_TEMPLATES": dict(TYPE_TEMPLATES),
     "COMMIT_TYPES": COMMIT_TYPES,
     "MAX_INCOMING_DEPENDENCIES": MAX_INCOMING_DEPENDENCIES,
     "STALE_AFTER_DAYS": STALE_AFTER_DAYS,
@@ -434,6 +459,8 @@ def reset() -> None:
     REQUIRED_SECTIONS.update(_DEFAULTS["REQUIRED_SECTIONS"])
     REQUIRED_SECTIONS_REFINED.clear()
     REQUIRED_SECTIONS_REFINED.update(_DEFAULTS["REQUIRED_SECTIONS_REFINED"])
+    TYPE_TEMPLATES.clear()
+    TYPE_TEMPLATES.update(_DEFAULTS["TYPE_TEMPLATES"])
     IMMUTABLE_RECORD_TYPES = _DEFAULTS["IMMUTABLE_RECORD_TYPES"]
     TERM_TYPES = _DEFAULTS["TERM_TYPES"]
     HUB_EXEMPT_TYPES = _DEFAULTS["HUB_EXEMPT_TYPES"]
@@ -467,6 +494,7 @@ def configure(root: Path) -> None:
 
     unknown = set(data) - {
         "docs_dir",
+        "extend_default_types",
         "exclude",
         "node_types",
         "commit",
@@ -488,34 +516,77 @@ def configure(root: Path) -> None:
         _apply_thresholds(data["thresholds"])
     if "terms" in data:
         _apply_terms(data["terms"])
+    extend = data.get("extend_default_types", False)
+    if not isinstance(extend, bool):
+        raise ConfigError(f"{CONFIG_FILE}のextend_default_types: trueかfalseにする")
+    sections = (
+        ("required_sections", REQUIRED_SECTIONS),
+        ("required_sections_refined", REQUIRED_SECTIONS_REFINED),
+    )
     types = data.get("node_types")
     if types is None:
-        for key, target in (
-            ("required_sections", REQUIRED_SECTIONS),
-            ("required_sections_refined", REQUIRED_SECTIONS_REFINED),
-        ):
+        if extend:
+            raise ConfigError(
+                f"{CONFIG_FILE}にextend_default_typesを置いたのに、[node_types]が無い。足す種別を[node_types]に書く"
+            )
+        for key, target in sections:
             if key in data:
                 _apply_default_sections(key, data[key], target)
         return
-    for key in ("required_sections", "required_sections_refined"):
-        if key in data:
-            raise ConfigError(
-                f"{CONFIG_FILE}の[{key}]は、[node_types]と一緒には書けない。"
-                f"種別を差し替えたときは、[node_types]の各種別に{key}を書く"
-            )
+    if not extend:
+        for key, _ in sections:
+            if key in data:
+                raise ConfigError(
+                    f"{CONFIG_FILE}の[{key}]は、[node_types]と一緒には書けない。"
+                    f"種別を差し替えたときは、[node_types]の各種別に{key}を書く"
+                )
     if not isinstance(types, dict) or not types:
         raise ConfigError(f"{CONFIG_FILE}の[node_types]に、種別が1つも無い")
-    _apply_node_types(types)
+    _apply_node_types(root, types, extend)
+    if not extend:
+        return
+    # 既定を残したときは、[node_types]に書かなかった既定の種別の必須の節を、この2つの表で変えられる。
+    # [node_types]に書いた種別は、その種別の表に書く。2か所に書けると、どちらが効くのか分からない
+    for key, target in sections:
+        if key not in data:
+            continue
+        table = data[key]
+        written = sorted(set(table) & set(types)) if isinstance(table, dict) else []
+        if written:
+            raise ConfigError(
+                f"{CONFIG_FILE}の[{key}]: {', '.join(written)}は[node_types]に書いた種別なので、"
+                f"[node_types.<名前>]の{key}に書く"
+            )
+        _apply_default_sections(key, table, target)
 
 
-def _apply_node_types(types: dict) -> None:
+def _apply_node_types(root: Path, types: dict, extend: bool) -> None:
+    """[node_types]の種別を読む。
+
+    `extend`がFalseなら、書いた種別と`index`・`meta`だけを残す。Trueなら、既定の種別も残し、
+    書いた種別を足す。既定と同じ名前の種別は、書いたほうで丸ごと上書きする。キーごとに
+    混ぜると、書いていないキーが上流の値のまま残り、どの値が効いているのかを
+    graph.tomlだけでは読めなくなるからである。
+    """
     global IMMUTABLE_RECORD_TYPES, TERM_TYPES, HUB_EXEMPT_TYPES
-    node_types = {name: copy.deepcopy(_DEFAULTS["NODE_TYPES"][name]) for name in BUILTIN_TYPES}
-    required: dict[str, tuple[str, ...]] = {name: () for name in BUILTIN_TYPES}
-    refined: dict[str, tuple[str, ...]] = {}
-    immutable: list[str] = []
-    terms: list[str] = []
-    hub_exempt: list[str] = []
+    kept = [
+        name
+        for name in (_DEFAULTS["NODE_TYPES"] if extend else BUILTIN_TYPES)
+        if name in BUILTIN_TYPES or name not in types
+    ]
+    node_types = {name: copy.deepcopy(_DEFAULTS["NODE_TYPES"][name]) for name in kept}
+    required: dict[str, tuple[str, ...]] = {
+        name: _DEFAULTS["REQUIRED_SECTIONS"].get(name, ()) for name in kept
+    }
+    refined: dict[str, tuple[str, ...]] = {
+        name: _DEFAULTS["REQUIRED_SECTIONS_REFINED"][name]
+        for name in kept
+        if name in _DEFAULTS["REQUIRED_SECTIONS_REFINED"]
+    }
+    immutable = [name for name in _DEFAULTS["IMMUTABLE_RECORD_TYPES"] if name in node_types]
+    terms = [name for name in _DEFAULTS["TERM_TYPES"] if name in node_types]
+    hub_exempt = [name for name in _DEFAULTS["HUB_EXEMPT_TYPES"] if name in node_types]
+    templates: dict[str, str] = {}
     prefixes = {spec["prefix"]: name for name, spec in node_types.items()}
     dirs = {spec["dir"]: name for name, spec in node_types.items() if spec["dir"]}
 
@@ -576,13 +647,20 @@ def _apply_node_types(types: dict) -> None:
             terms.append(name)
         if flags["hub_exempt"]:
             hub_exempt.append(name)
+        if "template" in spec:
+            templates[name] = _template_path(root, where, spec["template"])
 
+    # 既定の種別は既定の順に並べ、足した種別をその後ろに置く。上書きした種別も、既定の位置に置く
+    order = [name for name in _DEFAULTS["NODE_TYPES"] if name in node_types]
+    order += [name for name in node_types if name not in order]
     NODE_TYPES.clear()
-    NODE_TYPES.update(node_types)
+    NODE_TYPES.update({name: node_types[name] for name in order})
     REQUIRED_SECTIONS.clear()
     REQUIRED_SECTIONS.update(required)
     REQUIRED_SECTIONS_REFINED.clear()
     REQUIRED_SECTIONS_REFINED.update(refined)
+    TYPE_TEMPLATES.clear()
+    TYPE_TEMPLATES.update(templates)
     IMMUTABLE_RECORD_TYPES = tuple(immutable)
     TERM_TYPES = tuple(terms)
     HUB_EXEMPT_TYPES = tuple(hub_exempt)
@@ -645,6 +723,24 @@ def _apply_exclude(value: object) -> None:
             raise ConfigError(f"{where}: 文書のフォルダ（{DOCS_DIR}/）の下のパスにする: {item!r}")
         paths.append(path)
     EXCLUDE = tuple(paths)
+
+
+def _template_path(root: Path, where: str, value: object) -> str:
+    """種別の`template`を、リポジトリの根からの相対パスとして読む。
+
+    excludeやimplemented_byと同じく根から数える。雛形を文書のフォルダの外にも置けるようにし、
+    docs_dirを変えても書き直さずに済むようにするためである。指したファイルが無ければ断る。
+    `new`で初めて気づくと、どの種別の書き方が違うのかを探すことになる。
+    """
+    if not isinstance(value, str) or not value.strip():
+        raise ConfigError(f"{where}: templateは雛形のファイルのパスを、空でない文字列で書く（例: \"templates/adr.md\"）")
+    parts = value.strip().replace("\\", "/").strip("/").split("/")
+    if value.strip().startswith(("/", "\\")) or ":" in parts[0] or any(p in ("", ".", "..") for p in parts):
+        raise ConfigError(f"{where}: templateはリポジトリの根からの相対パスにする（/で始めない。.や..や空の区切りを使わない）: {value!r}")
+    path = "/".join(parts)
+    if not (root / path).is_file():
+        raise ConfigError(f"{where}: templateに書いた雛形が無い: {path}（リポジトリの根から数える）")
+    return path
 
 
 def _apply_thresholds(table: object) -> None:
