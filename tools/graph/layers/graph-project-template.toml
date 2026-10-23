@@ -1,7 +1,7 @@
 name = "graph-project-template"
 label = "project"
 below = "graph-doc-template"
-version = "0.16.3"
+version = "0.16.4"
 changelog = "PROJECT_TEMPLATE_CHANGELOG.md"
 repository = "https://github.com/setopic/graph-project-template.git"
 versioned_title = true
