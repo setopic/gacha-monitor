@@ -4,7 +4,7 @@
 
 ## 種別を差し替えたリポジトリでの読み方
 
-リポジトリの根に`graph.toml`があれば、ノード種別はその内容に差し替えてある。このファイルに出てくる`architecture`・`domain`・`usecase`・`contract`と、その層の番号・ディレクトリは、既定の種別のときの書き方である。`graph.toml`のあるリポジトリでは、次のように読み替える。
+リポジトリの根に`graph.toml`があれば、ノード種別はその内容に差し替えてある。ただし、`graph.toml`の一番上に`extend_default_types = true`があれば、既定の種別は残っていて、`[node_types]`に書いた種別が足してある（[META-02](docs/00-meta/node-types.md)の「プロジェクトごとの種別」）。このファイルに出てくる`architecture`・`domain`・`usecase`・`contract`と、その層の番号・ディレクトリは、既定の種別のときの書き方である。`graph.toml`のあるリポジトリでは、次のように読み替える。
 
 | このファイルの書き方 | 読み替え |
 | --- | --- |
@@ -27,6 +27,8 @@
    手で置くと、採番・配置・目次への登録のどれかを必ず落とす。数が多いときは`--from <file>`（`type | id | title | slug`の形式）でまとめて作る。
 
    雛形を選ぶ場面は3つある。HTTPの契約には`--template contract-http`を使う。チャットの操作（コマンドやボタン）には`--template contract-interaction`を使う。人間が実行する手順（配置・更新・障害対応・移行）は`--template usecase-runbook`で作る。
+
+   `--template`を渡さなければ、`graph.toml`の種別の`template`に書いた雛形を使う。それも無ければ、`docs/00-meta/templates/<type>.md`を使う。
 
 2. 文書を編集したら検証する。通らない状態で「完了」と報告しない。
 
