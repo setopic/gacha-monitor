@@ -1,7 +1,7 @@
 """ノードのidを変え、すべての参照を追随させる。
 
 idを手で変えると、フロントマターのエッジ・本文の`[[ID]]`・目次の一覧・
-相対リンクのどれかを必ず取りこぼす。層を組み替えたとき（`schema.py`の
+相対リンクのどれかを必ず取りこぼす。層を組み替えたとき（`schema.py`や`graph.toml`で
 接頭辞やディレクトリを変えたとき）に必要になるので、機械的に行えるようにしてある。
 
 新しいidの接頭辞が別の種別を指す場合は、`type`の書き換えとファイルの
@@ -64,7 +64,8 @@ def _scan_targets(root: Path, docs: Path) -> list[Path]:
     """
     paths: dict[Path, None] = {}
     for path in sorted(docs.rglob("*.md")):
-        paths[path] = None
+        if not schema.is_excluded_by_config(path.relative_to(root).as_posix()):
+            paths[path] = None
     for path in sorted(root.glob("*.md")):
         paths.setdefault(path, None)
     return list(paths)

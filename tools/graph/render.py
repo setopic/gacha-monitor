@@ -1,4 +1,4 @@
-"""グラフを、Mermaid・JSON・DOTの形式で書き出す。"""
+"""グラフを、Mermaid・JSON・DOTの形式で書き出す。SVGはsvg.pyが書き出す。"""
 
 from __future__ import annotations
 
@@ -23,6 +23,10 @@ _ARROW = {
     schema.BODY_EDGE_KIND: "-.->",
 }
 
+# 向きの無いエッジの種別。個別のノードの図では、A→BとB→Aを1本にまとめ、
+# 矢印の無い線で描く。相互に書く決まり（G010）なので、矢印にすると関係1つが2本になる。
+_UNDIRECTED = {"related": "-.-"}
+
 
 def _edges(graph: Graph, include_mentions: bool):
     seen: set[tuple[str, str, str]] = set()
@@ -39,6 +43,18 @@ def _edges(graph: Graph, include_mentions: bool):
             yield edge
 
 
+def _diagram_edges(graph: Graph, include_mentions: bool):
+    """個別のノードの図に描くエッジ。向きの無い種別は、ノードの組ごとに1本にする。"""
+    pairs: set[tuple[frozenset[str], str]] = set()
+    for edge in _edges(graph, include_mentions):
+        if edge.kind in _UNDIRECTED:
+            key = (frozenset((edge.src, edge.dst)), edge.kind)
+            if key in pairs:
+                continue
+            pairs.add(key)
+        yield edge
+
+
 def _escape(text: str) -> str:
     return text.replace('"', "'").replace("\n", " ")
 
@@ -50,8 +66,13 @@ def to_mermaid(
 ) -> str:
     lines = ["graph LR"]
 
+    edges = list(_diagram_edges(graph, include_mentions))
+    # 線を1本も持たないノードは描かない。場所を取るだけで、何も伝えないからである。
+    # focusのノードは、線が無くても残す。何を中心にした図かが分からなくなる。
+    drawn = {e.src for e in edges} | {e.dst for e in edges} | (focus or set())
+
     for type_name, spec in schema.NODE_TYPES.items():
-        nodes = graph.by_type(type_name)
+        nodes = [n for n in graph.by_type(type_name) if n.id in drawn]
         if not nodes:
             continue
         lines.append(f'  subgraph {type_name}["{spec["label"]}"]')
@@ -59,13 +80,25 @@ def to_mermaid(
             lines.append(f'    {node.id}["{_escape(node.id)}<br/>{_escape(node.title)}"]')
         lines.append("  end")
 
-    for edge in _edges(graph, include_mentions):
-        arrow = _ARROW.get(edge.kind, "-->")
+    for edge in edges:
+        arrow = _UNDIRECTED.get(edge.kind) or _ARROW.get(edge.kind, "-->")
         lines.append(f"  {edge.src} {arrow}|{edge.kind}| {edge.dst}")
 
-    # statusで色を分ける
-    draft = [n.id for n in graph.sorted_nodes() if n.status == "draft"]
-    deprecated = [n.id for n in graph.sorted_nodes() if n.status == "deprecated"]
+    _status_classes(lines, [n for n in graph.sorted_nodes() if n.id in drawn])
+
+    if focus:
+        marked = [n.id for n in graph.sorted_nodes() if n.id in focus]
+        if marked:
+            lines.append("  classDef focus stroke-width:3px;")
+            lines.append(f"  class {','.join(marked)} focus;")
+
+    return "\n".join(lines) + "\n"
+
+
+def _status_classes(lines: list[str], shown: list[Node]) -> None:
+    """statusで色を分ける。描かないノードを挙げると、Mermaidがそのノードを作ってしまう"""
+    draft = [n.id for n in shown if n.status == "draft"]
+    deprecated = [n.id for n in shown if n.status == "deprecated"]
     # mermaidのstyleの定義はカンマ区切りなので、値に含めるカンマは\,と書く。
     # 空白区切り（"4 3"）は仕様で定義されておらず、描画されないことがある。
     lines.append("  classDef draft stroke-dasharray: 4\\,3;")
@@ -75,13 +108,99 @@ def to_mermaid(
     if deprecated:
         lines.append(f"  class {','.join(deprecated)} deprecated;")
 
-    if focus:
-        marked = [n.id for n in graph.sorted_nodes() if n.id in focus]
-        if marked:
-            lines.append("  classDef focus stroke-width:3px;")
-            lines.append(f"  class {','.join(marked)} focus;")
 
+def types_parts(graph: Graph, types: set[str], include_mentions: bool = False):
+    """`--type`の図の中身を返す。MermaidとSVGで同じ図にするため、選び方をここに集める。
+
+    返すのは、層の中の線、箱との間の線の本数（(始点, 種別, 終点)→本数。層の外の側は
+    型の接頭辞）、描くノードのidの3つである。
+    """
+    inside = {n.id for n in graph.nodes.values() if n.type in types}
+
+    inner = []
+    # (始点, 種別, 終点)ごとの本数。層の外の側は、型の接頭辞に置き換える
+    totals: dict[tuple[str, str, str], int] = {}
+    for edge in _diagram_edges(graph, include_mentions):
+        src_in, dst_in = edge.src in inside, edge.dst in inside
+        if src_in and dst_in:
+            inner.append(edge)
+            continue
+        if not src_in and not dst_in:
+            continue
+        src = graph.nodes.get(edge.src)
+        dst = graph.nodes.get(edge.dst)
+        if src is None or dst is None:
+            continue
+        outer = dst if src_in else src
+        if outer.type not in schema.NODE_TYPES:
+            continue  # 型の誤りはG003が指摘する。ここでは何も言わずに飛ばす
+        prefix = schema.NODE_TYPES[outer.type]["prefix"]
+        if src_in or edge.kind in _UNDIRECTED:
+            # 向きの無い線は、層の中のノードの側から描く
+            key = (edge.src if src_in else edge.dst, edge.kind, prefix)
+        else:
+            key = (prefix, edge.kind, edge.dst)
+        totals[key] = totals.get(key, 0) + 1
+
+    # 線を1本も持たないノードは、to_mermaidと同じく描かない
+    drawn = {e.src for e in inner} | {e.dst for e in inner}
+    drawn |= {k for src, _, dst in totals for k in (src, dst) if k in inside}
+
+    return inner, totals, drawn
+
+
+def to_mermaid_types(
+    graph: Graph,
+    types: set[str],
+    include_mentions: bool = False,
+) -> str:
+    """`types`の種別のノードだけを個別に描き、ほかの種別は型ごとに1つの箱へまとめる。
+
+    層の中の依存の形と、その層がどの層とつながっているかを1枚で見るための図である。
+    箱は`--aggregate`と同じ形で、箱との間の線には、ノード × 種別 × 型ごとの本数を書く。
+    箱の数はほかの種別の数までしか増えない。
+    """
+    lines = ["graph LR"]
+    inner, totals, drawn = types_parts(graph, types, include_mentions)
+
+    for type_name, spec in schema.NODE_TYPES.items():
+        if type_name in types:
+            nodes = [n for n in graph.by_type(type_name) if n.id in drawn]
+            if not nodes:
+                continue
+            lines.append(f'  subgraph {type_name}["{spec["label"]}"]')
+            for node in nodes:
+                lines.append(f'    {node.id}["{_escape(node.id)}<br/>{_escape(node.title)}"]')
+            lines.append("  end")
+        elif any(spec["prefix"] in (src, dst) for src, _, dst in totals):
+            label = _escape(spec["label"])
+            count = len(graph.by_type(type_name))
+            lines.append(f'  {spec["prefix"]}["{label}<br/>{count} 件"]')
+
+    for edge in inner:
+        arrow = _UNDIRECTED.get(edge.kind) or _ARROW.get(edge.kind, "-->")
+        lines.append(f"  {edge.src} {arrow}|{edge.kind}| {edge.dst}")
+    for (src, kind, dst), count in sorted(totals.items()):
+        arrow = _UNDIRECTED.get(kind) or _ARROW.get(kind, "-->")
+        lines.append(f"  {src} {arrow}|{kind} {count}| {dst}")
+
+    _status_classes(lines, [n for n in graph.sorted_nodes() if n.id in drawn])
     return "\n".join(lines) + "\n"
+
+
+def aggregate_totals(graph: Graph, include_mentions: bool = False) -> dict[tuple[str, str, str], int]:
+    """(始点の型, 種別, 終点の型)ごとに、線の本数を数える（`--aggregate`の図の線）。"""
+    totals: dict[tuple[str, str, str], int] = {}
+    for edge in _edges(graph, include_mentions):
+        src = graph.nodes.get(edge.src)
+        dst = graph.nodes.get(edge.dst)
+        if src is None or dst is None:
+            continue
+        if src.type not in schema.NODE_TYPES or dst.type not in schema.NODE_TYPES:
+            continue  # 型の誤りはG003が指摘する。ここでは何も言わずに飛ばす
+        key = (src.type, edge.kind, dst.type)
+        totals[key] = totals.get(key, 0) + 1
+    return totals
 
 
 def to_mermaid_aggregate(graph: Graph, include_mentions: bool = False) -> str:
@@ -105,17 +224,7 @@ def to_mermaid_aggregate(graph: Graph, include_mentions: bool = False) -> str:
         label = _escape(spec["label"])
         lines.append(f'  {spec["prefix"]}["{label}<br/>{len(nodes)} 件"]')
 
-    # (始点の型, 種別, 終点の型)ごとに、本数を数える
-    totals: dict[tuple[str, str, str], int] = {}
-    for edge in _edges(graph, include_mentions):
-        src = graph.nodes.get(edge.src)
-        dst = graph.nodes.get(edge.dst)
-        if src is None or dst is None:
-            continue
-        if src.type not in schema.NODE_TYPES or dst.type not in schema.NODE_TYPES:
-            continue  # 型の誤りはG003が指摘する。ここでは何も言わずに飛ばす
-        key = (src.type, edge.kind, dst.type)
-        totals[key] = totals.get(key, 0) + 1
+    totals = aggregate_totals(graph, include_mentions)
 
     # 本数の多い順に並べる。同じ数なら組み合わせの名前の順にして、出力を安定させる
     for (src_type, kind, dst_type), count in sorted(
@@ -129,17 +238,22 @@ def to_mermaid_aggregate(graph: Graph, include_mentions: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
-# 図の中でエッジを表している行。`A --> B`・`A -.-> B`・`A ==> B`に当たる。
-EDGE_LINE_RE = re.compile(r"^\s*[A-Za-z][\w-]*\s+(?:-->|-\.->|==>)")
+# 図の中でエッジを表している行。`A --> B`・`A -.-> B`・`A -.- B`・`A ==> B`に当たる。
+EDGE_LINE_RE = re.compile(r"^\s*[A-Za-z][\w-]*\s+(?:-->|-\.->|-\.-|==>)")
 
 
-def count_edges_in_markdown(path: Path) -> int | None:
-    """Markdownのマーカーの中にある図の、エッジの本数を数える。
+# SVGの図の中で線を表している要素（svg.pyが書き出すもの）
+SVG_EDGE_RE = re.compile(r'<path id="[^"]*" class="edge[ "]')
+
+
+def diagram_in_markdown(path: Path) -> tuple[str, int] | None:
+    """Markdownのマーカーの中にある図の形式（mermaidかsvg）と、エッジの本数を返す。
 
     **グラフからではなく、書き込まれた図そのものを数える。** そうしないと、
     `--aggregate`や`--focus`で減らしている場合に、実態とずれる。GitHubが
     描こうとするのは、あくまでREADMEに入っている図だからである。
 
+    マーカーの中がSVGの画像への参照なら、その画像の中の線を数える。
     マーカーかファイルが無ければ、Noneを返す（数えようがない）。
     """
     if not path.is_file():
@@ -147,7 +261,20 @@ def count_edges_in_markdown(path: Path) -> int | None:
     match = DIAGRAM_BLOCK_RE.search(path.read_text(encoding="utf-8"))
     if not match:
         return None
-    return sum(1 for line in match.group(0).splitlines() if EDGE_LINE_RE.match(line))
+    block = match.group(0)
+    image = IMAGE_RE.search(block)
+    if image and "```mermaid" not in block:
+        svg_path = path.parent / image.group(1)
+        if not svg_path.is_file():
+            return None
+        return "svg", len(SVG_EDGE_RE.findall(svg_path.read_text(encoding="utf-8")))
+    return "mermaid", sum(1 for line in block.splitlines() if EDGE_LINE_RE.match(line))
+
+
+def count_edges_in_markdown(path: Path) -> int | None:
+    """Markdownのマーカーの中にある図の、エッジの本数を数える（diagram_in_markdownの本数）。"""
+    found = diagram_in_markdown(path)
+    return None if found is None else found[1]
 
 
 def to_json(
@@ -197,15 +324,36 @@ def to_dot(graph: Graph, include_mentions: bool = False) -> str:
     return "\n".join(lines) + "\n"
 
 
+def note_reduced(output: str, fmt: str, count: int) -> str:
+    """`render --reduce`で省いた本数を、図のコメント（SVGはdesc）として1行目の後ろに書く。描画には現れない。"""
+    text = f"ほかのdepends_onを辿れば分かる依存を{count}本省いた（render --reduce）"
+    head, _, rest = output.partition("\n")
+    if fmt == "svg":
+        # XMLのコメントには--を書けないので、descに書く
+        return f"{head}\n<desc>{text}</desc>\n{rest}"
+    mark = "%%" if fmt == "mermaid" else "//"
+    return f"{head}\n  {mark} {text}\n{rest}"
+
+
+# READMEのSVGの図の代替テキスト
+SVG_ALT = "設計文書のグラフ"
+
+# マーカーの中の画像への参照。`![...](path.svg)`の形だけを読む
+IMAGE_RE = re.compile(r"!\[[^\]]*\]\(([^)\s]+\.svg)\)")
+
+
 class InjectError(RuntimeError):
     pass
 
 
-def inject(path: Path, diagram: str, *, dry_run: bool = False) -> bool:
+def inject(path: Path, diagram: str, *, dry_run: bool = False, image: bool = False) -> bool:
     """マーカーで囲まれた範囲に、図を書き込む。更新が必要ならTrueを返す。
 
     READMEに図を貼ると必ず実態とずれるので、`sync`と同じくマーカーで囲む方式にして、
     最新かどうかをCIで検証できるようにする。
+
+    `image`がTrueなら、`diagram`は画像（SVG）のREADMEからの相対パスで、
+    Mermaidの図の代わりに画像への参照を書き込む。
     """
     if not path.is_file():
         raise InjectError(f"ファイルが無い: {path}")
@@ -224,9 +372,11 @@ def inject(path: Path, diagram: str, *, dry_run: bool = False) -> bool:
             "",
             "<!-- この図は render --into が生成する。手で編集しない -->",
             "",
-            "```mermaid",
-            diagram.rstrip("\n"),
-            "```",
+            *(
+                [f"![{SVG_ALT}]({diagram})"]
+                if image
+                else ["```mermaid", diagram.rstrip("\n"), "```"]
+            ),
             "",
             schema.DIAGRAM_BLOCK_END,
         ]

@@ -2,7 +2,7 @@
 
 **意図した再掲を鳴らさないこと**が最も大事な性質である。
 定義元へリンクしている行は黙り、リンクの無い重複だけが鳴る。
-tournament-bot では重複 5 件のうち 3 件がリンクつきの再掲で、鳴るのは 2 件だった。
+tournament-botでは重複5件のうち3件がリンクつきの再掲で、鳴るのは2件だった。
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pathlib import Path
 from tools.graph.model import Node
 from tools.graph.rules import rule_g022_duplicate_terms
 
-from .helpers import make_graph
+from tests.helpers import make_graph
 
 DOMAIN_DIR = Path("/tmp/g022/docs/20-domain")
 

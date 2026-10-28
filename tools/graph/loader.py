@@ -1,4 +1,4 @@
-"""docs/を走査して、グラフを組み立てる。"""
+"""文書のフォルダ（既定はdocs/。graph.tomlのdocs_dirで変えられる）を走査して、グラフを組み立てる。"""
 
 from __future__ import annotations
 
@@ -73,11 +73,10 @@ def load(root: Path) -> Graph:
     by_path: dict[Path, Node] = {}
 
     for path in sorted(docs_root.rglob("*.md")):
-        rel_to_docs = path.relative_to(docs_root).as_posix()
-        if any(rel_to_docs.startswith(p) for p in schema.EXCLUDE_PREFIXES):
+        rel = path.relative_to(root).as_posix()
+        if schema.is_excluded(rel):
             continue
 
-        rel = path.relative_to(root).as_posix()
         text = path.read_text(encoding="utf-8")
 
         try:
