@@ -12,13 +12,13 @@
 | [PROJECT_TEMPLATE_CHANGELOG.md](PROJECT_TEMPLATE_CHANGELOG.md) | `graph-project-template`（統合型の層） | 流れてくる |
 | このファイル | このプロジェクト自身 | 流れてこない |
 
-上流の版を上げるときは、このファイルを書き換えない。上流の版は、`tools/graph/version.py`と`tools/graph/layers/graph-project-template.toml`が持つ。
+上流のバージョンを上げるときは、このファイルを書き換えない。上流のバージョンは、`tools/graph/version.py`と`tools/graph/layers/graph-project-template.toml`が持つ。
 
 ---
 
 ## 0.1.0（YYYY-MM-DD）
 
-最初の版。
+最初のバージョン。
 
 ### 追加
 

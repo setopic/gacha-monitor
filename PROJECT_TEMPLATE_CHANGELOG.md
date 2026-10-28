@@ -10,9 +10,9 @@
 
 **派生プロジェクトはこのファイルを書き換えない。** 自分の履歴は`PROJECT_CHANGELOG.md`に書く。
 
-現在の版は、`tools/graph/layers/graph-project-template.toml`の`version`に書く。版はここにだけ持ち、このファイルの本文には書かない。
+現在のバージョンは、`tools/graph/layers/graph-project-template.toml`の`version`に書く。バージョンはここにだけ持ち、このファイルの本文には書かない。
 
-## 版の付け方
+## バージョンの付け方
 
 | 上げる箇所 | 意味 | 取り込む側の作業 |
 | --- | --- | --- |
@@ -20,13 +20,25 @@
 | minor | 追加のみ（雛形、スキル、決まり、共通ファイル） | 取り込むだけで済む。`merge=ours`のファイルに手で反映するものがあれば、項目に書く |
 | patch | 文言・不具合の修正 | 取り込むだけで済む |
 
-版を上げるときは、このファイルに項目を足し、`tools/graph/layers/graph-project-template.toml`の`version`を同じ版にする。`upgrade`は、この`version`と項目の見出しの版を読んで、派生が遅れているかを判断する（[META-08](docs/00-meta/template-upgrade.md)）。
+バージョンを上げるときは、このファイルに項目を足し、`tools/graph/layers/graph-project-template.toml`の`version`を同じバージョンにする。`upgrade`は、この`version`と項目の見出しのバージョンを読んで、派生が遅れているかを判断する（[META-08](docs/00-meta/template-upgrade.md)）。
 
-各版の見出しは`## 1.2.3（2026-10-21）`の形で書く。`upgrade`は見出しの先頭の版を読み、取り込む側の版より新しい項目を見せる。
+各バージョンの見出しは`## 1.2.3（2026-10-21）`の形で書く。`upgrade`は見出しの先頭のバージョンを読み、取り込む側のバージョンより新しい項目を見せる。
 
-この層のPRの題には、上げた版を入れる（`fix: 0.15.0 config.ymlを上の層でmerge=oursにする（#79）`など）。層の宣言の`versioned_title = true`により、CIの`names`が題の版を確かめる。取り込みのPRの題は、版を確かめる対象から外れる（[META-07](docs/00-meta/issue-pr-flow.md)）。
+この層のPRの題には、上げたバージョンを入れる（`fix: 0.15.0 config.ymlを上の層でmerge=oursにする（#79）`など）。層の宣言の`versioned_title = true`により、CIの`names`が題のバージョンを確かめる。取り込みのPRの題は、バージョンを確かめる対象から外れる（[META-07](docs/00-meta/issue-pr-flow.md)）。
 
 これから足す項目は、[CLAUDE.md](CLAUDE.md#日本語の書き方)の「日本語の書き方」に合わせて書く。ダッシュを使わず、太字を控える。過去の項目は記録として残し、この決まりに合わせて書き換えない。
+
+---
+
+## 0.16.6（2026-10-28）
+
+### 修正
+
+この層に固有の文書で、バージョンの意味の「版」を「バージョン」に揃えた（#107）。下の層は1.55.1で同じ置き換えをしている。意味・手順・決まりは変えていない。直したのは、`README.md`の4か所、`PROJECT_TEMPLATE_CHANGELOG.md`の先頭の説明（「バージョンの付け方」の見出しを含む）、`PROJECT_CHANGELOG.md`の雛形の2か所である。過去の項目は記録として残した。
+
+### 取り込む側の作業
+
+`README.md`と`PROJECT_CHANGELOG.md`は`merge=ours`なので、プロジェクトが書き換えていれば、この修正は届かない。文言だけの修正なので、手で反映しなくても動作は変わらない。`PROJECT_TEMPLATE_CHANGELOG.md`は取り込みで更新される。
 
 ---
 
