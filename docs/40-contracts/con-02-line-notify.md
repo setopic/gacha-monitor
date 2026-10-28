@@ -19,9 +19,9 @@ implemented_by:
 
 **外部サービスとの境界。** こちらから送るだけで、受信の口は持たない（[ARCH-01](../10-architecture/arch-01-monitor-overview.md)）。
 
-## 受け口
+## エントリポイント
 
-| 受け口 | 起動条件 | 実行できる人 | 対応するユースケース |
+| エントリポイント | 起動条件 | 実行できる人 | 対応するユースケース |
 | --- | --- | --- | --- |
 | 宛先を指定して送る | 宛先の識別子が設定されているとき | 仕組みのみ | [UC-01](../30-usecases/uc-01-detect-and-notify.md) [UC-02](../30-usecases/uc-02-weekly-summary.md) [UC-03](../30-usecases/uc-03-alert-anomaly.md) |
 | 友だち全員に送る | 宛先の識別子が未設定のとき | 仕組みのみ | 同上 |
