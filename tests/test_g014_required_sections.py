@@ -13,7 +13,7 @@ from tools.graph.rules import (
     sections,
 )
 
-from .helpers import make_graph
+from tests.helpers import make_graph
 
 
 def node(node_id: str, node_type: str, body: str, *, refines: str = "") -> Node:
@@ -44,7 +44,7 @@ class SectionExtraction(unittest.TestCase):
         self.assertEqual(sections(body), ["属性"])
 
     def test_ignores_headings_inside_code_fences(self):
-        """雛形の説明にはコードブロックの中に `## ` が出てくる。"""
+        """雛形の説明にはコードブロックの中に`## `が出てくる。"""
         body = "## 定義\n\n```markdown\n## 用語\n```\n"
         self.assertEqual(sections(body), ["定義"])
 

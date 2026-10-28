@@ -17,8 +17,9 @@ from .model import ERROR, WARN, Graph, Issue, Node
 from .rename import _scan_targets
 
 # ルールコードと概要（レポートと、docs/00-meta/graph-rules.mdの対応表に使う）
+# `{docs_dir}`は、表示するときに文書のフォルダの名前に置き換える（rule_summary）
 RULE_INDEX: dict[str, str] = {
-    "G000": "docs/の構造が不正",
+    "G000": "{docs_dir}/の構造が不正",
     "G001": "フロントマターが読めない / 必須キー不足",
     "G002": "idが重複している",
     "G003": "id規約・type語彙・配置ディレクトリの不一致",
@@ -34,7 +35,7 @@ RULE_INDEX: dict[str, str] = {
     "G013": "依存先の用語表が使わない語（旧称）を使っている",
     "G014": "テンプレートの必須の節が無い",
     "G015": "依存先が変わったのに追従していない",
-    "G016": "implemented_byの指し先が存在しない",
+    "G016": "implemented_byの参照先が存在しない",
     "G017": "文書と実装のどちらか片方だけが変わった",
     "G018": "READMEの図がGitHubの描画上限に近い / 超えている",
     "G019": "Markdownの表が途中で切れている",
@@ -43,6 +44,11 @@ RULE_INDEX: dict[str, str] = {
     "G022": "同じ用語が複数のドメインノードで定義されている",
     "G023": "契約が「対応」に挙げたユースケースをdepends_onに書いていない",
 }
+
+
+def rule_summary(code: str) -> str:
+    """ルールの概要を、文書のフォルダの名前を入れて返す。"""
+    return RULE_INDEX.get(code, "").replace("{docs_dir}", schema.DOCS_DIR)
 
 
 def check_all(
@@ -438,10 +444,22 @@ def rule_g010_related_symmetry(graph: Graph) -> list[Issue]:
 # 用語表（G013・G022・用語の一覧・reviewのA003が読む）
 # --------------------------------------------------------------------------
 # 「## 用語」の節。次の同じレベルの見出しか、文末まで。
-_TERM_SECTION_RE = re.compile(
-    rf"^##\s+{re.escape(schema.TERM_SECTION_HEADING)}\s*$(.*?)(?=^##\s|\Z)",
-    re.MULTILINE | re.DOTALL,
-)
+# 見出しはgraph.tomlで変えられるので、読み込んだ後の値で作る。
+_term_section_cache: dict[str, re.Pattern[str]] = {}
+
+
+def term_section_re() -> re.Pattern[str]:
+    heading = schema.TERM_SECTION_HEADING
+    pattern = _term_section_cache.get(heading)
+    if pattern is None:
+        pattern = re.compile(
+            rf"^##\s+{re.escape(heading)}\s*$(.*?)(?=^##\s|\Z)",
+            re.MULTILINE | re.DOTALL,
+        )
+        _term_section_cache[heading] = pattern
+    return pattern
+
+
 # セルの末尾の丸括弧。旧称になった経緯か、使ってよい条件が入っている
 _TRAILING_NOTE_RE = re.compile(r"[（(]([^）)]*)[）)]\s*$")
 _INNER_PAREN_RE = re.compile(r"[（(][^）)]*[）)]")
@@ -464,7 +482,7 @@ def term_table_lines(body: str) -> list[str]:
     用語が空の行（雛形の空行）は落とす。見出しと区切りの行は残す。
     用語の一覧（`sync`）が、ノードの表をそのまま写すのに使う。
     """
-    section = _TERM_SECTION_RE.search(body)
+    section = term_section_re().search(body)
     if section is None:
         return []
 
@@ -592,7 +610,7 @@ def rule_g013_term_consistency(graph: Graph) -> list[Issue]:
     issues: list[Issue] = []
     for node in graph.sorted_nodes():
         # 用語表そのものは対象外。旧称を挙げていることは、使っていることではない
-        text = strip_non_prose(_TERM_SECTION_RE.sub(" ", node.body))
+        text = strip_non_prose(term_section_re().sub(" ", node.body))
 
         for owner_id in _prerequisites(graph, node.id):
             for word, (term, note) in sorted(vocabulary.get(owner_id, {}).items()):
@@ -726,9 +744,9 @@ def implemented_by(node: Node) -> list[str]:
 
 
 def rule_g016_implementation_exists(graph: Graph) -> list[Issue]:
-    """`implemented_by`の指し先が、リポジトリに存在するかを見る。
+    """`implemented_by`の参照先が、リポジトリに存在するかを見る。
 
-    本文の`[[ID]]`に対する、G004と同じ役割である。指し先が消えても文書は
+    本文の`[[ID]]`に対する、G004と同じ役割である。参照先が消えても文書は
     そのまま読めてしまうので、機械が確かめないと、気づかないうちに実態とずれていく。
 
     リポジトリの根が分からない場合（部分グラフを手で組んだときなど）は、
@@ -746,7 +764,7 @@ def rule_g016_implementation_exists(graph: Graph) -> list[Issue]:
                 Issue(
                     "G016",
                     ERROR,
-                    f"implemented_byの指し先が無い: {target!r}。"
+                    f"implemented_byの参照先が無い: {target!r}。"
                     "指せるのは、同じリポジトリの中のパスだけである",
                     node.rel,
                 )
@@ -808,7 +826,7 @@ def rule_g017_implementation_drift(
 
 
 # --------------------------------------------------------------------------
-# G018: READMEの図がGitHubの描画上限に近い
+# G018: READMEの図がGitHubの描画上限に近い（SVGなら、線が多すぎて読めない）
 # --------------------------------------------------------------------------
 def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
     """READMEに書き込まれた図が、GitHubの描画上限に収まっているか。
@@ -819,14 +837,33 @@ def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
 
     上限を超えている場合は、エラーにする。図が丸ごと描画されず、READMEに
     図が表示されていない状態だからである。近づいているだけなら、警告にとどめる。
+
+    READMEの図がSVGなら、GitHubの描画上限は無い。それでも線が同じ本数を超えると、
+    READMEの幅に縮めた図は線が込み合って読めないので、警告だけを出す。
     """
     if graph.root is None:
         return []
 
     readme = graph.root / "README.md"
-    count = render.count_edges_in_markdown(readme)
-    if count is None or count < schema.MERMAID_WARN_EDGES:
+    found = render.diagram_in_markdown(readme)
+    if found is None:
         return []
+    fmt, count = found
+    if count < schema.MERMAID_WARN_EDGES:
+        return []
+
+    if fmt == "svg":
+        return [
+            Issue(
+                "G018",
+                WARN,
+                f"READMEの図（SVG）の線が{count}本ある。"
+                "SVGに描画の上限は無いが、READMEの幅に縮めると線が込み合って読めない。"
+                "graph.mkのREADME_GRAPH_ARGSに--hide-edgesか--reduceか--aggregateを置いて、"
+                "線を減らす",
+                "README.md",
+            )
+        ]
 
     # ちょうど上限でも描画されない。GitHubの文言が
     # 「500 edges found, but the limit is 500」で、その時点で図は消えている。
@@ -1071,7 +1108,7 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
     次の4つの場合は、警告しない。1つめは確定した記録である
     （`schema.IMMUTABLE_RECORD_TYPES`。既定では`stable`なADR）。確定したADRは
     書き換えないので、本文を直させる指摘は成り立たない。確定前（`draft`・`review`）は
-    まだ決めている途中なので、対象に残す。2つめは、自分が連鎖上で指し先の
+    まだ決めている途中なので、対象に残す。2つめは、自分が連鎖上で参照先の
     置き換え先にあたる場合で、置き換えた側は相手を指すのが自然である。
     3つめは`index`ノードで、一覧は取り下げたものも並べるのが役目である。
     4つめは、自分も`deprecated`の場合である。
@@ -1198,7 +1235,7 @@ def rule_g021_content_after_auto_block(graph: Graph) -> list[Issue]:
     だけで、後ろに回った本文は動かさない。だから一度こうなると、誰も気づかないまま残り続ける。
 
     **実際に、`META-01`で85行（文書の12%）が自動ブロックの後ろに落ちていた。**
-    共有ファイルなので、7リポジトリすべてが同じ状態だった。1.14.2で直した。
+    共通ファイルなので、7リポジトリすべてが同じ状態だった。1.14.2で直した。
 
     警告ではなく、エラーにした。`G019`と同じで、承知のうえで放置してよい
     場合が無い。読む人に届いていない本文が、そこにあるだけである。

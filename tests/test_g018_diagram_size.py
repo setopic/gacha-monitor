@@ -1,7 +1,7 @@
-"""G018（README の図が GitHub の描画上限に近い）と、集約図のテスト。
+"""G018（READMEの図がGitHubの描画上限に近い）と、集約図のテスト。
 
-**数えるのはグラフではなく README に入っている図そのもの**という性質を固定する。
-ここを取り違えると、`--aggregate` で間引いているリポジトリが誤検知で落ちる。
+**数えるのはグラフではなくREADMEに入っている図そのもの**という性質を固定する。
+ここを取り違えると、`--aggregate`で間引いているリポジトリが誤検知で落ちる。
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pathlib import Path
 from tools.graph import render, schema
 from tools.graph.model import ERROR, WARN, Edge, Graph, Node
 
-from .helpers import make_graph
+from tests.helpers import make_graph
 
 
 def node(node_id: str, node_type: str, *, edges: list[Edge] | None = None) -> Node:
@@ -36,7 +36,7 @@ def edge(src: str, dst: str, kind: str = "depends_on") -> Edge:
 
 
 def readme_with(diagram_lines: list[str]) -> str:
-    """マーカーで囲んだ Mermaid 図を持つ README の中身を作る。"""
+    """マーカーで囲んだMermaid図を持つREADMEの中身を作る。"""
     return "\n".join(
         [
             "# 題",
@@ -57,7 +57,7 @@ def edge_lines(count: int) -> list[str]:
 
 
 class CountEdgesTest(unittest.TestCase):
-    """count_edges_in_markdown が図の中のエッジ行だけを数えること。"""
+    """count_edges_in_markdownが図の中のエッジ行だけを数えること。"""
 
     def test_counts_only_edge_lines(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -70,6 +70,7 @@ class CountEdgesTest(unittest.TestCase):
                         "  end",
                         "  UC-01 -->|depends_on| DOM-01",
                         "  UC-01 -.->|related| DOM-02",
+                        "  UC-02 -.-|related| UC-03",
                         "  ADR-01 ==>|supersedes| ADR-02",
                         "  classDef draft stroke-dasharray: 4\\,3;",
                         "  class UC-01 draft;",
@@ -77,8 +78,8 @@ class CountEdgesTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            # ノード行・subgraph・classDef・class は数えない
-            self.assertEqual(render.count_edges_in_markdown(readme), 3)
+            # ノード行・subgraph・classDef・classは数えない
+            self.assertEqual(render.count_edges_in_markdown(readme), 4)
 
     def test_no_marker_returns_none(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -133,7 +134,7 @@ class RuleG018Test(unittest.TestCase):
         self.assertEqual(issues[0].severity, WARN)
 
     def test_errors_at_the_limit(self) -> None:
-        """**ちょうど上限で既に落ちている。** GitHub の文言が
+        """**ちょうど上限で既に落ちている。** GitHubの文言が
         「500 edges found, but the limit is 500」で、その時点で図が消えている。"""
         issues = self._issues(schema.MERMAID_MAX_EDGES)
         self.assertEqual(len(issues), 1)

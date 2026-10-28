@@ -1,5 +1,5 @@
-# tools/graph は常に LF で書き出す（sync が改行を書き換える）。
-# 作業コピーも LF に固定しないと、sync のたびに全行差分になる。
+# tools/graphは常にLFで書き出す（syncが改行を書き換える）。
+# 作業コピーもLFに固定しないと、syncのたびに全行差分になる。
 * text=auto eol=lf
 
 *.png binary
@@ -7,18 +7,22 @@
 *.pdf binary
 
 # テンプレートから更新を取り込む（make update）とき、
-# ここに挙げたものは常にプロジェクト側を残す。中身がプロジェクト固有だから。
-# merge=ours のドライバは、make update がその場だけ設定する。常設はしない
-# （以前に常設した設定は make setup で外せる）。git merge template/main を
-# 直接使うと、ドライバが無いので merge=ours が効かず、競合する。
+# ここに挙げたものは、プロジェクトとテンプレートの両方が変えていれば、プロジェクト側を残す。
+# 中身がプロジェクト固有だから。プロジェクトが書き換えていないものは、ドライバが呼ばれず、
+# テンプレート側がそのまま入る。
+# merge=oursのドライバは、make updateがその場だけ設定する。常設はしない
+# （以前に常設した設定はmake setupで外せる）。git merge template/mainを
+# 直接使うと、ドライバが無いのでmerge=oursが効かず、競合する。
 #
-# index.md はスラッシュを含まないので、どの階層の index.md にも当たる。
+# index.mdはスラッシュを含まないので、どの階層のindex.mdにも当たる。
 # 目次の一覧はプロジェクトのノードで埋まっているため、常に自分側が正しい。
 README.md merge=ours
 index.md  merge=ours
+# READMEの図（make readmeが書くSVG）も、プロジェクトのノードから作るので、常に自分側が正しい
+docs/graph.svg merge=ours
 docs/50-adr/adr-0001-graph-driven-docs.md merge=ours
 
-# PROJECT_CHANGELOG.md は**そのリポジトリ自身の履歴**であって、上流のものではない。
+# PROJECT_CHANGELOG.mdは**そのリポジトリ自身の履歴**であって、上流のものではない。
 # 上流が同じ名前で自分の履歴を持っていると、取り込みのたびに上書きするか
 # 全面的に競合する。**上流の履歴は別の名前で流す。**
 #
@@ -32,6 +36,12 @@ PROJECT_CHANGELOG.md merge=ours
 # 実装側の検査はプロジェクトごとに違う（言語も走らせ方も）。
 # graph-check.yml と分けてあり、こちらは常にプロジェクト側を残す。
 .github/workflows/app-check.yml merge=ours
+
+# issueの作成画面の導線（config.yml）は、下の層の導線にこの層の導線を足したものである。
+# 下の層は自分への導線だけを置くので、取り込むとこの層の導線が消えるか、競合する。
+# そのため、この層の内容を残す。下の層が導線を変えたら、下の層の変更履歴の
+# 「取り込む側の作業」を見て、手で反映する（READMEの「テンプレートの更新を取り込む」）。
+.github/ISSUE_TEMPLATE/config.yml merge=ours
 
 # 開発の流れ（META-05）は**既定値を配るだけ**で、規約ではない。
 # ブランチの切り方も、PR にする条件も、リリースの仕方もプロジェクトごとに違う。
