@@ -1,10 +1,13 @@
 PYTHON ?= python
 
 # リポジトリ固有の設定があれば読む（無くてもよい）。
-# READMEの図がGitHubの描画上限（エッジ500本 / G018）に近づいたら、
-# **そのリポジトリのgraph.mkにだけ**次の1行を置く。
+# READMEの図の線が多すぎる（G018）なら、**そのリポジトリのgraph.mkにだけ**次の1行を置く。
 #
 #     README_GRAPH_ARGS = --aggregate
+#
+# READMEの図をSVGではなくMermaidで描くなら、graph.mkに次の1行を置く。
+#
+#     README_GRAPH_FORMAT = mermaid
 #
 # graph-doc-templateはgraph.mkを配らない。だから取り込み（make update）で
 # 競合せず、リポジトリごとに図の形を選べる。上の層のテンプレートがgraph.mkを
@@ -14,7 +17,13 @@ PYTHON ?= python
 # READMEの図に足す引数。既定は無し（全ノードをそのまま描く）。
 README_GRAPH_ARGS ?=
 
-.PHONY: help setup update update-fetch check strict sync sync-check linkify linkify-check graph json readme readme-check stats all
+# READMEの図の形式（svgかmermaid）と、SVGの書き出し先。
+# svgでは、SVGをファイルに書き、READMEのマーカーの中にはその画像への参照を書く。
+README_GRAPH_FORMAT ?= svg
+README_GRAPH_SVG ?= docs/graph.svg
+README_GRAPH_OUT = $(if $(filter svg,$(README_GRAPH_FORMAT)),--out $(README_GRAPH_SVG))
+
+.PHONY: help setup update update-fetch check strict sync sync-check linkify linkify-check graph json readme readme-check gif stats all
 
 help:
 	@echo "setup         以前のsetupが常設したmerge=oursドライバの設定を外す（何度実行してもよい）"
@@ -27,8 +36,9 @@ help:
 	@echo "linkify-check 直す必要があれば失敗する（CI用）"
 	@echo "graph         docs/graph.mmdを書き出す（Mermaid）"
 	@echo "json          docs/graph.jsonを書き出す"
-	@echo "readme        READMEの図を再生成する"
+	@echo "readme        READMEの図を再生成する（既定はSVG。graph.mkのREADME_GRAPH_FORMATで選ぶ）"
 	@echo "readme-check  READMEの図が古ければ失敗する（CI用）"
+	@echo "gif           READMEのSVGの図からdocs/graph.gifを作る（任意。EdgeかChromeとPillowが要る）"
 	@echo "stats         ノード数・エッジ数を表示する"
 	@echo "all           check + sync + linkify + readme"
 
@@ -42,12 +52,12 @@ help:
 # 初回だけは、履歴を共有していないので、引数を足す。
 #   make update UPDATE_ARGS=--allow-unrelated-histories
 #
-# マージコミットのメッセージは「テンプレートの<版>を取り込む」にする（setopic/graph-doc-template#116）。
+# マージコミットのメッセージは「テンプレートの<バージョン>を取り込む」にする（setopic/graph-doc-template#116）。
 # 渡さないと、gitの既定の英語の文が付く。メッセージはファイルに書いて-Fで渡す。
 # Windowsのmakeはcmd経由で引数を渡すので、-mで日本語を渡すと文字が化ける。
-# 版は、取り込んだ後のテンプレートの版を読むので、fetchが済んでから展開する
+# バージョンは、取り込んだ後のテンプレートのバージョンを読むので、fetchが済んでから展開する
 # （makeはレシピの全行を、最初の行を実行する前に展開する。だからfetchを別のターゲットにする）。
-# 版は層ごとにあるので、遅れている層の版を`upgrade --label`で並べる（setopic/graph-doc-template#125）。
+# バージョンは層ごとにあるので、遅れている層のバージョンを`upgrade --label`で並べる（setopic/graph-doc-template#125）。
 # 下の層だけなら「1.38.0」、上の層だけなら「<label>-0.14.0」のようになる。
 # UPDATE_ARGSに-mを足すと、そのメッセージは次の段落に付く。
 UPDATE_ARGS ?=
@@ -86,10 +96,14 @@ linkify-check:
 	$(PYTHON) -m tools.graph linkify --check
 
 readme:
-	$(PYTHON) -m tools.graph render --format mermaid --into README.md $(README_GRAPH_ARGS)
+	$(PYTHON) -m tools.graph render --format $(README_GRAPH_FORMAT) --into README.md $(README_GRAPH_OUT) $(README_GRAPH_ARGS)
 
 readme-check:
-	$(PYTHON) -m tools.graph render --format mermaid --into README.md --check $(README_GRAPH_ARGS)
+	$(PYTHON) -m tools.graph render --format $(README_GRAPH_FORMAT) --into README.md --check $(README_GRAPH_OUT) $(README_GRAPH_ARGS)
+
+# スライドや記事に貼るGIF。CIでは作らない。docs/graph.gifは.gitignoreで外してある
+gif:
+	$(PYTHON) -m tools.graph gif --svg $(README_GRAPH_SVG) --out docs/graph.gif
 
 graph:
 	$(PYTHON) -m tools.graph render --format mermaid --out docs/graph.mmd

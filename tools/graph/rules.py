@@ -35,7 +35,7 @@ RULE_INDEX: dict[str, str] = {
     "G013": "依存先の用語表が使わない語（旧称）を使っている",
     "G014": "テンプレートの必須の節が無い",
     "G015": "依存先が変わったのに追従していない",
-    "G016": "implemented_byの指し先が存在しない",
+    "G016": "implemented_byの参照先が存在しない",
     "G017": "文書と実装のどちらか片方だけが変わった",
     "G018": "READMEの図がGitHubの描画上限に近い / 超えている",
     "G019": "Markdownの表が途中で切れている",
@@ -744,9 +744,9 @@ def implemented_by(node: Node) -> list[str]:
 
 
 def rule_g016_implementation_exists(graph: Graph) -> list[Issue]:
-    """`implemented_by`の指し先が、リポジトリに存在するかを見る。
+    """`implemented_by`の参照先が、リポジトリに存在するかを見る。
 
-    本文の`[[ID]]`に対する、G004と同じ役割である。指し先が消えても文書は
+    本文の`[[ID]]`に対する、G004と同じ役割である。参照先が消えても文書は
     そのまま読めてしまうので、機械が確かめないと、気づかないうちに実態とずれていく。
 
     リポジトリの根が分からない場合（部分グラフを手で組んだときなど）は、
@@ -764,7 +764,7 @@ def rule_g016_implementation_exists(graph: Graph) -> list[Issue]:
                 Issue(
                     "G016",
                     ERROR,
-                    f"implemented_byの指し先が無い: {target!r}。"
+                    f"implemented_byの参照先が無い: {target!r}。"
                     "指せるのは、同じリポジトリの中のパスだけである",
                     node.rel,
                 )
@@ -826,7 +826,7 @@ def rule_g017_implementation_drift(
 
 
 # --------------------------------------------------------------------------
-# G018: READMEの図がGitHubの描画上限に近い
+# G018: READMEの図がGitHubの描画上限に近い（SVGなら、線が多すぎて読めない）
 # --------------------------------------------------------------------------
 def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
     """READMEに書き込まれた図が、GitHubの描画上限に収まっているか。
@@ -837,14 +837,33 @@ def rule_g018_diagram_size(graph: Graph) -> list[Issue]:
 
     上限を超えている場合は、エラーにする。図が丸ごと描画されず、READMEに
     図が表示されていない状態だからである。近づいているだけなら、警告にとどめる。
+
+    READMEの図がSVGなら、GitHubの描画上限は無い。それでも線が同じ本数を超えると、
+    READMEの幅に縮めた図は線が込み合って読めないので、警告だけを出す。
     """
     if graph.root is None:
         return []
 
     readme = graph.root / "README.md"
-    count = render.count_edges_in_markdown(readme)
-    if count is None or count < schema.MERMAID_WARN_EDGES:
+    found = render.diagram_in_markdown(readme)
+    if found is None:
         return []
+    fmt, count = found
+    if count < schema.MERMAID_WARN_EDGES:
+        return []
+
+    if fmt == "svg":
+        return [
+            Issue(
+                "G018",
+                WARN,
+                f"READMEの図（SVG）の線が{count}本ある。"
+                "SVGに描画の上限は無いが、READMEの幅に縮めると線が込み合って読めない。"
+                "graph.mkのREADME_GRAPH_ARGSに--hide-edgesか--reduceか--aggregateを置いて、"
+                "線を減らす",
+                "README.md",
+            )
+        ]
 
     # ちょうど上限でも描画されない。GitHubの文言が
     # 「500 edges found, but the limit is 500」で、その時点で図は消えている。
@@ -1089,7 +1108,7 @@ def rule_g020_deprecated_references(graph: Graph) -> list[Issue]:
     次の4つの場合は、警告しない。1つめは確定した記録である
     （`schema.IMMUTABLE_RECORD_TYPES`。既定では`stable`なADR）。確定したADRは
     書き換えないので、本文を直させる指摘は成り立たない。確定前（`draft`・`review`）は
-    まだ決めている途中なので、対象に残す。2つめは、自分が連鎖上で指し先の
+    まだ決めている途中なので、対象に残す。2つめは、自分が連鎖上で参照先の
     置き換え先にあたる場合で、置き換えた側は相手を指すのが自然である。
     3つめは`index`ノードで、一覧は取り下げたものも並べるのが役目である。
     4つめは、自分も`deprecated`の場合である。

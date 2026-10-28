@@ -99,52 +99,7 @@ tools/graph/            検証・可視化・生成ツール（依存なし）
 
 <!-- この図は render --into が生成する。手で編集しない -->
 
-```mermaid
-graph LR
-  subgraph meta["メタ / 規約"]
-    META-01["META-01<br/>グラフの規約"]
-    META-02["META-02<br/>ノード種別と層"]
-    META-03["META-03<br/>本文のレビュー（AI）"]
-    META-04["META-04<br/>文書と実装を同じリポジトリに置く"]
-    META-05["META-05<br/>開発の流れ"]
-    META-06["META-06<br/>開発の原則"]
-    META-07["META-07<br/>issueとPRの流れ"]
-    META-08["META-08<br/>テンプレートの更新を取り込む"]
-  end
-  subgraph architecture["アーキテクチャ"]
-    ARCH-01["ARCH-01<br/>システム全体構成"]
-    ARCH-02["ARCH-02<br/>ワーカーの実行モデル"]
-  end
-  subgraph domain["ドメイン"]
-    DOM-01["DOM-01<br/>予約"]
-  end
-  subgraph usecase["ユースケース"]
-    UC-01["UC-01<br/>予約を確定する"]
-  end
-  subgraph contract["契約"]
-    CON-01["CON-01<br/>予約確定エンドポイント"]
-  end
-  subgraph adr["決定記録"]
-    ADR-0001["ADR-0001<br/>設計文書をグラフとして管理する"]
-  end
-  ADR-0001 -.->|decides| META-01
-  ADR-0001 -.->|decides| ARCH-01
-  ARCH-02 -->|refines| ARCH-01
-  CON-01 -->|depends_on| UC-01
-  CON-01 -->|depends_on| DOM-01
-  DOM-01 -->|depends_on| ARCH-01
-  META-01 -.-|related| META-02
-  META-01 -.-|related| META-03
-  META-01 -.-|related| META-07
-  META-01 -.-|related| META-08
-  META-04 -.-|related| META-05
-  META-04 -.-|related| META-06
-  META-07 -.-|related| META-08
-  UC-01 -->|depends_on| DOM-01
-  classDef draft stroke-dasharray: 4\,3;
-  classDef deprecated opacity:0.5;
-  class CON-01 draft;
-```
+![設計文書のグラフ](docs/graph.svg)
 
 <!-- graph:diagram:end -->
 
