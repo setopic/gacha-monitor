@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1146 779" width="1146" height="779" class="graph" role="img" aria-label="設計文書のグラフ">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1146 795" width="1146" height="795" class="graph" role="img" aria-label="設計文書のグラフ">
 <title>設計文書のグラフ</title>
 <style><![CDATA[
 /* graph-doc-templateの既定のテーマ（render --format svg）。
@@ -82,96 +82,91 @@
 <marker id="arrow-depends_on" class="arrow k-depends_on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head k-depends_on" d="M0,0 L10,5 L0,10 z"/></marker>
 <marker id="arrow-supersedes" class="arrow k-supersedes" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow-head k-supersedes" d="M0,0 L10,5 L0,10 z"/></marker>
 </defs>
-<rect class="bg" width="1146" height="779"/>
+<rect class="bg" width="1146" height="795"/>
 <g class="lanes">
-<g class="lane t-contract"><rect class="lane-bg" x="48" y="235" width="227" height="282"/><text class="lane-label" x="60" y="257">40 契約</text></g>
-<g class="lane t-usecase"><rect class="lane-bg" x="339" y="235" width="214" height="282"/><text class="lane-label" x="351" y="257">30 ユースケース</text></g>
-<g class="lane t-domain"><rect class="lane-bg" x="617" y="235" width="227" height="282"/><text class="lane-label" x="629" y="257">20 ドメイン</text></g>
-<g class="lane t-architecture"><rect class="lane-bg" x="908" y="235" width="190" height="282"/><text class="lane-label" x="920" y="257">10 アーキテクチャ</text></g>
+<g class="lane t-contract"><rect class="lane-bg" x="48" y="267" width="227" height="266"/><text class="lane-label" x="60" y="289">40 契約</text></g>
+<g class="lane t-usecase"><rect class="lane-bg" x="339" y="267" width="214" height="266"/><text class="lane-label" x="351" y="289">30 ユースケース</text></g>
+<g class="lane t-domain"><rect class="lane-bg" x="617" y="267" width="227" height="266"/><text class="lane-label" x="629" y="289">20 ドメイン</text></g>
+<g class="lane t-architecture"><rect class="lane-bg" x="908" y="267" width="190" height="266"/><text class="lane-label" x="920" y="289">10 アーキテクチャ</text></g>
 <g class="band t-adr"><text class="band-label" x="20" y="34">決定記録</text></g>
-<g class="band t-meta"><text class="band-label" x="20" y="567">メタ / 規約</text></g>
+<g class="band t-meta"><text class="band-label" x="20" y="583">メタ / 規約</text></g>
 </g>
 <g class="edges">
-<path id="e0" class="edge k-decides" d="M776,105 L776,207 Q776,217 766,217 L595,217 Q585,217 585,227 L585,525 Q585,535 575,535 L459,535 Q449,535 449,545 L449,574" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="META-01"/>
-<path id="e1" class="edge k-decides" d="M784,105 L784,212 Q784,222 794,222 L866,222 Q876,222 876,232 L876,305.4 Q876,315.4 886,315.4 L919,315.4" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="ARCH-01"/>
-<path id="e2" class="edge k-decides" d="M991,105 L991,202 Q991,212 981,212 L892,212 Q882,212 882,222 L882,385.4 Q882,395.4 872,395.4 L833,395.4" marker-end="url(#arrow-decides)" data-src="ADR-0002" data-dst="DOM-02"/>
-<path id="e3" class="edge k-decides" d="M99.5,202 L99.5,217 Q99.5,227 109.5,227 L860,227 Q870,227 870,237 L870,385.4 Q870,395.4 880,395.4 L919,395.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="ARCH-02"/>
-<path id="e4" class="edge k-decides" d="M107.5,202 L107.5,204.5 Q107.5,207 110,207 L297,207 Q307,207 307,217 L307,305.4 Q307,315.4 317,315.4 L350,315.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="UC-01"/>
-<path id="e5" class="edge k-decides" d="M93,105 L93,220 Q93,230 103,230 L303,230 Q313,230 313,240 L313,310.4 Q313,320.4 323,320.4 L350,320.4" marker-end="url(#arrow-decides)" data-src="ADR-0004" data-dst="UC-01"/>
-<path id="e6" class="edge k-decides" d="M542,105 L542,194 Q542,204 552,204 L581,204 Q591,204 591,214 L591,305.4 Q591,315.4 601,315.4 L628,315.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="DOM-01"/>
-<path id="e7" class="edge k-decides" d="M550,105 L550,220 Q550,230 540,230 L311,230 Q301,230 301,240 L301,305.4 Q301,315.4 291,315.4 L264,315.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="CON-01"/>
-<path id="e8" class="edge k-decides" d="M518,202 L518,203 Q518,204 519,204 L878,204 Q888,204 888,214 L888,310.4 Q888,320.4 898,320.4 L919,320.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-01"/>
-<path id="e9" class="edge k-decides" d="M526,202 L526,220 Q526,230 536,230 L854,230 Q864,230 864,240 L864,390.4 Q864,400.4 874,400.4 L919,400.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-02"/>
+<path id="e0" class="edge k-decides" d="M776,105 L776,223 Q776,233 766,233 L595,233 Q585,233 585,243 L585,541 Q585,551 575,551 L459,551 Q449,551 449,561 L449,590" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="META-01"/>
+<path id="e1" class="edge k-decides" d="M784,105 L784,227.8 Q784,237.8 794,237.8 L866,237.8 Q876,237.8 876,247.8 L876,337.4 Q876,347.4 886,347.4 L919,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="ARCH-01"/>
+<path id="e2" class="edge k-decides" d="M991,105 L991,218.2 Q991,228.2 981,228.2 L892,228.2 Q882,228.2 882,238.2 L882,417.4 Q882,427.4 872,427.4 L833,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0002" data-dst="DOM-02"/>
+<path id="e3" class="edge k-decides" d="M99.5,202 L99.5,232.7 Q99.5,242.7 109.5,242.7 L860,242.7 Q870,242.7 870,252.7 L870,417.4 Q870,427.4 880,427.4 L919,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="ARCH-02"/>
+<path id="e4" class="edge k-decides" d="M107.5,202 L107.5,213.3 Q107.5,223.3 117.5,223.3 L297,223.3 Q307,223.3 307,233.3 L307,337.4 Q307,347.4 317,347.4 L350,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="UC-01"/>
+<path id="e5" class="edge k-decides" d="M93,105 L93,237.5 Q93,247.5 103,247.5 L303,247.5 Q313,247.5 313,257.5 L313,341.8 Q313,351.8 323,351.8 L350,351.8" marker-end="url(#arrow-decides)" data-src="ADR-0004" data-dst="UC-01"/>
+<path id="e6" class="edge k-decides" d="M542,105 L542,208.5 Q542,218.5 552,218.5 L581,218.5 Q591,218.5 591,228.5 L591,337.4 Q591,347.4 601,347.4 L628,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="DOM-01"/>
+<path id="e7" class="edge k-decides" d="M550,105 L550,242.3 Q550,252.3 540,252.3 L311,252.3 Q301,252.3 301,262.3 L301,337.4 Q301,347.4 291,347.4 L264,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="CON-01"/>
+<path id="e8" class="edge k-decides" d="M518,202 L518,207.8 Q518,213.7 523.8,213.7 L878,213.7 Q888,213.7 888,223.7 L888,342.4 Q888,352.4 898,352.4 L919,352.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-01"/>
+<path id="e9" class="edge k-decides" d="M526,202 L526,247.2 Q526,257.2 536,257.2 L854,257.2 Q864,257.2 864,267.2 L864,422.4 Q864,432.4 874,432.4 L919,432.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-02"/>
 <path id="e10" class="edge k-supersedes" d="M198,170 L182,170" marker-end="url(#arrow-supersedes)" data-src="ADR-0007" data-dst="ADR-0003"/>
-<path id="e11" class="edge k-decides" d="M293,202 L293,203 Q293,204 294,204 L884,204 Q894,204 894,214 L894,380.4 Q894,390.4 904,390.4 L919,390.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="ARCH-02"/>
-<path id="e12" class="edge k-decides" d="M301,202 L301,221 Q301,230 310,230 L310,230 Q319,230 319,239 L319,300.4 Q319,310.4 329,310.4 L350,310.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="UC-01"/>
+<path id="e11" class="edge k-decides" d="M293,202 L293,205.4 Q293,208.8 296.4,208.8 L884,208.8 Q894,208.8 894,218.8 L894,412.4 Q894,422.4 904,422.4 L919,422.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="ARCH-02"/>
+<path id="e12" class="edge k-decides" d="M301,202 L301,253 Q301,262 310,262 L310,262 Q319,262 319,271 L319,333 Q319,343 329,343 L350,343" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="UC-01"/>
 <path id="e13" class="edge k-supersedes" d="M185,76.8 L169,76.1" marker-end="url(#arrow-supersedes)" data-src="ADR-0008" data-dst="ADR-0004"/>
-<path id="e14" class="edge k-decides" d="M301,122 L301,201 Q301,204 298,204 L298,204 Q295,204 295,207 L295,314.1 Q295,324.1 305,324.1 L350,324.1" marker-end="url(#arrow-decides)" data-src="ADR-0008" data-dst="UC-01"/>
-<path id="e15" class="edge k-depends_on" d="M1003,346 L1003,330" marker-end="url(#arrow-depends_on)" data-src="ARCH-02" data-dst="ARCH-01"/>
-<path id="e16" class="edge k-depends_on" d="M264,292 C307,292 307,286.4 350,286.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-01"/>
-<path id="e17" class="edge k-depends_on" d="M264,304 C307,304 307,446.4 350,446.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-03"/>
-<path id="e18" class="edge k-depends_on" d="M264,366.4 C307,366.4 307,298 350,298" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-01"/>
-<path id="e19" class="edge k-depends_on" d="M264,378 C307,378 307,372 350,372" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-02"/>
-<path id="e20" class="edge k-depends_on" d="M264,389.6 C307,389.6 307,458 350,458" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-03"/>
-<path id="e21" class="edge k-depends_on" d="M264,446.4 C307,446.4 307,309.6 350,309.6" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-01"/>
-<path id="e22" class="edge k-depends_on" d="M264,458 C307,458 307,384 350,384" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-02"/>
-<path id="e23" class="edge k-depends_on" d="M264,469.6 C307,469.6 307,469.6 350,469.6" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-03"/>
-<path id="e24" class="edge k-depends_on" d="M833,298 C876,298 876,298 919,298" marker-end="url(#arrow-depends_on)" data-src="DOM-01" data-dst="ARCH-01"/>
-<path id="e25" class="edge k-depends_on" d="M730.5,346 L730.5,330" marker-end="url(#arrow-depends_on)" data-src="DOM-02" data-dst="DOM-01"/>
-<path id="e26" class="edge k-related undirected" d="M512,606 L528,606" data-src="META-01" data-dst="META-02"/>
-<path id="e27" class="edge k-related undirected" d="M461,638 Q599,691.1 737,638" data-src="META-01" data-dst="META-03"/>
-<path id="e28" class="edge k-related undirected" d="M443,638 Q269,699.8 95,638" data-src="META-01" data-dst="META-07"/>
-<path id="e29" class="edge k-related undirected" d="M386,606 L370,606" data-src="META-01" data-dst="META-08"/>
-<path id="e30" class="edge k-related undirected" d="M247,674.1 L844,612.5" data-src="META-04" data-dst="META-05"/>
-<path id="e31" class="edge k-related undirected" d="M247,686 L263,686" data-src="META-04" data-dst="META-06"/>
-<path id="e32" class="edge k-related undirected" d="M149,606 L165,606" data-src="META-07" data-dst="META-08"/>
-<path id="e33" class="edge k-depends_on" d="M542,309.6 C579.5,309.6 579.5,434 617,434 L844,434 C881.5,434 881.5,366.4 919,366.4" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="ARCH-02"/>
-<path id="e34" class="edge k-depends_on" d="M542,286.4 C585,286.4 585,298 628,298" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="DOM-01"/>
-<path id="e35" class="edge k-depends_on" d="M542,298 C585,298 585,372 628,372" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="DOM-02"/>
-<path id="e36" class="edge k-depends_on" d="M542,384 C579.5,384 579.5,466 617,466 L844,466 C881.5,466 881.5,378 919,378" marker-end="url(#arrow-depends_on)" data-src="UC-02" data-dst="ARCH-02"/>
-<path id="e37" class="edge k-depends_on" d="M542,372 C585,372 585,384 628,384" marker-end="url(#arrow-depends_on)" data-src="UC-02" data-dst="DOM-02"/>
-<path id="e38" class="edge k-depends_on" d="M542,458 C579.5,458 579.5,498 617,498 L844,498 C881.5,498 881.5,389.6 919,389.6" marker-end="url(#arrow-depends_on)" data-src="UC-03" data-dst="ARCH-02"/>
+<path id="e14" class="edge k-decides" d="M301,122 L301,201 Q301,204 298,204 L298,204 Q295,204 295,207 L295,346.1 Q295,356.1 305,356.1 L350,356.1" marker-end="url(#arrow-decides)" data-src="ADR-0008" data-dst="UC-01"/>
+<path id="e15" class="edge k-depends_on" d="M1003,378 L1003,362" marker-end="url(#arrow-depends_on)" data-src="ARCH-02" data-dst="ARCH-01"/>
+<path id="e16" class="edge k-depends_on" d="M264,324 C307,324 307,318.4 350,318.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-01"/>
+<path id="e17" class="edge k-depends_on" d="M264,336 C307,336 307,478.4 350,478.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-03"/>
+<path id="e18" class="edge k-depends_on" d="M264,398.4 C307,398.4 307,330 350,330" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-01"/>
+<path id="e19" class="edge k-depends_on" d="M264,410 C307,410 307,404 350,404" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-02"/>
+<path id="e20" class="edge k-depends_on" d="M264,421.6 C307,421.6 307,490 350,490" marker-end="url(#arrow-depends_on)" data-src="CON-02" data-dst="UC-03"/>
+<path id="e21" class="edge k-depends_on" d="M264,478.4 C307,478.4 307,341.6 350,341.6" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-01"/>
+<path id="e22" class="edge k-depends_on" d="M264,490 C307,490 307,416 350,416" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-02"/>
+<path id="e23" class="edge k-depends_on" d="M264,501.6 C307,501.6 307,501.6 350,501.6" marker-end="url(#arrow-depends_on)" data-src="CON-03" data-dst="UC-03"/>
+<path id="e24" class="edge k-depends_on" d="M833,330 C876,330 876,330 919,330" marker-end="url(#arrow-depends_on)" data-src="DOM-01" data-dst="ARCH-01"/>
+<path id="e25" class="edge k-depends_on" d="M730.5,378 L730.5,362" marker-end="url(#arrow-depends_on)" data-src="DOM-02" data-dst="DOM-01"/>
+<path id="e26" class="edge k-related undirected" d="M512,622 L528,622" data-src="META-01" data-dst="META-02"/>
+<path id="e27" class="edge k-related undirected" d="M461,654 Q599,707.1 737,654" data-src="META-01" data-dst="META-03"/>
+<path id="e28" class="edge k-related undirected" d="M443,654 Q269,715.8 95,654" data-src="META-01" data-dst="META-07"/>
+<path id="e29" class="edge k-related undirected" d="M386,622 L370,622" data-src="META-01" data-dst="META-08"/>
+<path id="e30" class="edge k-related undirected" d="M247,690.1 L844,628.5" data-src="META-04" data-dst="META-05"/>
+<path id="e31" class="edge k-related undirected" d="M247,702 L263,702" data-src="META-04" data-dst="META-06"/>
+<path id="e32" class="edge k-related undirected" d="M149,622 L165,622" data-src="META-07" data-dst="META-08"/>
+<path id="e33" class="edge k-depends_on" d="M542,341.6 C579.5,341.6 579.5,451 617,451 L844,451 C881.5,451 881.5,398.4 919,398.4" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="ARCH-02"/>
+<path id="e34" class="edge k-depends_on" d="M542,318.4 C585,318.4 585,330 628,330" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="DOM-01"/>
+<path id="e35" class="edge k-depends_on" d="M542,330 C585,330 585,404 628,404" marker-end="url(#arrow-depends_on)" data-src="UC-01" data-dst="DOM-02"/>
+<path id="e36" class="edge k-depends_on" d="M542,416 C579.5,416 579.5,457 617,457 L844,457 C881.5,457 881.5,410 919,410" marker-end="url(#arrow-depends_on)" data-src="UC-02" data-dst="ARCH-02"/>
+<path id="e37" class="edge k-depends_on" d="M542,404 C585,404 585,416 628,416" marker-end="url(#arrow-depends_on)" data-src="UC-02" data-dst="DOM-02"/>
+<path id="e38" class="edge k-depends_on" d="M542,490 C579.5,490 579.5,463 617,463 L844,463 C881.5,463 881.5,421.6 919,421.6" marker-end="url(#arrow-depends_on)" data-src="UC-03" data-dst="ARCH-02"/>
 </g>
 <g class="edge-labels">
-<text class="edge-label k-decides" x="680.5" y="213" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="830" y="218" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="936.5" y="208" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="484.8" y="223" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="207.2" y="203" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="203" y="226" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="591" y="200.2" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="425.5" y="226" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="703" y="200" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="695" y="226" text-anchor="middle">decides</text>
+<text class="edge-label k-decides" x="676" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="910" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="26" y="210" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="26" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="442" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="413" y="210" text-anchor="start">decides</text>
 <text class="edge-label k-supersedes" x="190" y="166" text-anchor="middle">supersedes</text>
-<text class="edge-label k-decides" x="593.5" y="200" text-anchor="middle">decides</text>
-<text class="edge-label k-decides" x="319" y="258.7" text-anchor="middle">decides</text>
+<text class="edge-label k-decides" x="207" y="210" text-anchor="start">decides</text>
 <text class="edge-label k-supersedes" x="177" y="72.4" text-anchor="middle">supersedes</text>
-<text class="edge-label k-decides" x="295" y="243.5" text-anchor="middle">decides</text>
-<text class="edge-label k-depends_on" x="1011" y="342" text-anchor="start">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="285.2" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="371.2" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="328.2" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="371" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="419.8" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="374" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="417" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="307" y="465.6" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="876" y="294" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="738.5" y="342" text-anchor="start">depends_on</text>
-<text class="edge-label k-related" x="520" y="602" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="599" y="664.6" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="269" y="668.9" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="378" y="602" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="545.5" y="639.3" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="255" y="682" text-anchor="middle">related</text>
-<text class="edge-label k-related" x="157" y="602" text-anchor="middle">related</text>
-<text class="edge-label k-depends_on" x="708.4" y="430" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="585" y="288.2" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="585" y="331" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="732.7" y="462" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="585" y="374" text-anchor="middle">depends_on</text>
-<text class="edge-label k-depends_on" x="753.9" y="494" text-anchor="middle">depends_on</text>
+<text class="edge-label k-decides" x="194" y="130" text-anchor="start">decides</text>
+<text class="edge-label k-depends_on" x="1011" y="374" text-anchor="start">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="317.2" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="403.2" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="360.2" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="403" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="451.8" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="406" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="449" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="307" y="497.6" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="876" y="326" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="738.5" y="374" text-anchor="start">depends_on</text>
+<text class="edge-label k-related" x="520" y="618" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="599" y="680.6" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="269" y="684.9" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="378" y="618" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="545.5" y="655.3" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="255" y="698" text-anchor="middle">related</text>
+<text class="edge-label k-related" x="157" y="618" text-anchor="middle">related</text>
+<text class="edge-label k-depends_on" x="710" y="447" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="585" y="320.2" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="585" y="363" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="732" y="453" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="585" y="406" text-anchor="middle">depends_on</text>
+<text class="edge-label k-depends_on" x="733.5" y="459" text-anchor="middle">depends_on</text>
 </g>
 <g class="flow">
 <circle class="flow-dot k-depends_on" r="4" opacity="0"><animateMotion dur="6s" begin="-2.25s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="spline" keySplines="0.45 0 0.25 1;0 0 1 1"><mpath href="#e15"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.64;0.7;1" dur="6s" begin="-2.25s" repeatCount="indefinite"/></circle>
@@ -191,23 +186,23 @@
 <circle class="flow-dot k-depends_on" r="4" opacity="0"><animateMotion dur="6s" begin="-2.01s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="spline" keySplines="0.45 0 0.25 1;0 0 1 1"><mpath href="#e36"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.64;0.7;1" dur="6s" begin="-2.01s" repeatCount="indefinite"/></circle>
 <circle class="flow-dot k-depends_on" r="4" opacity="0"><animateMotion dur="6s" begin="-0.75s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="spline" keySplines="0.45 0 0.25 1;0 0 1 1"><mpath href="#e37"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.64;0.7;1" dur="6s" begin="-0.75s" repeatCount="indefinite"/></circle>
 <circle class="flow-dot k-depends_on" r="4" opacity="0"><animateMotion dur="6s" begin="-1.17s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="spline" keySplines="0.45 0 0.25 1;0 0 1 1"><mpath href="#e38"/></animateMotion><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.08;0.64;0.7;1" dur="6s" begin="-1.17s" repeatCount="indefinite"/></circle>
-<rect class="glow" x="919" y="266" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-2.25s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="266" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="0s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="426" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.42s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="266" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.84s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="346" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.26s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="426" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="0s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="266" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.42s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="346" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.84s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="350" y="426" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.26s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="919" y="266" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.5s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="628" y="266" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.92s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="919" y="346" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.75s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="628" y="266" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.17s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="628" y="346" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.59s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="919" y="346" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-2.01s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="628" y="346" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.75s" repeatCount="indefinite"/></rect>
-<rect class="glow" x="919" y="346" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.17s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="919" y="298" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-2.25s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="298" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="0s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="458" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.42s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="298" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.84s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="378" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.26s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="458" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="0s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="298" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.42s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="378" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.84s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="350" y="458" width="192" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.26s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="919" y="298" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.5s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="628" y="298" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.92s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="919" y="378" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.75s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="628" y="298" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.17s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="628" y="378" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.59s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="919" y="378" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-2.01s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="628" y="378" width="205" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-0.75s" repeatCount="indefinite"/></rect>
+<rect class="glow" x="919" y="378" width="168" height="64" opacity="0"><animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.66;0.74;0.92;1" dur="6s" begin="-1.17s" repeatCount="indefinite"/></rect>
 </g>
 <g class="nodes">
 <g class="node t-adr s-deprecated" data-id="ADR-0004">
@@ -251,94 +246,94 @@
 <text class="node-title"><tspan x="419" y="182">実行基盤に Apps Script を選ぶ</tspan></text>
 </g>
 <g class="node t-contract s-stable" data-id="CON-01">
-<rect class="box" x="62" y="269" width="199" height="58"/>
-<text class="node-id" x="74" y="291">CON-01</text>
-<text class="node-title"><tspan x="74" y="310">X API からの投稿取得</tspan></text>
+<rect class="box" x="62" y="301" width="199" height="58"/>
+<text class="node-id" x="74" y="323">CON-01</text>
+<text class="node-title"><tspan x="74" y="342">X API からの投稿取得</tspan></text>
 </g>
 <g class="node t-usecase s-stable" data-id="UC-01">
-<rect class="box" x="353" y="269" width="186" height="58"/>
-<text class="node-id" x="365" y="291">UC-01</text>
-<text class="node-title"><tspan x="365" y="310">注目商品を検知して通知する</tspan></text>
+<rect class="box" x="353" y="301" width="186" height="58"/>
+<text class="node-id" x="365" y="323">UC-01</text>
+<text class="node-title"><tspan x="365" y="342">注目商品を検知して通知する</tspan></text>
 </g>
 <g class="node t-domain s-stable" data-id="DOM-01">
-<rect class="box" x="631" y="269" width="199" height="58"/>
-<text class="node-id" x="643" y="291">DOM-01</text>
-<text class="node-title"><tspan x="643" y="310">監視対象と投稿</tspan></text>
+<rect class="box" x="631" y="301" width="199" height="58"/>
+<text class="node-id" x="643" y="323">DOM-01</text>
+<text class="node-title"><tspan x="643" y="342">監視対象と投稿</tspan></text>
 </g>
 <g class="node t-architecture s-stable" data-id="ARCH-01">
-<rect class="box" x="922" y="269" width="162" height="58"/>
-<text class="node-id" x="934" y="291">ARCH-01</text>
-<text class="node-title"><tspan x="934" y="310">システム全体</tspan></text>
+<rect class="box" x="922" y="301" width="162" height="58"/>
+<text class="node-id" x="934" y="323">ARCH-01</text>
+<text class="node-title"><tspan x="934" y="342">システム全体</tspan></text>
 </g>
 <g class="node t-contract s-stable" data-id="CON-02">
-<rect class="box" x="62" y="349" width="199" height="58"/>
-<text class="node-id" x="74" y="371">CON-02</text>
-<text class="node-title"><tspan x="74" y="390">LINE への通知送信</tspan></text>
+<rect class="box" x="62" y="381" width="199" height="58"/>
+<text class="node-id" x="74" y="403">CON-02</text>
+<text class="node-title"><tspan x="74" y="422">LINE への通知送信</tspan></text>
 </g>
 <g class="node t-usecase s-stable" data-id="UC-02">
-<rect class="box" x="353" y="349" width="186" height="58"/>
-<text class="node-id" x="365" y="371">UC-02</text>
-<text class="node-title"><tspan x="365" y="390">週次サマリーを送る</tspan></text>
+<rect class="box" x="353" y="381" width="186" height="58"/>
+<text class="node-id" x="365" y="403">UC-02</text>
+<text class="node-title"><tspan x="365" y="422">週次サマリーを送る</tspan></text>
 </g>
 <g class="node t-domain s-stable" data-id="DOM-02">
-<rect class="box" x="631" y="349" width="199" height="58"/>
-<text class="node-id" x="643" y="371">DOM-02</text>
-<text class="node-title"><tspan x="643" y="390">エンゲージメント指標と注目度</tspan></text>
+<rect class="box" x="631" y="381" width="199" height="58"/>
+<text class="node-id" x="643" y="403">DOM-02</text>
+<text class="node-title"><tspan x="643" y="422">エンゲージメント指標と注目度</tspan></text>
 </g>
 <g class="node t-architecture s-stable" data-id="ARCH-02">
-<rect class="box" x="922" y="349" width="162" height="58"/>
-<text class="node-id" x="934" y="371">ARCH-02</text>
-<text class="node-title"><tspan x="934" y="390">日次バッチの実行モデル</tspan></text>
+<rect class="box" x="922" y="381" width="162" height="58"/>
+<text class="node-id" x="934" y="403">ARCH-02</text>
+<text class="node-title"><tspan x="934" y="422">日次バッチの実行モデル</tspan></text>
 </g>
 <g class="node t-contract s-stable" data-id="CON-03">
-<rect class="box" x="62" y="429" width="199" height="58"/>
-<text class="node-id" x="74" y="451">CON-03</text>
-<text class="node-title"><tspan x="74" y="470">スプレッドシートのシート構成</tspan></text>
+<rect class="box" x="62" y="461" width="199" height="58"/>
+<text class="node-id" x="74" y="483">CON-03</text>
+<text class="node-title"><tspan x="74" y="502">スプレッドシートのシート構成</tspan></text>
 </g>
 <g class="node t-usecase s-stable" data-id="UC-03">
-<rect class="box" x="353" y="429" width="186" height="58"/>
-<text class="node-id" x="365" y="451">UC-03</text>
-<text class="node-title"><tspan x="365" y="470">異常と予算超過を知らせる</tspan></text>
+<rect class="box" x="353" y="461" width="186" height="58"/>
+<text class="node-id" x="365" y="483">UC-03</text>
+<text class="node-title"><tspan x="365" y="502">異常と予算超過を知らせる</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-07">
-<rect class="box" x="20" y="577" width="126" height="58"/>
-<text class="node-id" x="32" y="599">META-07</text>
-<text class="node-title"><tspan x="32" y="618">issueとPRの流れ</tspan></text>
+<rect class="box" x="20" y="593" width="126" height="58"/>
+<text class="node-id" x="32" y="615">META-07</text>
+<text class="node-title"><tspan x="32" y="634">issueとPRの流れ</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-08">
-<rect class="box" x="168" y="577" width="199" height="58"/>
-<text class="node-id" x="180" y="599">META-08</text>
-<text class="node-title"><tspan x="180" y="618">テンプレートの更新を取り込む</tspan></text>
+<rect class="box" x="168" y="593" width="199" height="58"/>
+<text class="node-id" x="180" y="615">META-08</text>
+<text class="node-title"><tspan x="180" y="634">テンプレートの更新を取り込む</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-01">
-<rect class="box" x="389" y="577" width="120" height="58"/>
-<text class="node-id" x="401" y="599">META-01</text>
-<text class="node-title"><tspan x="401" y="618">グラフの規約</tspan></text>
+<rect class="box" x="389" y="593" width="120" height="58"/>
+<text class="node-id" x="401" y="615">META-01</text>
+<text class="node-title"><tspan x="401" y="634">グラフの規約</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-02">
-<rect class="box" x="531" y="577" width="120" height="58"/>
-<text class="node-id" x="543" y="599">META-02</text>
-<text class="node-title"><tspan x="543" y="618">ノード種別と層</tspan></text>
+<rect class="box" x="531" y="593" width="120" height="58"/>
+<text class="node-id" x="543" y="615">META-02</text>
+<text class="node-title"><tspan x="543" y="634">ノード種別と層</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-03">
-<rect class="box" x="673" y="577" width="152" height="58"/>
-<text class="node-id" x="685" y="599">META-03</text>
-<text class="node-title"><tspan x="685" y="618">本文のレビュー（AI）</tspan></text>
+<rect class="box" x="673" y="593" width="152" height="58"/>
+<text class="node-id" x="685" y="615">META-03</text>
+<text class="node-title"><tspan x="685" y="634">本文のレビュー（AI）</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-05">
-<rect class="box" x="847" y="577" width="120" height="58"/>
-<text class="node-id" x="859" y="599">META-05</text>
-<text class="node-title"><tspan x="859" y="618">開発の流れ</tspan></text>
+<rect class="box" x="847" y="593" width="120" height="58"/>
+<text class="node-id" x="859" y="615">META-05</text>
+<text class="node-title"><tspan x="859" y="634">開発の流れ</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-04">
-<rect class="box" x="20" y="657" width="224" height="58"/>
-<text class="node-id" x="32" y="679">META-04</text>
-<text class="node-title"><tspan x="32" y="698">文書と実装を同じリポジトリに置く</tspan></text>
+<rect class="box" x="20" y="673" width="224" height="58"/>
+<text class="node-id" x="32" y="695">META-04</text>
+<text class="node-title"><tspan x="32" y="714">文書と実装を同じリポジトリに置く</tspan></text>
 </g>
 <g class="node t-meta s-stable" data-id="META-06">
-<rect class="box" x="266" y="657" width="120" height="58"/>
-<text class="node-id" x="278" y="679">META-06</text>
-<text class="node-title"><tspan x="278" y="698">開発の原則</tspan></text>
+<rect class="box" x="266" y="673" width="120" height="58"/>
+<text class="node-id" x="278" y="695">META-06</text>
+<text class="node-title"><tspan x="278" y="714">開発の原則</tspan></text>
 </g>
 </g>
 </svg>
