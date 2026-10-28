@@ -2,7 +2,7 @@
 
 **開発の流れは、[docs/00-meta/dev-flow.md](docs/00-meta/dev-flow.md)（META-05）に書いてある。**
 
-このファイルは、GitHubのための入口である。issueとPRの作成画面に自動でリンクが出るので置いてあるが、中身は持たない。2か所に同じことを書くと、どちらかが必ず古くなる。
+GitHubは、このファイルがあると、issueとPRの作成画面にそのリンクを自動で出す。このファイルはそのために置いてあり、中身は持たない。2か所に同じことを書くと、どちらかが必ず古くなる。
 
 読む文書と順番は、次のとおりである。
 
@@ -13,7 +13,7 @@
 | 3 | [docs/00-meta/implementation-layout.md](docs/00-meta/implementation-layout.md) | 実装の置き場と`implemented_by` |
 | 4 | [docs/00-meta/graph-rules.md](docs/00-meta/graph-rules.md) | 文書を書くときの規約と、ルールID |
 
-出す前に、次のコマンドが通ることを確かめる。
+出す前に、次のコマンドがエラーなく終わることを確かめる。
 
 ```bash
 python -m tools.graph check
