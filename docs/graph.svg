@@ -92,21 +92,21 @@
 <g class="band t-meta"><text class="band-label" x="20" y="583">メタ / 規約</text></g>
 </g>
 <g class="edges">
-<path id="e0" class="edge k-decides" d="M776,105 L776,223 Q776,233 766,233 L595,233 Q585,233 585,243 L585,541 Q585,551 575,551 L459,551 Q449,551 449,561 L449,590" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="META-01"/>
-<path id="e1" class="edge k-decides" d="M784,105 L784,227.8 Q784,237.8 794,237.8 L866,237.8 Q876,237.8 876,247.8 L876,337.4 Q876,347.4 886,347.4 L919,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="ARCH-01"/>
-<path id="e2" class="edge k-decides" d="M991,105 L991,218.2 Q991,228.2 981,228.2 L892,228.2 Q882,228.2 882,238.2 L882,417.4 Q882,427.4 872,427.4 L833,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0002" data-dst="DOM-02"/>
-<path id="e3" class="edge k-decides" d="M99.5,202 L99.5,232.7 Q99.5,242.7 109.5,242.7 L860,242.7 Q870,242.7 870,252.7 L870,417.4 Q870,427.4 880,427.4 L919,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="ARCH-02"/>
-<path id="e4" class="edge k-decides" d="M107.5,202 L107.5,213.3 Q107.5,223.3 117.5,223.3 L297,223.3 Q307,223.3 307,233.3 L307,337.4 Q307,347.4 317,347.4 L350,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="UC-01"/>
-<path id="e5" class="edge k-decides" d="M93,105 L93,237.5 Q93,247.5 103,247.5 L303,247.5 Q313,247.5 313,257.5 L313,341.8 Q313,351.8 323,351.8 L350,351.8" marker-end="url(#arrow-decides)" data-src="ADR-0004" data-dst="UC-01"/>
-<path id="e6" class="edge k-decides" d="M542,105 L542,208.5 Q542,218.5 552,218.5 L581,218.5 Q591,218.5 591,228.5 L591,337.4 Q591,347.4 601,347.4 L628,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="DOM-01"/>
-<path id="e7" class="edge k-decides" d="M550,105 L550,242.3 Q550,252.3 540,252.3 L311,252.3 Q301,252.3 301,262.3 L301,337.4 Q301,347.4 291,347.4 L264,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="CON-01"/>
-<path id="e8" class="edge k-decides" d="M518,202 L518,207.8 Q518,213.7 523.8,213.7 L878,213.7 Q888,213.7 888,223.7 L888,342.4 Q888,352.4 898,352.4 L919,352.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-01"/>
-<path id="e9" class="edge k-decides" d="M526,202 L526,247.2 Q526,257.2 536,257.2 L854,257.2 Q864,257.2 864,267.2 L864,422.4 Q864,432.4 874,432.4 L919,432.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-02"/>
-<path id="e10" class="edge k-supersedes" d="M198,170 L182,170" marker-end="url(#arrow-supersedes)" data-src="ADR-0007" data-dst="ADR-0003"/>
-<path id="e11" class="edge k-decides" d="M293,202 L293,205.4 Q293,208.8 296.4,208.8 L884,208.8 Q894,208.8 894,218.8 L894,412.4 Q894,422.4 904,422.4 L919,422.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="ARCH-02"/>
-<path id="e12" class="edge k-decides" d="M301,202 L301,253 Q301,262 310,262 L310,262 Q319,262 319,271 L319,333 Q319,343 329,343 L350,343" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="UC-01"/>
-<path id="e13" class="edge k-supersedes" d="M185,76.8 L169,76.1" marker-end="url(#arrow-supersedes)" data-src="ADR-0008" data-dst="ADR-0004"/>
-<path id="e14" class="edge k-decides" d="M301,122 L301,201 Q301,204 298,204 L298,204 Q295,204 295,207 L295,346.1 Q295,356.1 305,356.1 L350,356.1" marker-end="url(#arrow-decides)" data-src="ADR-0008" data-dst="UC-01"/>
+<path id="e0" class="edge k-decides" d="M837,105 L837,223 Q837,233 827,233 L595,233 Q585,233 585,243 L585,541 Q585,551 575,551 L459,551 Q449,551 449,561 L449,590" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="META-01"/>
+<path id="e1" class="edge k-decides" d="M845,105 L845,227.8 Q845,237.8 855,237.8 L866,237.8 Q876,237.8 876,247.8 L876,337.4 Q876,347.4 886,347.4 L919,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0001" data-dst="ARCH-01"/>
+<path id="e2" class="edge k-decides" d="M107,202 L107,218.2 Q107,228.2 117,228.2 L581,228.2 Q591,228.2 591,238.2 L591,417.4 Q591,427.4 601,427.4 L628,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0002" data-dst="DOM-02"/>
+<path id="e3" class="edge k-decides" d="M295.5,202 L295.5,232.7 Q295.5,242.7 305.5,242.7 L872,242.7 Q882,242.7 882,252.7 L882,417.4 Q882,427.4 892,427.4 L919,427.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="ARCH-02"/>
+<path id="e4" class="edge k-decides" d="M303.5,202 L303.5,221.6 Q303.5,223.3 305.2,223.3 L305.2,223.3 Q307,223.3 307,225.1 L307,337.4 Q307,347.4 317,347.4 L350,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0003" data-dst="UC-01"/>
+<path id="e5" class="edge k-decides" d="M93,105 L93,237.5 Q93,247.5 103,247.5 L303,247.5 Q313,247.5 313,257.5 L313,342.4 Q313,352.4 323,352.4 L350,352.4" marker-end="url(#arrow-decides)" data-src="ADR-0004" data-dst="UC-01"/>
+<path id="e6" class="edge k-decides" d="M603,105 L603,208.5 Q603,218.5 593,218.5 L589,218.5 Q579,218.5 579,228.5 L579,337.4 Q579,347.4 589,347.4 L628,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="DOM-01"/>
+<path id="e7" class="edge k-decides" d="M611,105 L611,242.3 Q611,252.3 601,252.3 L311,252.3 Q301,252.3 301,262.3 L301,337.4 Q301,347.4 291,347.4 L264,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0005" data-dst="CON-01"/>
+<path id="e8" class="edge k-decides" d="M775,202 L775,207.8 Q775,213.7 780.8,213.7 L860,213.7 Q870,213.7 870,223.7 L870,342.4 Q870,352.4 880,352.4 L919,352.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-01"/>
+<path id="e9" class="edge k-decides" d="M783,202 L783,247.2 Q783,257.2 793,257.2 L878,257.2 Q888,257.2 888,267.2 L888,422.4 Q888,432.4 898,432.4 L919,432.4" marker-end="url(#arrow-decides)" data-src="ADR-0006" data-dst="ARCH-02"/>
+<path id="e10" class="edge k-supersedes" d="M455,170 L378,170" marker-end="url(#arrow-supersedes)" data-src="ADR-0007" data-dst="ADR-0003"/>
+<path id="e11" class="edge k-decides" d="M550,202 L550,205.4 Q550,208.8 553.4,208.8 L854,208.8 Q864,208.8 864,218.8 L864,412.4 Q864,422.4 874,422.4 L919,422.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="ARCH-02"/>
+<path id="e12" class="edge k-decides" d="M558,202 L558,252 Q558,262 568,262 L587,262 Q597,262 597,272 L597,337.4 Q597,347.4 587,347.4 L542,347.4" marker-end="url(#arrow-decides)" data-src="ADR-0007" data-dst="UC-01"/>
+<path id="e13" class="edge k-supersedes" d="M246,77.8 L169,75.4" marker-end="url(#arrow-supersedes)" data-src="ADR-0008" data-dst="ADR-0004"/>
+<path id="e14" class="edge k-decides" d="M362,122 L362,194 Q362,204 352,204 L329,204 Q319,204 319,214 L319,332.4 Q319,342.4 329,342.4 L350,342.4" marker-end="url(#arrow-decides)" data-src="ADR-0008" data-dst="UC-01"/>
 <path id="e15" class="edge k-depends_on" d="M1003,378 L1003,362" marker-end="url(#arrow-depends_on)" data-src="ARCH-02" data-dst="ARCH-01"/>
 <path id="e16" class="edge k-depends_on" d="M264,324 C307,324 307,318.4 350,318.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-01"/>
 <path id="e17" class="edge k-depends_on" d="M264,336 C307,336 307,478.4 350,478.4" marker-end="url(#arrow-depends_on)" data-src="CON-01" data-dst="UC-03"/>
@@ -133,16 +133,16 @@
 <path id="e38" class="edge k-depends_on" d="M542,490 C579.5,490 579.5,463 617,463 L844,463 C881.5,463 881.5,421.6 919,421.6" marker-end="url(#arrow-depends_on)" data-src="UC-03" data-dst="ARCH-02"/>
 </g>
 <g class="edge-labels">
-<text class="edge-label k-decides" x="676" y="113" text-anchor="start">decides</text>
-<text class="edge-label k-decides" x="910" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="737" y="113" text-anchor="start">decides</text>
 <text class="edge-label k-decides" x="26" y="210" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="222" y="210" text-anchor="start">decides</text>
 <text class="edge-label k-decides" x="26" y="113" text-anchor="start">decides</text>
-<text class="edge-label k-decides" x="442" y="113" text-anchor="start">decides</text>
-<text class="edge-label k-decides" x="413" y="210" text-anchor="start">decides</text>
-<text class="edge-label k-supersedes" x="190" y="166" text-anchor="middle">supersedes</text>
-<text class="edge-label k-decides" x="207" y="210" text-anchor="start">decides</text>
-<text class="edge-label k-supersedes" x="177" y="72.4" text-anchor="middle">supersedes</text>
-<text class="edge-label k-decides" x="194" y="130" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="503" y="113" text-anchor="start">decides</text>
+<text class="edge-label k-decides" x="670" y="210" text-anchor="start">decides</text>
+<text class="edge-label k-supersedes" x="416.5" y="166" text-anchor="middle">supersedes</text>
+<text class="edge-label k-decides" x="464" y="210" text-anchor="start">decides</text>
+<text class="edge-label k-supersedes" x="207.5" y="72.6" text-anchor="middle">supersedes</text>
+<text class="edge-label k-decides" x="255" y="130" text-anchor="start">decides</text>
 <text class="edge-label k-depends_on" x="1011" y="374" text-anchor="start">depends_on</text>
 <text class="edge-label k-depends_on" x="307" y="317.2" text-anchor="middle">depends_on</text>
 <text class="edge-label k-depends_on" x="307" y="403.2" text-anchor="middle">depends_on</text>
@@ -211,39 +211,39 @@
 <text class="node-title"><tspan x="32" y="85">閾値を 3 段階にする</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0008">
-<rect class="box" x="188" y="44" width="226" height="75"/>
-<text class="node-id" x="200" y="66">ADR-0008</text>
-<text class="node-title"><tspan x="200" y="85">閾値を 1,000 / 2,000 / 4,000</tspan><tspan x="200" y="102">に引き上げる</tspan></text>
+<rect class="box" x="249" y="44" width="226" height="75"/>
+<text class="node-id" x="261" y="66">ADR-0008</text>
+<text class="node-title"><tspan x="261" y="85">閾値を 1,000 / 2,000 / 4,000</tspan><tspan x="261" y="102">に引き上げる</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0005">
-<rect class="box" x="436" y="44" width="212" height="58"/>
-<text class="node-id" x="448" y="66">ADR-0005</text>
-<text class="node-title"><tspan x="448" y="85">転載と返信をコード側で除外する</tspan></text>
+<rect class="box" x="497" y="44" width="212" height="58"/>
+<text class="node-id" x="509" y="66">ADR-0005</text>
+<text class="node-title"><tspan x="509" y="85">転載と返信をコード側で除外する</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0001">
-<rect class="box" x="670" y="44" width="212" height="58"/>
-<text class="node-id" x="682" y="66">ADR-0001</text>
-<text class="node-title"><tspan x="682" y="85">設計文書をグラフとして管理する</tspan></text>
+<rect class="box" x="731" y="44" width="212" height="58"/>
+<text class="node-id" x="743" y="66">ADR-0001</text>
+<text class="node-title"><tspan x="743" y="85">設計文書をグラフとして管理する</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0002">
-<rect class="box" x="904" y="44" width="174" height="58"/>
-<text class="node-id" x="916" y="66">ADR-0002</text>
-<text class="node-title"><tspan x="916" y="85">主指標に保存数を採用する</tspan></text>
+<rect class="box" x="20" y="141" width="174" height="58"/>
+<text class="node-id" x="32" y="163">ADR-0002</text>
+<text class="node-title"><tspan x="32" y="182">主指標に保存数を採用する</tspan></text>
 </g>
 <g class="node t-adr s-deprecated" data-id="ADR-0003">
-<rect class="box" x="20" y="141" width="159" height="58"/>
-<text class="node-id" x="32" y="163">ADR-0003</text>
-<text class="node-title"><tspan x="32" y="182">追跡期間を 4 日にする</tspan></text>
+<rect class="box" x="216" y="141" width="159" height="58"/>
+<text class="node-id" x="228" y="163">ADR-0003</text>
+<text class="node-title"><tspan x="228" y="182">追跡期間を 4 日にする</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0007">
-<rect class="box" x="201" y="141" width="184" height="58"/>
-<text class="node-id" x="213" y="163">ADR-0007</text>
-<text class="node-title"><tspan x="213" y="182">追跡期間を 2 日に短縮する</tspan></text>
+<rect class="box" x="458" y="141" width="184" height="58"/>
+<text class="node-id" x="470" y="163">ADR-0007</text>
+<text class="node-title"><tspan x="470" y="182">追跡期間を 2 日に短縮する</tspan></text>
 </g>
 <g class="node t-adr s-stable" data-id="ADR-0006">
-<rect class="box" x="407" y="141" width="222" height="58"/>
-<text class="node-id" x="419" y="163">ADR-0006</text>
-<text class="node-title"><tspan x="419" y="182">実行基盤に Apps Script を選ぶ</tspan></text>
+<rect class="box" x="664" y="141" width="222" height="58"/>
+<text class="node-id" x="676" y="163">ADR-0006</text>
+<text class="node-title"><tspan x="676" y="182">実行基盤に Apps Script を選ぶ</tspan></text>
 </g>
 <g class="node t-contract s-stable" data-id="CON-01">
 <rect class="box" x="62" y="301" width="199" height="58"/>
