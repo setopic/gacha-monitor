@@ -1,19 +1,21 @@
 """グラフを操作するCLI。
 
     python -m tools.graph check          リンク切れ・孤立・循環・層の逆流を検証する
-    python -m tools.graph render         Mermaid・JSON・DOTの形式で書き出す
+    python -m tools.graph render         Mermaid・SVG・JSON・DOTの形式で書き出す
     python -m tools.graph sync           各文書の末尾の関連リンクを作り直す
     python -m tools.graph new            雛形から新しいノードを作る（--fromでまとめて作る）
     python -m tools.graph rename         idを変え、すべての参照を追随させる
     python -m tools.graph reset-samples  サンプルノードをまとめて取り除く
     python -m tools.graph stats          ノード数・エッジ数と、構造の見直しの候補を出す
     python -m tools.graph path           2つのノードを結ぶ前提の経路を出す
+    python -m tools.graph gif            SVGの図から、動きのあるGIFを作る（任意。ブラウザとPillowが要る）
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -21,6 +23,7 @@ from . import changes, cleanup, history, review, structure
 from . import render as render_mod
 from .linkify import linkify as linkify_docs
 from . import rules, schema
+from . import svg as svg_mod
 from . import upgrade as upgrade_mod
 from .loader import load
 from .model import ERROR, WARN
@@ -100,8 +103,8 @@ def cmd_render(args: argparse.Namespace) -> int:
     if args.budget is not None and (args.format != "json" or not args.focus):
         print("エラー: --budgetは、--format jsonと--focusを付けたときだけ使える", file=sys.stderr)
         return 1
-    if args.aggregate and args.format != "mermaid":
-        print("エラー: --aggregateは、--format mermaidのときだけ使える", file=sys.stderr)
+    if args.aggregate and args.format not in ("mermaid", "svg"):
+        print("エラー: --aggregateは、--format mermaidかsvgのときだけ使える", file=sys.stderr)
         return 1
     if args.aggregate and args.focus:
         print(
@@ -173,7 +176,7 @@ def cmd_render(args: argparse.Namespace) -> int:
         if omitted:
             print(f"予算{args.budget}字に収まらず、名前だけを出したノード: {len(omitted)}", file=sys.stderr)
 
-    if types and args.format != "mermaid":
+    if types and args.format not in ("mermaid", "svg"):
         # jsonとdotには箱を描かない。その種別のノードと、その間の線だけを出す
         graph = graph.subgraph(
             {n.id for n in graph.nodes.values() if n.type in types},
@@ -199,6 +202,22 @@ def cmd_render(args: argparse.Namespace) -> int:
         output = render_mod.to_mermaid(
             graph, include_mentions=args.include_mentions, focus=focus
         )
+    elif args.format == "svg":
+        try:
+            css = svg_mod.load_theme(root)
+        except OSError as exc:
+            print(f"エラー: テーマのCSSが読めない: {exc}", file=sys.stderr)
+            return 1
+        output = svg_mod.to_svg(
+            graph,
+            css=css,
+            include_mentions=args.include_mentions,
+            focus=focus,
+            types=types,
+            aggregate=args.aggregate,
+            animate=schema.RENDER_ANIMATE,
+            period=schema.RENDER_PERIOD,
+        )
     elif args.format == "json":
         output = render_mod.to_json(
             graph, include_mentions=args.include_mentions, omitted=omitted
@@ -210,21 +229,45 @@ def cmd_render(args: argparse.Namespace) -> int:
         output = render_mod.note_reduced(output, args.format, reduced)
 
     if args.into:
-        if args.format != "mermaid":
-            print("エラー: --intoは、--format mermaidのときだけ使える", file=sys.stderr)
+        if args.format not in ("mermaid", "svg"):
+            print("エラー: --intoは、--format mermaidかsvgのときだけ使える", file=sys.stderr)
             return 1
 
         into_path = Path(args.into)
         if not into_path.is_absolute():
             into_path = root / into_path
 
+        svg_stale = False
+        if args.format == "svg":
+            # SVGはファイルに書き、READMEにはその画像への参照を書き込む
+            svg_path = Path(args.out or f"{schema.DOCS_DIR}/graph.svg")
+            if not svg_path.is_absolute():
+                svg_path = root / svg_path
+            old = svg_path.read_bytes() if svg_path.is_file() else None
+            new = output.encode("utf-8")
+            svg_stale = old != new
+            if svg_stale and not args.check:
+                svg_path.parent.mkdir(parents=True, exist_ok=True)
+                svg_path.write_bytes(new)
+            try:
+                ref = Path(os.path.relpath(svg_path, into_path.parent)).as_posix()
+            except ValueError:
+                print("エラー: SVGの書き出し先が、READMEと別のドライブにある", file=sys.stderr)
+                return 1
+            inject_args = {"diagram": ref, "image": True}
+        else:
+            inject_args = {"diagram": output}
+
         try:
-            changed = render_mod.inject(into_path, output, dry_run=args.check)
+            changed = render_mod.inject(into_path, dry_run=args.check, **inject_args)
         except render_mod.InjectError as exc:
             print(f"エラー: {exc}", file=sys.stderr)
             return 1
+        changed = changed or svg_stale
 
         rel = into_path.relative_to(root).as_posix()
+        if args.format == "svg":
+            rel = f"{rel}・{svg_path.relative_to(root).as_posix()}"
         if not changed:
             print(f"更新なし（最新）: {rel}")
             return 0
@@ -426,7 +469,7 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
 
     try:
         if args.label:
-            # make updateが、マージのメッセージに入れる版を読む。fetchはmake updateが済ませる
+            # make updateが、マージのメッセージに入れるバージョンを読む。fetchはmake updateが済ませる
             print(upgrade_mod.inspect_label(root))
             return 0
         result = upgrade_mod.inspect(root)
@@ -441,7 +484,7 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     print("")
 
     if result["ahead"]:
-        print("ローカルのほうが新しい版である。テンプレート本体で実行していないかを確かめる。")
+        print("ローカルのほうが新しいバージョンである。テンプレート本体で実行していないかを確かめる。")
         return 0
 
     if not result["behind"]:
@@ -453,7 +496,7 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
         print("下の移行手順を読んでから取り込む。")
         print("")
 
-    print(f"取り込みの版: {result['label']}")
+    print(f"取り込みのバージョン: {result['label']}")
     print("")
 
     for layer in result["layers"]:
@@ -508,6 +551,28 @@ def cmd_stats(args: argparse.Namespace) -> int:
     sys.stdout.write(render_mod.summary(graph))
     sys.stdout.write(structure.report(graph))
     return 0
+
+
+def cmd_gif(args: argparse.Namespace) -> int:
+    # Pillowは外部依存なので、このコマンドを呼んだときだけ読む
+    from . import gif
+
+    root = _repo_root(args.root)
+    svg_path = Path(args.svg)
+    if not svg_path.is_absolute():
+        svg_path = root / svg_path
+    out_path = Path(args.out)
+    if not out_path.is_absolute():
+        out_path = root / out_path
+    return gif.run(
+        svg_path,
+        out_path,
+        browser=args.browser,
+        fps=args.fps,
+        scale=args.scale,
+        dark=args.dark,
+        jobs=args.jobs,
+    )
 
 
 def cmd_path(args: argparse.Namespace) -> int:
@@ -624,7 +689,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--version",
         action="version",
         version=f"graph-doc-template {TEMPLATE_VERSION}",
-        help="テンプレートの版を表示する（変更履歴はTEMPLATE_CHANGELOG.md）",
+        help="テンプレートのバージョンを表示する（変更履歴はTEMPLATE_CHANGELOG.md）",
     )
     parser.add_argument("--root", help="リポジトリの根（既定はこのファイルの場所から推定する）")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -646,12 +711,19 @@ def build_parser() -> argparse.ArgumentParser:
     p_check.set_defaults(func=cmd_check)
 
     p_render = sub.add_parser("render", help="グラフを書き出す")
-    p_render.add_argument("--format", choices=("mermaid", "json", "dot"), default="mermaid")
-    p_render.add_argument("--out", help="出力先（省略したときは標準出力）")
+    p_render.add_argument(
+        "--format", choices=("mermaid", "svg", "json", "dot"), default="mermaid"
+    )
+    p_render.add_argument(
+        "--out",
+        help="出力先（省略したときは標準出力）。--format svgと--intoを一緒に使うときは、"
+        "SVGの書き出し先（省略したときはdocs/graph.svg）",
+    )
     p_render.add_argument(
         "--into",
         metavar="PATH",
-        help="Markdownのマーカーの中に図を書き込む（mermaidのみ。README用）",
+        help="Markdownのマーカーの中に図を書き込む（mermaidとsvg。README用）。"
+        "svgでは、SVGをファイルに書き、マーカーの中にはその画像への参照を書く",
     )
     p_render.add_argument(
         "--check",
@@ -678,7 +750,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_render.add_argument(
         "--aggregate",
         action="store_true",
-        help="型ごとに1つの箱へまとめる（ノードが増えても図が大きくならない。G018を避ける）",
+        help="型ごとに1つの箱へまとめる（ノードが増えても図が大きくならない。G018を避ける）。"
+        "mermaidとsvgで使える",
     )
     p_render.add_argument(
         "--hide-edges",
@@ -706,6 +779,27 @@ def build_parser() -> argparse.ArgumentParser:
         "近いノードから残す。外したノードはomittedに名前だけを出す",
     )
     p_render.set_defaults(func=cmd_render)
+
+    p_gif = sub.add_parser(
+        "gif",
+        help="SVGの図から、動きのあるGIFを作る（任意。EdgeかChromeとPillowが要る）",
+    )
+    p_gif.add_argument(
+        "--svg",
+        default="docs/graph.svg",
+        help="元にするSVG（render --format svgで書き出したもの。既定はdocs/graph.svg）",
+    )
+    p_gif.add_argument("--out", default="docs/graph.gif", help="GIFの書き出し先（既定はdocs/graph.gif）")
+    p_gif.add_argument("--fps", type=float, default=10, help="1秒あたりのコマの数（既定は10）")
+    p_gif.add_argument("--scale", type=float, default=1, help="拡大率（既定は1。2にすると縦横2倍）")
+    p_gif.add_argument("--dark", action="store_true", help="ダークモードの色で撮る")
+    p_gif.add_argument(
+        "--browser",
+        metavar="PATH",
+        help="EdgeかChromeの実行ファイル（省略したときは、環境変数GRAPH_BROWSER、PATH、よくある置き場所の順に探す）",
+    )
+    p_gif.add_argument("--jobs", type=int, default=4, help="同時に動かすブラウザの数（既定は4）")
+    p_gif.set_defaults(func=cmd_gif)
 
     p_path = sub.add_parser(
         "path",
@@ -804,7 +898,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_upgrade.add_argument(
         "--label",
         action="store_true",
-        help="取り込みの版（ブランチ名とマージのメッセージに入れるもの）だけを出す。fetchはしない",
+        help="取り込みのバージョン（ブランチ名とマージのメッセージに入れるもの）だけを出す。fetchはしない",
     )
     p_upgrade.set_defaults(func=cmd_upgrade)
 
